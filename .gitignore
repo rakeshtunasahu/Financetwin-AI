@@ -1,0 +1,12 @@
+# Dependency directories
+node_modules/
+dist/
+.venv/
+__pycache__/
+
+# Databases and cache
+*.db
+.pytest_cache/
+.tmp/
+.eslintcache
+.tsbuildinfo
