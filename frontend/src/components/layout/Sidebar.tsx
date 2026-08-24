@@ -6,7 +6,10 @@ import {
   ShieldAlert,
   Sliders,
   Activity,
-  BookOpen
+  BookOpen,
+  Calculator,
+  LogIn,
+  UserCheck
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -16,7 +19,9 @@ export default function Sidebar() {
     { name: 'Exceptions', path: '/exceptions', icon: ShieldAlert },
     { name: 'Anomaly Patterns', path: '/anomalies', icon: Activity },
     { name: 'Governance Lab', path: '/governance', icon: Sliders },
-    { name: 'System Info', path: '/about', icon: BookOpen }
+    { name: 'Settlement Calculator', path: '/calculator', icon: Calculator },
+    { name: 'System Info', path: '/about', icon: BookOpen },
+    { name: 'Portal Login', path: '/login', icon: LogIn }
   ];
 
   return (
@@ -52,14 +57,20 @@ export default function Sidebar() {
         ))}
       </nav>
       
-      <div className="p-4 border-t border-zinc-800">
-        <div className="p-3 bg-zinc-950/50 rounded-lg border border-zinc-800 flex flex-col gap-1.5">
-          <div className="flex items-center justify-between">
-            <span className="text-[9px] text-zinc-500 font-semibold uppercase tracking-wider">Safety Status</span>
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+      <div className="p-4 border-t border-zinc-800 space-y-3">
+        <div className="flex items-center gap-3 p-2 bg-zinc-950/60 rounded-lg border border-zinc-850">
+          <div className="w-7 h-7 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center font-bold text-xs">
+            <UserCheck className="w-4 h-4" />
           </div>
-          <span className="text-xs text-zinc-300 font-medium">Risk Gates: Active</span>
-          <span className="text-[9px] text-zinc-500">Auto-Abstain Mode enabled</span>
+          <div className="overflow-hidden">
+            <span className="text-xs font-semibold text-white block truncate">Lead Auditor</span>
+            <span className="text-[9px] text-zinc-500 block truncate">admin@financetwin.ai</span>
+          </div>
+        </div>
+
+        <div className="p-2.5 bg-zinc-950/50 rounded-lg border border-zinc-800 flex items-center justify-between">
+          <span className="text-[9px] text-zinc-500 font-semibold uppercase tracking-wider">Safety Status</span>
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
         </div>
       </div>
     </aside>

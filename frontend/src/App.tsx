@@ -8,6 +8,8 @@ import ExceptionDetails from './pages/ExceptionDetails';
 import Governance from './pages/Governance';
 import Anomalies from './pages/Anomalies';
 import About from './pages/About';
+import Calculator from './pages/Calculator';
+import Login from './pages/Login';
 
 const queryClient = new QueryClient();
 
@@ -16,12 +18,14 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
+          <Route path="/login" element={<Login />} />
           <Route path="/" element={<Dashboard />} />
           <Route path="/reconciliation" element={<Reconciliation />} />
           <Route path="/exceptions" element={<Exceptions />} />
           <Route path="/exceptions/:id" element={<ExceptionDetails />} />
           <Route path="/anomalies" element={<Anomalies />} />
           <Route path="/governance" element={<Governance />} />
+          <Route path="/calculator" element={<Calculator />} />
           <Route path="/about" element={<About />} />
         </Routes>
       </BrowserRouter>
