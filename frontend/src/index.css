@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Outfit', sans-serif;
+    @apply bg-zinc-950 text-zinc-100 antialiased selection:bg-brand-500 selection:text-white;
+  }
+  
+  code {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+/* Premium Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-zinc-950;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-zinc-800 rounded-full hover:bg-zinc-700 transition-colors duration-200;
+}
+
+/* Custom Glassmorphism Classes */
+.glass-panel {
+  @apply bg-zinc-900/50 backdrop-blur-md border border-zinc-800/80 rounded-xl shadow-xl;
+}
+
+.glass-panel-hover {
+  @apply hover:bg-zinc-900/70 hover:border-zinc-700/80 transition-all duration-300;
+}
+
+/* Status Badge Styles */
+.badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider;
+}
