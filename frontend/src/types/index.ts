@@ -83,9 +83,10 @@ export interface ReconciliationMatch {
     }>;
   };
   created_at: string;
-  settlement_batch?: SettlementBatch;
-  bank_transaction?: BankTransaction;
+  settlement_batch: SettlementBatch;
+  bank_transaction: BankTransaction | null;
 }
+
 
 export interface ExceptionRecord {
   id: number;

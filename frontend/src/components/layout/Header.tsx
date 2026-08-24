@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Play, RotateCw } from 'lucide-react';
 import { apiFetch } from '../../api/client';
-import { ReconciliationRunResponse } from '../../types';
 
 interface HeaderProps {
   title: string;
