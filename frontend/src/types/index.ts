@@ -66,12 +66,14 @@ export interface ReconciliationMatch {
   matching_pass: number;
   decision: 'MATCH' | 'ABSTAIN' | 'NO_MATCH' | 'EXCEPTION';
   explainability_json: {
-    pass_0_integrity_passed: boolean;
-    rejection_reason: string | null;
-    scoring_pass: number;
-    selected_candidate_id: string | null;
-    second_best_score: number;
-    candidate_scores: Array<{
+    pass_0_integrity_passed?: boolean;
+    rejection_reason?: string | null;
+    scoring_pass?: number;
+    selected_candidate_id?: string | null;
+    second_best_score?: number;
+    confidence_margin?: number;
+    required_margin?: number;
+    candidate_scores?: Array<{
       tx_id: string;
       score: number;
       breakdown: {
