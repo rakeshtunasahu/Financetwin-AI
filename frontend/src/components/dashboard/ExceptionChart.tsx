@@ -19,7 +19,7 @@ export default function ExceptionChart({ exceptions }: ExceptionChartProps) {
 
   if (data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-zinc-500 text-xs">
+      <div className="flex items-center justify-center h-64 text-slate-500 text-xs font-mono">
         No matching exceptions reported
       </div>
     );
@@ -31,18 +31,19 @@ export default function ExceptionChart({ exceptions }: ExceptionChartProps) {
         <BarChart
           layout="vertical"
           data={data}
-          margin={{ top: 10, right: 10, left: 30, bottom: 5 }}
+          margin={{ top: 10, right: 10, left: 40, bottom: 5 }}
         >
-          <XAxis type="number" stroke="#52525b" fontSize={11} tickLine={false} />
-          <YAxis type="category" dataKey="name" stroke="#52525b" fontSize={10} tickLine={false} />
+          <XAxis type="number" stroke="#64748b" fontSize={11} tickLine={false} />
+          <YAxis type="category" dataKey="name" stroke="#94a3b8" fontSize={10} tickLine={false} />
           <Tooltip
-            contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '8px' }}
-            itemStyle={{ color: '#fff' }}
-            cursor={{ fill: 'rgba(255,255,255,0.03)' }}
+            contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#f8fafc', fontSize: '12px' }}
+            itemStyle={{ color: '#f8fafc' }}
+            cursor={{ fill: 'rgba(51, 65, 85, 0.3)' }}
           />
-          <Bar dataKey="count" fill="#2563eb" radius={[0, 4, 4, 0]} barSize={12} />
+          <Bar dataKey="count" fill="#2563eb" radius={[0, 4, 4, 0]} barSize={14} />
         </BarChart>
       </ResponsiveContainer>
     </div>
   );
 }
+
