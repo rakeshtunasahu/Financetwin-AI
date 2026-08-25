@@ -13,9 +13,9 @@ export default function RiskChart({ exceptions }: RiskChartProps) {
   }, {});
 
   const data = [
-    { name: 'Low', count: severityCounts['LOW'] || 0, color: '#3b82f6' }, 
-    { name: 'Medium', count: severityCounts['MEDIUM'] || 0, color: '#f59e0b' }, 
-    { name: 'Orange', count: severityCounts['HIGH'] || 0, color: '#f97316' }, 
+    { name: 'Low Risk', count: severityCounts['LOW'] || 0, color: '#3b82f6' }, 
+    { name: 'Medium Risk', count: severityCounts['MEDIUM'] || 0, color: '#f59e0b' }, 
+    { name: 'High Risk', count: severityCounts['HIGH'] || 0, color: '#f97316' }, 
     { name: 'Critical', count: severityCounts['CRITICAL'] || 0, color: '#ef4444' }
   ];
 
@@ -23,7 +23,7 @@ export default function RiskChart({ exceptions }: RiskChartProps) {
 
   if (!hasData) {
     return (
-      <div className="flex items-center justify-center h-64 text-zinc-500 text-xs">
+      <div className="flex items-center justify-center h-64 text-slate-500 text-xs font-mono">
         No risk profiles detected
       </div>
     );
@@ -33,11 +33,11 @@ export default function RiskChart({ exceptions }: RiskChartProps) {
     <div className="h-64 w-full">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 20, right: 10, left: -25, bottom: 0 }}>
-          <XAxis dataKey="name" stroke="#52525b" fontSize={11} tickLine={false} />
-          <YAxis stroke="#52525b" fontSize={11} tickLine={false} axisLine={false} />
+          <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} tickLine={false} />
+          <YAxis stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
           <Tooltip
-            contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '8px' }}
-            itemStyle={{ color: '#fff' }}
+            contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#f8fafc', fontSize: '12px' }}
+            itemStyle={{ color: '#f8fafc' }}
             cursor={{ fill: 'transparent' }}
           />
           <Bar dataKey="count" radius={[4, 4, 0, 0]}>
@@ -50,3 +50,4 @@ export default function RiskChart({ exceptions }: RiskChartProps) {
     </div>
   );
 }
+
