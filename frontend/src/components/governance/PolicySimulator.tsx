@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Policy } from '../../types';
-import { Play, Save } from 'lucide-react';
+import { Play, Save, SlidersHorizontal } from 'lucide-react';
 
 interface PolicySimulatorProps {
   policy: Policy | null;
@@ -50,17 +50,25 @@ export default function PolicySimulator({ policy, onSimulate, onApply, loading }
   };
 
   return (
-    <form onSubmit={handleSimulate} className="glass-panel p-6 space-y-6">
-      <div>
-        <h3 className="text-sm font-semibold text-zinc-300">Governance Lab Simulator</h3>
-        <p className="text-xs text-zinc-500 mt-1">
-          Adjust risk settings to evaluate impact on match rates, exceptions, and financial exposure BEFORE applying permanently.
-        </p>
+    <form onSubmit={handleSimulate} className="p-5 sm:p-6 bg-slate-900/80 border border-slate-800 rounded-xl space-y-6 font-sans">
+      <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div>
+          <div className="flex items-center gap-2">
+            <SlidersHorizontal className="w-4 h-4 text-blue-400" />
+            <h3 className="text-xs font-semibold text-slate-200 uppercase tracking-wider">SIMULATED POLICY CONTROLS</h3>
+          </div>
+          <p className="text-xs text-slate-400 mt-1">
+            Adjust safety parameters to simulate the before-vs-after impact on Match Count, Coverage, and Financial Exposure.
+          </p>
+        </div>
+        <span className="text-[10px] font-mono text-blue-400 bg-blue-950/80 px-2.5 py-0.5 rounded border border-blue-800/80 font-bold uppercase">
+          SIMULATION ENGINE
+        </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs text-zinc-400 font-semibold uppercase">Min Match Confidence (%)</label>
+          <label className="text-xs text-slate-300 font-semibold uppercase tracking-wider">Min Match Confidence (%)</label>
           <input
             type="number"
             step="0.01"
@@ -68,12 +76,12 @@ export default function PolicySimulator({ policy, onSimulate, onApply, loading }
             max="1.0"
             value={minimumMatchConfidence}
             onChange={(e) => setMinimumMatchConfidence(parseFloat(e.target.value))}
-            className="px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white focus:outline-none"
+            className="px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100 font-mono focus:outline-none focus:border-blue-500"
           />
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs text-zinc-400 font-semibold uppercase">Min Confidence Margin (%)</label>
+          <label className="text-xs text-slate-300 font-semibold uppercase tracking-wider">Min Safety Margin (%)</label>
           <input
             type="number"
             step="0.01"
@@ -81,72 +89,73 @@ export default function PolicySimulator({ policy, onSimulate, onApply, loading }
             max="0.5"
             value={minimumConfidenceMargin}
             onChange={(e) => setMinimumConfidenceMargin(parseFloat(e.target.value))}
-            className="px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white focus:outline-none"
+            className="px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100 font-mono focus:outline-none focus:border-blue-500"
           />
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs text-zinc-400 font-semibold uppercase">Max Auto-Resolve Amount (₹)</label>
+          <label className="text-xs text-slate-300 font-semibold uppercase tracking-wider">Max Auto-Resolve Amount (₹)</label>
           <input
             type="number"
             value={maxAutoResolveAmount}
             onChange={(e) => setMaxAutoResolveAmount(parseFloat(e.target.value))}
-            className="px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white focus:outline-none"
+            className="px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100 font-mono focus:outline-none focus:border-blue-500"
           />
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs text-zinc-400 font-semibold uppercase">High-Value Threshold (₹)</label>
+          <label className="text-xs text-slate-300 font-semibold uppercase tracking-wider">High-Value Threshold (₹)</label>
           <input
             type="number"
             value={highValueTransactionThreshold}
             onChange={(e) => setHighValueTransactionThreshold(parseFloat(e.target.value))}
-            className="px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white focus:outline-none"
+            className="px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100 font-mono focus:outline-none focus:border-blue-500"
           />
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs text-zinc-400 font-semibold uppercase">Amount Match Tolerance (₹)</label>
+          <label className="text-xs text-slate-300 font-semibold uppercase tracking-wider">Amount Match Tolerance (₹)</label>
           <input
             type="number"
             step="0.01"
             value={amountTolerance}
             onChange={(e) => setAmountTolerance(parseFloat(e.target.value))}
-            className="px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white focus:outline-none"
+            className="px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100 font-mono focus:outline-none focus:border-blue-500"
           />
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs text-zinc-400 font-semibold uppercase">Date Tolerance (Days)</label>
+          <label className="text-xs text-slate-300 font-semibold uppercase tracking-wider">Date Tolerance (Days)</label>
           <input
             type="number"
             value={dateToleranceDays}
             onChange={(e) => setDateToleranceDays(parseInt(e.target.value))}
-            className="px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white focus:outline-none"
+            className="px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100 font-mono focus:outline-none focus:border-blue-500"
           />
         </div>
       </div>
 
-      <div className="flex gap-3 pt-4 border-t border-zinc-800">
+      <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-800">
         <button
           type="submit"
           disabled={loading}
-          className="flex items-center gap-2 px-5 py-2.5 bg-brand-500 hover:bg-brand-600 disabled:opacity-50 text-white rounded-lg text-xs font-bold transition-all shadow-md shadow-brand-500/10"
+          className="flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 active:scale-95 disabled:opacity-50 text-white rounded-lg text-xs font-semibold transition-all shadow-sm"
         >
           <Play className="w-3.5 h-3.5 fill-white" />
-          Simulate Policy Impact
+          <span>Simulate Policy Impact</span>
         </button>
 
         <button
           type="button"
           onClick={handleApply}
           disabled={loading}
-          className="flex items-center gap-2 px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 disabled:opacity-50 rounded-lg text-xs font-bold transition-all hover:bg-zinc-800 active:scale-95 duration-150"
+          className="flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 disabled:opacity-50 rounded-lg text-xs font-semibold transition-all"
         >
           <Save className="w-3.5 h-3.5" />
-          Apply Policy Changes
+          <span>Apply Policy Changes Live</span>
         </button>
       </div>
     </form>
   );
 }
+
