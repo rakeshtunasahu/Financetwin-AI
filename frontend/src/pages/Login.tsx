@@ -13,61 +13,62 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen w-screen bg-zinc-950 flex flex-col justify-center items-center p-6 text-zinc-100">
-      <div className="w-full max-w-md space-y-8 glass-panel p-8 border-zinc-800 shadow-2xl">
+    <div className="min-h-screen w-screen bg-slate-950 flex flex-col justify-center items-center p-6 text-slate-100 font-sans">
+      <div className="w-full max-w-md space-y-6 bg-slate-900 border border-slate-800 rounded-xl p-8 shadow-2xl">
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-xl bg-brand-500 flex items-center justify-center font-bold text-white text-xl mx-auto shadow-lg shadow-brand-500/20">
+          <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white text-base mx-auto shadow-md shadow-blue-950">
             FT
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-white mt-4">FinanceTwin AI</h1>
-          <p className="text-xs text-zinc-400">Risk-Aware Autonomous Settlement Reconciliation Portal</p>
+          <h1 className="text-xl font-bold tracking-tight text-slate-100 mt-3">FinanceTwin AI</h1>
+          <p className="text-xs text-slate-400 font-mono">Risk-Aware Autonomous Settlement Reconciliation</p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-5 mt-6">
+        <form onSubmit={handleLogin} className="space-y-4 mt-6">
           <div className="space-y-1.5">
-            <label className="text-xs text-zinc-400 font-semibold uppercase">Enterprise Email</label>
+            <label className="text-xs text-slate-300 font-semibold uppercase tracking-wider">Enterprise Email</label>
             <div className="relative">
-              <Mail className="w-4 h-4 text-zinc-500 absolute left-3 top-3" />
+              <Mail className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full pl-9 pr-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-white focus:outline-none focus:border-brand-500"
+                className="w-full pl-9 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100 font-mono focus:outline-none focus:border-blue-500"
               />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs text-zinc-400 font-semibold uppercase">Security Password</label>
+            <label className="text-xs text-slate-300 font-semibold uppercase tracking-wider">Security Key / Password</label>
             <div className="relative">
-              <Lock className="w-4 h-4 text-zinc-500 absolute left-3 top-3" />
+              <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full pl-9 pr-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-white focus:outline-none focus:border-brand-500"
+                className="w-full pl-9 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100 font-mono focus:outline-none focus:border-blue-500"
               />
             </div>
           </div>
 
           <button
             type="submit"
-            className="w-full py-3 bg-brand-500 hover:bg-brand-600 text-white rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all shadow-lg shadow-brand-500/20 active:scale-95"
+            className="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-semibold text-xs flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95 mt-2"
           >
-            Access Executive Console
-            <ArrowRight className="w-4 h-4" />
+            <span>Access Executive Console</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </form>
 
-        <div className="pt-4 border-t border-zinc-800 text-center">
-          <div className="inline-flex items-center gap-1.5 text-[10px] text-zinc-500 font-semibold uppercase">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-            256-bit Encrypted Ledger Gateways
+        <div className="pt-4 border-t border-slate-800 text-center">
+          <div className="inline-flex items-center gap-1.5 text-[10px] text-slate-400 font-mono uppercase">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+            256-bit Encrypted Safety Ledger
           </div>
         </div>
       </div>
     </div>
   );
 }
+
