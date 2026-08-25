@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 import Reconciliation from './pages/Reconciliation';
 import Exceptions from './pages/Exceptions';
@@ -18,7 +19,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Login />} />
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/reconciliation" element={<Reconciliation />} />
