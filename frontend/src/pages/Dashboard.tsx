@@ -13,8 +13,11 @@ import {
   Layers,
   CheckCircle,
   HelpCircle,
-  Target,
-  ShieldCheck
+  ShieldCheck,
+  AlertTriangle,
+  Percent,
+  ShieldAlert,
+  DollarSign
 } from 'lucide-react';
 
 export default function Dashboard() {
@@ -60,66 +63,123 @@ export default function Dashboard() {
 
   const fmRate = summary.false_match_rate !== null ? `${(summary.false_match_rate * 100).toFixed(2)}%` : '0.00%';
   const prText = summary.precision !== null ? `${(summary.precision * 100).toFixed(1)}%` : '—';
+  const recallText = summary.recall !== null ? `${(summary.recall * 100).toFixed(1)}%` : '—';
+  const coverageText = `${(summary.coverage * 100).toFixed(1)}%`;
   
   // Calculate total gross settlements net amount
   const totalNetExpected = exceptions.reduce((sum, exc) => sum + Number(exc.expected_amount), 0) + (summary.matched_count * 15000);
 
+  const formatter = new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0
+  });
+
   return (
     <PageContainer title="Executive Operations Dashboard" onRefresh={fetchData}>
-      {/* Safety Summary Alert */}
-      <div className="p-4 bg-emerald-950/20 border border-emerald-500/20 text-xs text-emerald-400 rounded-xl flex items-start gap-3">
-        <ShieldCheck className="w-5 h-5 shrink-0 mt-0.5" />
-        <div>
-          <strong className="block mb-0.5 font-bold uppercase tracking-wider text-emerald-300">Primary Core Safety Principle</strong>
+      {/* Safety Summary Banner */}
+      <div className="p-4 bg-slate-900/90 border border-blue-500/30 rounded-xl flex items-start gap-3 shadow-md">
+        <ShieldCheck className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
+        <div className="text-xs text-slate-300">
+          <strong className="block mb-1 text-slate-100 font-bold uppercase tracking-wider">Financial Safety Engine Active</strong>
           <span>
-            A false match is more dangerous than an unmatched transaction. FinanceTwin AI strictly optimizes for minimizing the 
-            <strong> False Match Rate (FMR)</strong> by enforcing auto-abstain safety gates. Forced matching is prohibited.
+            FinanceTwin AI strictly optimizes for minimizing the <strong>False Match Rate (FMR)</strong> by enforcing automatic safety-gate abstains. Forced matching is prohibited on low-confidence candidates.
           </span>
         </div>
       </div>
 
-      {/* KPI Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Primary Prominent Risk Indicators */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+        <MetricCard
+          title="False Match Rate"
+          value={fmRate}
+          icon={AlertTriangle}
+          subtext="Target: 0.00% Zero-Loss Gate"
+          trendType={summary.false_match_rate && summary.false_match_rate > 0 ? 'negative' : 'positive'}
+          isProminent={true}
+        />
+        <MetricCard
+          title="Financial Amount at Risk"
+          value={formatter.format(summary.financial_amount_at_risk)}
+          icon={DollarSign}
+          subtext={`${summary.exception_count} active exceptions pending`}
+          trendType={summary.financial_amount_at_risk > 0 ? 'negative' : 'positive'}
+          isProminent={true}
+        />
+        <MetricCard
+          title="Reconciliation Coverage"
+          value={coverageText}
+          icon={Percent}
+          subtext={`${summary.matched_count} of ${summary.total_settlements} settlements matched`}
+          trendType="positive"
+          isProminent={true}
+        />
+      </div>
+
+      {/* Secondary Operational Metrics */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <MetricCard
           title="Total Settlements"
           value={summary.total_settlements}
           icon={Layers}
-          subtext="Total processed gateway batches"
+          subtext="Processed batches"
         />
         <MetricCard
-          title="Matched Batches"
+          title="Matched"
           value={summary.matched_count}
           icon={CheckCircle}
-          subtext={`${(summary.coverage * 100).toFixed(1)}% Auto Coverage`}
+          subtext="Deterministic matches"
           trendType="positive"
         />
         <MetricCard
-          title="Abstained Decisions"
+          title="Abstained"
           value={summary.abstained_count}
           icon={HelpCircle}
-          subtext="Safety-gate blocked matches"
+          subtext="Ambiguity safety blocked"
           trendType="neutral"
         />
         <MetricCard
-          title="Match Safety Precision"
-          value={prText}
-          icon={Target}
-          subtext={`False Match Rate: ${fmRate}`}
-          trendType={summary.false_match_rate && summary.false_match_rate > 0 ? 'negative' : 'positive'}
+          title="Exceptions"
+          value={summary.exception_count}
+          icon={ShieldAlert}
+          subtext="Variance audit flags"
+          trendType={summary.exception_count > 0 ? 'negative' : 'positive'}
         />
       </div>
 
-      {/* Financial Exposure Section */}
+      {/* Additional Accuracy Metrics Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="p-4 bg-slate-900/60 border border-slate-800 rounded-xl flex items-center justify-between">
+          <div>
+            <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Precision Score</span>
+            <div className="text-xl font-bold font-mono text-slate-100 mt-1">{prText}</div>
+          </div>
+          <div className="text-xs text-slate-400 text-right">
+            True Matches / Total System Matches
+          </div>
+        </div>
+        <div className="p-4 bg-slate-900/60 border border-slate-800 rounded-xl flex items-center justify-between">
+          <div>
+            <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Recall Score</span>
+            <div className="text-xl font-bold font-mono text-slate-100 mt-1">{recallText}</div>
+          </div>
+          <div className="text-xs text-slate-400 text-right">
+            Identified Valid Matches / Total True Pairs
+          </div>
+        </div>
+      </div>
+
+      {/* Financial Exposure Breakdown */}
       <FinancialExposure
         amountAtRisk={summary.financial_amount_at_risk}
         totalSettlementsAmount={totalNetExpected}
         unresolvedVariance={exceptions.reduce((sum, exc) => sum + Math.abs(exc.variance), 0)}
       />
 
-      {/* Charts Grid */}
+      {/* Analytics Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="glass-panel p-6">
-          <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-4">Outcome Distribution</h4>
+        <div className="p-5 bg-slate-900/70 border border-slate-800 rounded-xl">
+          <h4 className="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-3">Outcome Distribution</h4>
           <ReconciliationChart
             matched={summary.matched_count}
             abstained={summary.abstained_count}
@@ -128,16 +188,17 @@ export default function Dashboard() {
           />
         </div>
 
-        <div className="glass-panel p-6">
-          <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-4">Risk Severity Profiles</h4>
+        <div className="p-5 bg-slate-900/70 border border-slate-800 rounded-xl">
+          <h4 className="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-3">Risk Severity Profiles</h4>
           <RiskChart exceptions={exceptions} />
         </div>
 
-        <div className="glass-panel p-6">
-          <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-4">Exception Categories</h4>
+        <div className="p-5 bg-slate-900/70 border border-slate-800 rounded-xl">
+          <h4 className="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-3">Exception Categories</h4>
           <ExceptionChart exceptions={exceptions} />
         </div>
       </div>
     </PageContainer>
   );
 }
+
