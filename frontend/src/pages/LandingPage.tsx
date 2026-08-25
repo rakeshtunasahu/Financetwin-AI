@@ -328,8 +328,8 @@ export default function LandingPage({ initialLoginOpen = false }: LandingPagePro
 
           <div className="flex items-center gap-6">
             <button onClick={openLogin} className="hover:text-slate-300">Sign In</button>
-            <button onClick={() => navigate('/dashboard')} className="hover:text-slate-300">Dashboard</button>
-            <button onClick={() => navigate('/about')} className="hover:text-slate-300">System Specs</button>
+            <button onClick={() => handleRestrictedAccess('Please sign in first to access the Executive Operations Dashboard.')} className="hover:text-slate-300">Dashboard</button>
+            <button onClick={() => handleRestrictedAccess('Please sign in first to access system specifications.')} className="hover:text-slate-300">System Specs</button>
           </div>
         </div>
       </footer>
