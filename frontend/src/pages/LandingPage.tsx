@@ -1,25 +1,80 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   ShieldCheck,
   GitCompare,
   Activity,
-  Sliders,
   ArrowRight,
   Lock,
   ChevronRight,
   Sparkles,
   BarChart2,
-  Database
+  Database,
+  Mail,
+  Eye,
+  EyeOff,
+  X,
+  CheckCircle2
 } from 'lucide-react';
 
-export default function LandingPage() {
+interface LandingPageProps {
+  initialLoginOpen?: boolean;
+}
+
+export default function LandingPage({ initialLoginOpen = false }: LandingPageProps) {
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  const [showLoginModal, setShowLoginModal] = useState(
+    initialLoginOpen || location.pathname === '/login' || location.search.includes('login=true')
+  );
+  
+  const [email, setEmail] = useState('admin@financetwin.ai');
+  const [password, setPassword] = useState('••••••••••••');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (location.pathname === '/login') {
+      setShowLoginModal(true);
+    }
+  }, [location.pathname]);
+
+  const handleModalLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    if (!email || !email.includes('@')) {
+      setError('Please enter a valid enterprise email.');
+      return;
+    }
+    if (!password) {
+      setError('Please enter your password.');
+      return;
+    }
+
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      navigate('/dashboard');
+    }, 350);
+  };
+
+  const openLogin = () => {
+    setShowLoginModal(true);
+    setError(null);
+  };
+
+  const closeLogin = () => {
+    setShowLoginModal(false);
+    setError(null);
+  };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-blue-600 selection:text-white overflow-x-hidden">
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-blue-600 selection:text-white overflow-x-hidden relative">
       {/* Top Header Navigation Bar */}
-      <header className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/80">
+      <header className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/80">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           {/* Logo & Brand */}
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
@@ -47,7 +102,7 @@ export default function LandingPage() {
           {/* Action CTA Buttons */}
           <div className="flex items-center gap-3">
             <button
-              onClick={() => navigate('/login')}
+              onClick={openLogin}
               className="px-4 py-2 text-xs font-semibold text-slate-200 hover:text-white hover:bg-slate-900 border border-slate-800 rounded-lg transition-colors"
             >
               Sign In
@@ -97,7 +152,7 @@ export default function LandingPage() {
 
             <div className="flex flex-wrap items-center gap-4 pt-2">
               <button
-                onClick={() => navigate('/login')}
+                onClick={openLogin}
                 className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-blue-600/25 flex items-center gap-2 active:scale-95"
               >
                 <span>Sign In to Executive Console</span>
@@ -259,12 +314,133 @@ export default function LandingPage() {
           </div>
 
           <div className="flex items-center gap-6">
-            <button onClick={() => navigate('/login')} className="hover:text-slate-300">Sign In</button>
+            <button onClick={openLogin} className="hover:text-slate-300">Sign In</button>
             <button onClick={() => navigate('/dashboard')} className="hover:text-slate-300">Dashboard</button>
             <button onClick={() => navigate('/about')} className="hover:text-slate-300">System Specs</button>
           </div>
         </div>
       </footer>
+
+      {/* BLURRED BACKGROUND OVERLAY LOGIN MODAL POPUP */}
+      {showLoginModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-fadeIn font-sans">
+          <div className="w-full max-w-sm sm:max-w-md bg-slate-900/95 border border-slate-800/90 rounded-2xl p-6 sm:p-8 shadow-2xl shadow-slate-950/80 space-y-5 relative font-sans">
+            {/* Modal Close Button */}
+            <button
+              onClick={closeLogin}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
+              title="Close modal"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Modal Brand Logo Header */}
+            <div className="text-center space-y-2">
+              <div className="w-11 h-11 rounded-xl bg-blue-600 flex items-center justify-center font-bold text-white text-base mx-auto shadow-lg shadow-blue-600/30">
+                FT
+              </div>
+              <h2 className="text-xl font-extrabold text-slate-100 tracking-tight">FinanceTwin AI</h2>
+              <p className="text-xs text-slate-400 font-mono">Sign in to your executive console</p>
+            </div>
+
+            {/* Validation Error Alert */}
+            {error && (
+              <div className="p-3 bg-rose-950/80 border border-rose-800 rounded-lg text-xs font-mono text-rose-300">
+                {error}
+              </div>
+            )}
+
+            {/* Login Form */}
+            <form onSubmit={handleModalLogin} className="space-y-4">
+              <div className="space-y-1">
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="admin@financetwin.ai"
+                    required
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 font-mono focus:outline-none focus:border-blue-500 transition-colors"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Password"
+                    required
+                    className="w-full pl-10 pr-10 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 font-mono focus:outline-none focus:border-blue-500 transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 top-3 text-slate-500 hover:text-slate-300"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Security Verified Badge Box */}
+              <div className="p-3 bg-slate-950/60 rounded-xl border border-slate-800/80 flex items-center justify-between text-[11px] font-mono">
+                <div className="flex items-center gap-2 text-emerald-400">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span className="font-semibold">Security Gate Active</span>
+                </div>
+                <span className="text-[10px] text-slate-500">256-bit SSL</span>
+              </div>
+
+              {/* Sign In Button */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-3 bg-slate-100 hover:bg-white text-slate-950 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md active:scale-95 disabled:opacity-50 mt-2"
+              >
+                <span>{isLoading ? 'Authenticating...' : 'Sign In'}</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+
+              {/* Terms & Privacy Disclaimer */}
+              <p className="text-[10px] text-center text-slate-400 leading-tight">
+                By continuing, you agree to <span className="text-blue-400 underline cursor-pointer">Terms</span> & <span className="text-blue-400 underline cursor-pointer">Privacy Policy</span>.
+              </p>
+
+              {/* Forgot Password & Sign Up Links */}
+              <div className="flex items-center justify-between text-xs pt-1 font-mono">
+                <span onClick={() => alert('Password reset link sent to registered email.')} className="text-slate-400 hover:text-slate-200 cursor-pointer text-[11px]">
+                  Forgot Password?
+                </span>
+                <span onClick={() => navigate('/dashboard')} className="text-blue-400 hover:text-blue-300 font-semibold cursor-pointer text-[11px]">
+                  Sign Up
+                </span>
+              </div>
+
+              {/* Provider SSO Icons */}
+              <div className="pt-3 border-t border-slate-800/80 text-center space-y-2">
+                <span className="text-[10px] text-slate-500 font-mono block">or you can sign in with</span>
+                <div className="flex items-center justify-center gap-3">
+                  <div onClick={handleModalLogin} className="w-8 h-8 rounded-full bg-slate-950 border border-slate-800 flex items-center justify-center text-xs font-bold text-slate-300 cursor-pointer hover:border-slate-700">
+                    G
+                  </div>
+                  <div onClick={handleModalLogin} className="w-8 h-8 rounded-full bg-slate-950 border border-slate-800 flex items-center justify-center text-xs font-bold text-slate-300 cursor-pointer hover:border-slate-700">
+                    GH
+                  </div>
+                  <div onClick={handleModalLogin} className="w-8 h-8 rounded-full bg-slate-950 border border-slate-800 flex items-center justify-center text-xs font-bold text-slate-300 cursor-pointer hover:border-slate-700">
+                    
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
