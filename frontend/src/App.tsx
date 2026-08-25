@@ -18,8 +18,9 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
+          <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/reconciliation" element={<Reconciliation />} />
           <Route path="/exceptions" element={<Exceptions />} />
           <Route path="/exceptions/:id" element={<ExceptionDetails />} />
