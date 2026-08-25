@@ -6,65 +6,72 @@ interface ExceptionDetailProps {
 }
 
 export default function ExceptionDetail({ detail }: ExceptionDetailProps) {
-  const formatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' });
+  const formatter = new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 2
+  });
 
-  const getSeverityStyle = (sev: string) => {
+  const getSeverityBadge = (sev: string) => {
     switch (sev.toUpperCase()) {
-      case 'CRITICAL': return 'bg-red-500/10 text-red-400 border border-red-500/20';
-      case 'HIGH': return 'bg-orange-500/10 text-orange-400 border border-orange-500/20';
-      case 'MEDIUM': return 'bg-amber-500/10 text-amber-400 border border-amber-500/20';
+      case 'CRITICAL': return 'bg-rose-950/80 text-rose-300 border-rose-800/80';
+      case 'HIGH': return 'bg-orange-950/80 text-orange-300 border-orange-800/80';
+      case 'MEDIUM': return 'bg-amber-950/80 text-amber-300 border-amber-800/80';
       case 'LOW':
       default:
-        return 'bg-blue-500/10 text-blue-400 border border-blue-500/20';
+        return 'bg-blue-950/80 text-blue-300 border-blue-800/80';
     }
   };
 
   return (
-    <div className="glass-panel p-6 space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="p-5 sm:p-6 bg-slate-900/80 border border-slate-800 rounded-xl space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-slate-800/80">
         <div>
-          <span className="text-[9px] text-zinc-500 uppercase tracking-widest font-semibold">Incident Case</span>
-          <h3 className="text-xl font-bold text-white mt-1">{detail.exception_id}</h3>
+          <span className="text-[10px] font-mono font-semibold text-slate-400 uppercase tracking-wider block">
+            Incident Case File
+          </span>
+          <h3 className="text-xl font-bold font-mono text-slate-100 mt-0.5">{detail.exception_id}</h3>
         </div>
         <div className="flex items-center gap-2">
-          <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold uppercase border ${getSeverityStyle(detail.severity)}`}>
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs font-mono font-semibold uppercase border ${getSeverityBadge(detail.severity)}`}>
             {detail.severity} Severity
           </span>
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-zinc-800 text-zinc-300 uppercase">
+          <span className="px-2.5 py-0.5 rounded text-xs font-mono font-medium bg-slate-800 text-slate-300 uppercase border border-slate-700/60">
             {detail.status.replace(/_/g, ' ')}
           </span>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 border-t border-b border-zinc-800 py-6">
-        <div>
-          <span className="text-[9px] text-zinc-500 uppercase tracking-wider font-semibold">Exception Type</span>
-          <p className="text-sm font-semibold text-white mt-1">{detail.exception_type.replace(/_/g, ' ')}</p>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 py-2">
+        <div className="p-3 bg-slate-950/40 rounded-lg border border-slate-800">
+          <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold block">Exception Type</span>
+          <p className="text-xs font-mono font-semibold text-slate-200 mt-1">{detail.exception_type.replace(/_/g, ' ')}</p>
         </div>
-        <div>
-          <span className="text-[9px] text-zinc-500 uppercase tracking-wider font-semibold">Expected Net</span>
-          <p className="text-sm font-bold text-white font-mono mt-1">{formatter.format(detail.expected_amount)}</p>
+        <div className="p-3 bg-slate-950/40 rounded-lg border border-slate-800">
+          <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold block">Expected Net</span>
+          <p className="text-sm font-bold text-slate-100 font-mono mt-1">{formatter.format(detail.expected_amount)}</p>
         </div>
-        <div>
-          <span className="text-[9px] text-zinc-500 uppercase tracking-wider font-semibold">Bank Credit</span>
-          <p className="text-sm font-bold text-white font-mono mt-1">{formatter.format(detail.actual_amount)}</p>
+        <div className="p-3 bg-slate-950/40 rounded-lg border border-slate-800">
+          <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold block">Bank Credit Recorded</span>
+          <p className="text-sm font-bold text-slate-100 font-mono mt-1">{formatter.format(detail.actual_amount)}</p>
         </div>
-        <div>
-          <span className="text-[9px] text-zinc-500 uppercase tracking-wider font-semibold">Variance Deviation</span>
-          <p className="text-sm font-bold text-red-400 font-mono mt-1">{formatter.format(detail.variance)}</p>
+        <div className="p-3 bg-slate-950/40 rounded-lg border border-slate-800">
+          <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold block">Variance Deviation</span>
+          <p className="text-sm font-bold text-rose-400 font-mono mt-1">{formatter.format(detail.variance)}</p>
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 bg-zinc-950/40 rounded-lg border border-zinc-800">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 bg-slate-950/60 rounded-lg border border-slate-800">
         <div>
-          <span className="text-[9px] text-zinc-500 uppercase tracking-wider font-semibold">Automation Action Gate</span>
-          <h4 className="text-sm font-bold text-white mt-1">{detail.risk_decision.recommended_action.replace(/_/g, ' ')}</h4>
+          <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold block">Automation Safety Gate</span>
+          <h4 className="text-sm font-bold text-slate-100 font-mono mt-0.5">{detail.risk_decision.recommended_action.replace(/_/g, ' ')}</h4>
         </div>
         <div className="text-right">
-          <span className="text-[9px] text-zinc-500 uppercase tracking-wider font-semibold">Risk Engine Score</span>
-          <p className="text-sm font-bold text-amber-500 font-mono mt-1">{Math.round(detail.risk_decision.score * 100)}% Risk</p>
+          <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold block">Risk Engine Score</span>
+          <p className="text-sm font-bold text-amber-400 font-mono mt-0.5">{Math.round(detail.risk_decision.score * 100)}% Risk</p>
         </div>
       </div>
     </div>
   );
 }
+
