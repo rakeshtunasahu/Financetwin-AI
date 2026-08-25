@@ -7,14 +7,17 @@ interface EmptyStateProps {
 }
 
 export default function EmptyState({ 
-  message = 'No records found', 
-  subMessage = 'Try triggering a reconciliation run or seeding the dataset.' 
+  message = 'No reconciliation records found', 
+  subMessage = 'Trigger a reconciliation execution cycle to process incoming gateway settlements.' 
 }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[300px] border border-dashed border-zinc-800 rounded-xl p-8 text-center bg-zinc-900/10">
-      <Database className="w-8 h-8 text-zinc-700 mb-3" />
-      <h3 className="text-sm font-semibold text-zinc-300">{message}</h3>
-      <p className="text-xs text-zinc-500 max-w-sm mt-1">{subMessage}</p>
+    <div className="flex flex-col items-center justify-center min-h-[320px] border border-slate-800 rounded-xl p-8 text-center bg-slate-900/60 font-sans">
+      <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 mb-3">
+        <Database className="w-6 h-6 text-slate-400" />
+      </div>
+      <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider">{message}</h3>
+      <p className="text-xs text-slate-400 max-w-sm mt-1">{subMessage}</p>
     </div>
   );
 }
+
