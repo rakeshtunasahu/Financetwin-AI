@@ -1,6 +1,6 @@
 import React from 'react';
 import { PolicyImpactMetrics } from '../../types';
-import { TrendingDown, TrendingUp } from 'lucide-react';
+import { TrendingDown, TrendingUp, BarChart2 } from 'lucide-react';
 
 interface PolicyImpactProps {
   before: PolicyImpactMetrics | null;
@@ -10,7 +10,11 @@ interface PolicyImpactProps {
 export default function PolicyImpact({ before, after }: PolicyImpactProps) {
   if (!before || !after) return null;
 
-  const formatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' });
+  const formatter = new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 2
+  });
 
   const rows = [
     { name: 'Matched Count', beforeVal: before.match_count, afterVal: after.match_count, type: 'higher-better' },
@@ -24,51 +28,51 @@ export default function PolicyImpact({ before, after }: PolicyImpactProps) {
   ];
 
   return (
-    <div className="glass-panel p-6 space-y-4">
-      <div className="flex items-center gap-2 pb-3 border-b border-zinc-800">
-        <TrendingUp className="w-5 h-5 text-brand-500" />
-        <h3 className="text-sm font-semibold text-zinc-300">Simulation Policy Impact Analysis</h3>
+    <div className="p-5 sm:p-6 bg-slate-900/80 border border-slate-800 rounded-xl space-y-4 font-sans">
+      <div className="flex items-center gap-2 pb-3 border-b border-slate-800">
+        <BarChart2 className="w-4 h-4 text-blue-400" />
+        <h3 className="text-xs font-semibold text-slate-200 uppercase tracking-wider">Simulation Policy Impact Analysis</h3>
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm border-collapse">
+        <table className="w-full text-left text-xs border-collapse">
           <thead>
-            <tr className="border-b border-zinc-800 text-[10px] uppercase font-bold text-zinc-500 tracking-wider">
-              <th className="pb-3">Metric Name</th>
-              <th className="pb-3 text-right">Active Policy</th>
-              <th className="pb-3 text-right">Simulated Policy</th>
-              <th className="pb-3 text-right">Impact Deviation</th>
+            <tr className="border-b border-slate-800 text-[10px] uppercase font-semibold text-slate-400 tracking-wider bg-slate-950/60">
+              <th className="py-2.5 px-3">Metric Indicator</th>
+              <th className="py-2.5 px-3 text-right">Active Policy</th>
+              <th className="py-2.5 px-3 text-right">Simulated Policy</th>
+              <th className="py-2.5 px-3 text-right">Impact Delta</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-800/50 text-zinc-300">
+          <tbody className="divide-y divide-slate-800/80 text-slate-200">
             {rows.map((row, idx) => {
               const bVal = typeof row.beforeVal === 'number' ? row.beforeVal : parseFloat(String(row.beforeVal).replace(/[^0-9.-]/g, '')) || 0;
               const aVal = typeof row.afterVal === 'number' ? row.afterVal : parseFloat(String(row.afterVal).replace(/[^0-9.-]/g, '')) || 0;
               const diff = aVal - bVal;
               
-              let badgeColor = 'text-zinc-500 bg-zinc-950/20';
+              let badgeColor = 'text-slate-400 bg-slate-800/50 border-slate-700/50';
               let icon = null;
               
               if (diff !== 0) {
                 const isPositive = diff > 0;
                 const isBetter = (row.type === 'higher-better' && isPositive) || (row.type === 'lower-better' && !isPositive);
-                badgeColor = isBetter ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : 'text-red-400 bg-red-500/10 border-red-500/20';
+                badgeColor = isBetter ? 'text-emerald-300 bg-emerald-950/80 border-emerald-800/80' : 'text-rose-300 bg-rose-950/80 border-rose-800/80';
                 icon = isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />;
               }
 
               return (
-                <tr key={idx} className="hover:bg-zinc-900/10">
-                  <td className="py-3 font-medium text-zinc-400">{row.name}</td>
-                  <td className="py-3 text-right font-mono text-zinc-300">{row.beforeVal}</td>
-                  <td className="py-3 text-right font-mono font-semibold text-white">{row.afterVal}</td>
-                  <td className="py-3 text-right">
+                <tr key={idx} className="hover:bg-slate-800/40 transition-colors">
+                  <td className="py-3 px-3 font-medium text-slate-300">{row.name}</td>
+                  <td className="py-3 px-3 text-right font-mono text-slate-400">{row.beforeVal}</td>
+                  <td className="py-3 px-3 text-right font-mono font-semibold text-slate-100">{row.afterVal}</td>
+                  <td className="py-3 px-3 text-right">
                     {diff !== 0 ? (
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold border ${badgeColor}`}>
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-semibold border ${badgeColor}`}>
                         {icon}
                         {diff > 0 ? '+' : ''}{typeof row.beforeVal === 'number' ? diff : diff.toFixed(1)}
                       </span>
                     ) : (
-                      <span className="text-zinc-600 text-xs">—</span>
+                      <span className="text-slate-500 font-mono text-xs">—</span>
                     )}
                   </td>
                 </tr>
@@ -80,3 +84,4 @@ export default function PolicyImpact({ before, after }: PolicyImpactProps) {
     </div>
   );
 }
+
