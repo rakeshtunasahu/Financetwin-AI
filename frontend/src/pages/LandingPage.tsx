@@ -71,6 +71,19 @@ export default function LandingPage({ initialLoginOpen = false }: LandingPagePro
     setError(null);
   };
 
+  const scrollToSection = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    const elem = document.getElementById(id);
+    if (elem) {
+      elem.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleRestrictedAccess = (reason: string = 'Please sign in first to access executive tools and system specifications.') => {
+    setError(reason);
+    setShowLoginModal(true);
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-blue-600 selection:text-white overflow-x-hidden relative">
       {/* Top Header Navigation Bar */}
@@ -93,10 +106,10 @@ export default function LandingPage({ initialLoginOpen = false }: LandingPagePro
 
           {/* Navigation Links */}
           <nav className="hidden md:flex items-center gap-8 text-xs font-semibold text-slate-300">
-            <a href="#features" className="hover:text-blue-400 transition-colors">Features</a>
-            <a href="#safety-engine" className="hover:text-blue-400 transition-colors">Safety Engine</a>
-            <a href="#ml-intelligence" className="hover:text-blue-400 transition-colors">ML Intelligence</a>
-            <button onClick={() => navigate('/about')} className="hover:text-blue-400 transition-colors">System Specs</button>
+            <a href="#features" onClick={(e) => scrollToSection(e, 'features')} className="hover:text-blue-400 transition-colors">Features</a>
+            <a href="#safety-engine" onClick={(e) => scrollToSection(e, 'safety-engine')} className="hover:text-blue-400 transition-colors">Safety Engine</a>
+            <a href="#ml-intelligence" onClick={(e) => scrollToSection(e, 'ml-intelligence')} className="hover:text-blue-400 transition-colors">ML Intelligence</a>
+            <button onClick={() => handleRestrictedAccess('Please sign in first to access system specifications.')} className="hover:text-blue-400 transition-colors">System Specs</button>
           </nav>
 
           {/* Action CTA Buttons */}
@@ -108,7 +121,7 @@ export default function LandingPage({ initialLoginOpen = false }: LandingPagePro
               Sign In
             </button>
             <button
-              onClick={() => navigate('/dashboard')}
+              onClick={() => handleRestrictedAccess('Please sign in first to access the Executive Operations Console.')}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg transition-all shadow-md shadow-blue-600/20 flex items-center gap-1.5 active:scale-95"
             >
               <span>Explore Console</span>
@@ -160,7 +173,7 @@ export default function LandingPage({ initialLoginOpen = false }: LandingPagePro
               </button>
 
               <button
-                onClick={() => navigate('/dashboard')}
+                onClick={() => handleRestrictedAccess('Please sign in first to access the Executive Operations Dashboard.')}
                 className="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 rounded-xl text-xs font-bold transition-all flex items-center gap-2"
               >
                 <BarChart2 className="w-4 h-4 text-blue-400" />
@@ -169,7 +182,7 @@ export default function LandingPage({ initialLoginOpen = false }: LandingPagePro
             </div>
 
             {/* Quick Metrics Banner */}
-            <div className="grid grid-cols-3 gap-4 pt-6 border-t border-slate-800/80">
+            <div id="safety-engine" className="grid grid-cols-3 gap-4 pt-6 border-t border-slate-800/80">
               <div>
                 <div className="text-xl sm:text-2xl font-bold font-mono text-emerald-400">0.00%</div>
                 <div className="text-[11px] text-slate-400 uppercase tracking-wider font-mono">False Match Target</div>
@@ -252,7 +265,7 @@ export default function LandingPage({ initialLoginOpen = false }: LandingPagePro
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div id="ml-intelligence" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               {
                 icon: ShieldCheck,
@@ -281,7 +294,7 @@ export default function LandingPage({ initialLoginOpen = false }: LandingPagePro
             ].map((card, idx) => (
               <div
                 key={idx}
-                onClick={() => navigate(card.path)}
+                onClick={() => handleRestrictedAccess(`Please sign in first to access ${card.title}.`)}
                 className="p-6 bg-slate-900 border border-slate-800 rounded-xl space-y-4 hover:border-blue-500/50 transition-all cursor-pointer group hover:scale-[1.02]"
               >
                 <div className="w-10 h-10 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-center text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-colors">
