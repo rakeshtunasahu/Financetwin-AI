@@ -57,7 +57,11 @@ export default function MatchDetailDrawer({ match, onClose }: MatchDetailDrawerP
               <div className="p-2.5 bg-slate-950/60 rounded border border-slate-800">
                 <span className="text-[10px] text-slate-400 block font-semibold">Confidence Margin</span>
                 <span className="text-sm font-bold font-mono text-amber-300">
-                  {exp.confidence_margin !== undefined ? `${(exp.confidence_margin * 100).toFixed(1)}%` : '2.6%'}
+                  {exp.confidence_margin !== undefined 
+                    ? `${(exp.confidence_margin * 100).toFixed(1)}%` 
+                    : match.confidence_margin !== null && match.confidence_margin !== undefined
+                    ? `${(match.confidence_margin * 100).toFixed(1)}%`
+                    : '2.6%'}
                 </span>
               </div>
               <div className="p-2.5 bg-slate-950/60 rounded border border-slate-800">
