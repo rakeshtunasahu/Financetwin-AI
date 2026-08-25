@@ -21,14 +21,14 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const menuItems = [
-    { name: 'Executive Dashboard', path: '/', icon: LayoutDashboard },
+    { name: 'Executive Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Reconciliation Engine', path: '/reconciliation', icon: GitCompare },
     { name: 'Exceptions & Audits', path: '/exceptions', icon: ShieldAlert },
     { name: 'Anomaly Patterns', path: '/anomalies', icon: Activity },
     { name: 'Governance Lab', path: '/governance', icon: Sliders },
     { name: 'Settlement Calculator', path: '/calculator', icon: Calculator },
     { name: 'System Info', path: '/about', icon: BookOpen },
-    { name: 'Portal Login', path: '/login', icon: LogIn }
+    { name: 'Portal Login', path: '/', icon: LogIn }
   ];
 
   return (
