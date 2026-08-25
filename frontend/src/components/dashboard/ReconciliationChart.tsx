@@ -18,13 +18,13 @@ export default function ReconciliationChart({
     { name: 'Matched', value: matched, color: '#10b981' }, 
     { name: 'Abstained', value: abstained, color: '#f59e0b' }, 
     { name: 'Exceptions', value: exceptions, color: '#ef4444' }, 
-    { name: 'Unmatched', value: unmatched, color: '#71717a' }
+    { name: 'Unmatched', value: unmatched, color: '#64748b' }
   ].filter(d => d.value > 0);
 
   if (data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-zinc-500 text-xs">
-        No reconciliation run data loaded
+      <div className="flex items-center justify-center h-64 text-slate-500 text-xs font-mono">
+        No reconciliation data available
       </div>
     );
   }
@@ -47,12 +47,13 @@ export default function ReconciliationChart({
             ))}
           </Pie>
           <Tooltip
-            contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '8px' }}
-            itemStyle={{ color: '#fff' }}
+            contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#f8fafc', fontSize: '12px' }}
+            itemStyle={{ color: '#f8fafc' }}
           />
-          <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', color: '#a1a1aa' }} />
+          <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', color: '#94a3b8' }} />
         </PieChart>
       </ResponsiveContainer>
     </div>
   );
 }
+
