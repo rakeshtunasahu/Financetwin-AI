@@ -58,7 +58,7 @@ export default function Governance() {
       });
       setPolicy(data);
       setSimulation(null);
-      alert('Safety policy changes applied permanently to the matching engine.');
+      alert('Governance policy changes applied live to the matching engine.');
     } catch (err: any) {
       setError(err.message || 'Failed to apply policy.');
     } finally {
@@ -67,7 +67,7 @@ export default function Governance() {
   };
 
   return (
-    <PageContainer title="Governance Safety Lab" onRefresh={fetchPolicy}>
+    <PageContainer title="Governance & Policy Simulation Engine" onRefresh={fetchPolicy}>
       {loading ? (
         <LoadingState />
       ) : error && !policy ? (
@@ -94,3 +94,4 @@ export default function Governance() {
     </PageContainer>
   );
 }
+
