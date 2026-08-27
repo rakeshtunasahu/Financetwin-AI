@@ -112,7 +112,7 @@ export default function Signup() {
           </div>
           <div>
             <span className="font-extrabold text-xl tracking-tight text-white block leading-none">
-              Razorpay <span className="text-blue-400 font-semibold">| FinanceTwin AI</span>
+              FinanceTwin <span className="text-blue-400 font-semibold">AI</span>
             </span>
             <span className="text-[11px] font-mono text-slate-400 uppercase tracking-widest block mt-1">
               Autonomous Settlement Engine
@@ -128,9 +128,9 @@ export default function Signup() {
           </div>
 
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-100 tracking-tight leading-[1.15]">
-            Join 8 Million Businesses that Trust{' '}
+            Join Modern Enterprises that Trust{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-indigo-300">
-              Razorpay & FinanceTwin AI
+              FinanceTwin AI
             </span>{' '}
             to Supercharge their Settlement & Reconciliation
           </h1>
@@ -154,12 +154,12 @@ export default function Signup() {
 
         {/* Left Footer Partner Notice */}
         <div className="relative z-10 pt-6 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400 font-mono">
-          <span>© 2026 Razorpay Buildathon Architecture</span>
+          <span>© 2026 FinanceTwin AI Architecture</span>
           <span className="text-slate-500">SOC-2 Type II Certified</span>
         </div>
       </div>
 
-      {/* RIGHT COLUMN: Razorpay-Style Registration Form Card */}
+      {/* RIGHT COLUMN: Registration Form Card */}
       <div className="lg:w-5/12 bg-slate-900/90 flex flex-col justify-between p-6 sm:p-10 lg:p-12 relative overflow-hidden backdrop-blur-xl">
         {/* Top-Right Ribbon */}
         <div className="absolute top-4 -right-12 rotate-45 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[10px] font-mono font-bold py-1 px-12 shadow-md uppercase tracking-wider">
@@ -173,7 +173,7 @@ export default function Signup() {
               FT
             </div>
             <span className="text-xs font-medium text-slate-400 block">
-              Welcome to <strong className="text-slate-200">Razorpay FinanceTwin AI</strong>
+              Welcome to <strong className="text-slate-200">FinanceTwin AI</strong>
             </span>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-100 tracking-tight">
               Create your business account
@@ -366,7 +366,7 @@ export default function Signup() {
               <div>
                 <span className="font-semibold text-slate-200 block text-[11px]">Helping Clients with Settlement Solutions?</span>
                 <a href="#partner" className="text-blue-400 hover:text-blue-300 text-[11px] font-semibold flex items-center gap-1 mt-0.5">
-                  <span>Become Razorpay Partner</span>
+                  <span>Become Enterprise Partner</span>
                   <ArrowRight className="w-3 h-3" />
                 </a>
               </div>

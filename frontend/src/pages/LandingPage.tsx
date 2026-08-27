@@ -114,21 +114,23 @@ export default function LandingPage({ initialLoginOpen = false }: LandingPagePro
             <button onClick={() => handleRestrictedAccess('Please sign in first to access system specifications.')} className="hover:text-blue-400 transition-colors">System Specs</button>
           </nav>
 
-          {/* Action CTA Buttons */}
+          {/* Action CTA Buttons — Login and single Sign Up Button */}
           <div className="flex items-center gap-3">
             <button
               onClick={openLogin}
-              className="px-4 py-2 text-xs font-semibold text-slate-200 hover:text-white hover:bg-slate-900 border border-slate-800 rounded-lg transition-colors"
+              className="px-4 py-2 text-xs font-semibold text-slate-200 hover:text-white hover:bg-slate-900 border border-slate-800 rounded-lg transition-colors cursor-pointer"
             >
-              Sign In
+              Login
             </button>
-            <button
-              onClick={() => handleRestrictedAccess('Please sign in first to access the Executive Operations Console.')}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg transition-all shadow-md shadow-blue-600/20 flex items-center gap-1.5 active:scale-95"
+            <a
+              href="/signup"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg transition-all shadow-md shadow-blue-600/20 flex items-center gap-1.5 active:scale-95 cursor-pointer"
             >
-              <span>Explore Console</span>
+              <span>Sign Up</span>
               <ArrowRight className="w-3.5 h-3.5" />
-            </button>
+            </a>
           </div>
         </div>
       </header>
@@ -151,7 +153,7 @@ export default function LandingPage({ initialLoginOpen = false }: LandingPagePro
           <div className="lg:col-span-7 space-y-6 text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-950/80 border border-blue-800/80 rounded-full text-xs font-mono text-blue-400">
               <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-              <span>Next-Gen Financial Reconciliation Engine</span>
+              <span>Autonomous Settlement Reconciliation Platform</span>
             </div>
 
             <h1 className="text-4xl sm:text-5xl xl:text-6xl font-extrabold text-slate-100 tracking-tight leading-[1.1]">
@@ -168,15 +170,15 @@ export default function LandingPage({ initialLoginOpen = false }: LandingPagePro
             <div className="flex flex-wrap items-center gap-4 pt-2">
               <button
                 onClick={openLogin}
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-blue-600/25 flex items-center gap-2 active:scale-95"
+                className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-blue-600/25 flex items-center gap-2 active:scale-95 cursor-pointer"
               >
-                <span>Sign In to Executive Console</span>
+                <span>Login to Executive Console</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
 
               <button
                 onClick={() => handleRestrictedAccess('Please sign in first to access the Executive Operations Dashboard.')}
-                className="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 rounded-xl text-xs font-bold transition-all flex items-center gap-2"
+                className="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer"
               >
                 <BarChart2 className="w-4 h-4 text-blue-400" />
                 <span>View Operations Dashboard</span>

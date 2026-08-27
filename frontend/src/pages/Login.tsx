@@ -87,7 +87,7 @@ export default function Login() {
             </div>
             <div>
               <span className="font-extrabold text-xl tracking-tight text-white block leading-none">
-                Razorpay <span className="text-blue-400 font-semibold">| FinanceTwin AI</span>
+                FinanceTwin <span className="text-blue-400 font-semibold">AI</span>
               </span>
               <span className="text-[11px] font-mono text-slate-400 uppercase tracking-widest block mt-1">
                 Risk & Safety Engine
@@ -96,7 +96,7 @@ export default function Login() {
           </Link>
         </div>
 
-        {/* Center/Bottom Headline (Razorpay Style) */}
+        {/* Center/Bottom Headline */}
         <div className="relative z-10 my-12 lg:my-0 max-w-xl space-y-6">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-950/80 border border-blue-800/80 rounded-full text-xs font-mono text-blue-300">
             <Sparkles className="w-3.5 h-3.5 text-blue-400" />
@@ -104,11 +104,11 @@ export default function Login() {
           </div>
 
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-100 tracking-tight leading-[1.15]">
-            Join 8 Million Businesses that Trust{' '}
+            Join Modern Enterprises that Trust{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-indigo-300">
-              Razorpay & FinanceTwin AI
+              FinanceTwin AI
             </span>{' '}
-            to Supercharge their Business
+            to Supercharge their Settlement Operations
           </h1>
 
           {/* Value Badges */}
@@ -130,12 +130,12 @@ export default function Login() {
 
         {/* Footer */}
         <div className="relative z-10 pt-6 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400 font-mono">
-          <span>© 2026 Razorpay Buildathon Architecture</span>
+          <span>© 2026 FinanceTwin AI Architecture</span>
           <span className="text-slate-500">Zero False Match Guarantee</span>
         </div>
       </div>
 
-      {/* RIGHT COLUMN: Razorpay Login Card Panel */}
+      {/* RIGHT COLUMN: Login Card Panel */}
       <div className="lg:w-5/12 bg-slate-900/90 flex flex-col justify-between p-6 sm:p-10 lg:p-12 relative overflow-hidden backdrop-blur-xl">
         {/* Top-Right Ribbon */}
         <div className="absolute top-4 -right-12 rotate-45 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[10px] font-mono font-bold py-1 px-12 shadow-md uppercase tracking-wider">
@@ -149,7 +149,7 @@ export default function Login() {
               FT
             </div>
             <span className="text-xs font-medium text-slate-400 block">
-              Welcome to <strong className="text-slate-200">Razorpay</strong>
+              Welcome to <strong className="text-slate-200">FinanceTwin AI</strong>
             </span>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-100 tracking-tight">
               Get started with your email or phone number
@@ -316,9 +316,9 @@ export default function Login() {
 
             <div className="p-3.5 bg-slate-950/70 border border-slate-800 rounded-xl flex items-center justify-between text-xs">
               <div>
-                <span className="font-semibold text-slate-200 block text-[11px]">Helping Clients with Razorpay Solutions?</span>
+                <span className="font-semibold text-slate-200 block text-[11px]">Helping Clients with Settlement Solutions?</span>
                 <a href="#partner" className="text-blue-400 hover:text-blue-300 text-[11px] font-semibold flex items-center gap-1 mt-0.5">
-                  <span>Become Razorpay Partner</span>
+                  <span>Become Enterprise Partner</span>
                   <ArrowRight className="w-3 h-3" />
                 </a>
               </div>
