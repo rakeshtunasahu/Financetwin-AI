@@ -1,9 +1,12 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import List
 import os
+from typing import List
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DB_PATH = os.path.join(BASE_DIR, "financetwin.db").replace("\\", "/")
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = "sqlite:///./financetwin.db"
+    DATABASE_URL: str = f"sqlite:///{DB_PATH}"
     APP_ENV: str = "development"
     RANDOM_SEED: int = 42
 

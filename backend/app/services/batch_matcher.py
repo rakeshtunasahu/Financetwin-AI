@@ -24,7 +24,8 @@ def run_reconciliation(db: Session, run_id: str, policy: dict = None) -> Reconci
     db.add(run)
     db.flush()
     
-    batches = db.query(SettlementBatch).filter(SettlementBatch.status == "PENDING").all()
+    # Retrieve all settlement batches to evaluate the full ledger against active policy
+    batches = db.query(SettlementBatch).all()
     bank_txs = db.query(BankTransaction).all()
     
     matched_tx_ids = set()
