@@ -17,7 +17,8 @@ import {
   Sliders,
   Play,
   Bot,
-  Lock
+  Lock,
+  X
 } from 'lucide-react';
 
 interface AuditLogItem {
@@ -242,62 +243,85 @@ export default function AuditLogs() {
         </div>
       )}
 
-      {/* Detail Drawer Modal */}
+      {/* Detail Slide-In Window Drawer */}
       {selectedLog && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-6 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <div className="flex items-center gap-2.5">
-                {getActionIcon(selectedLog.action)}
-                <h3 className="text-base font-bold text-slate-100">{selectedLog.action}</h3>
+        <div className="fixed inset-0 z-50 flex justify-end overflow-hidden font-sans">
+          {/* Backdrop */}
+          <div
+            onClick={() => setSelectedLog(null)}
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm animate-fade-in transition-opacity cursor-pointer"
+            aria-hidden="true"
+          />
+
+          {/* Slide-In Drawer */}
+          <div className="relative w-full sm:w-[500px] lg:w-[540px] h-full bg-slate-900 border-l border-slate-800 shadow-2xl shadow-slate-950 flex flex-col z-10 animate-slide-in-right overflow-hidden">
+            {/* Header */}
+            <div className="p-5 sm:p-6 border-b border-slate-800 flex justify-between items-start bg-slate-950/60 backdrop-blur-md">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-blue-950/80 border border-blue-800/80 rounded-xl text-blue-400">
+                  {getActionIcon(selectedLog.action)}
+                </div>
+                <div>
+                  <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest block">
+                    Statutory Audit Telemetry Log
+                  </span>
+                  <h3 className="text-lg font-bold text-slate-100 font-mono mt-0.5">{selectedLog.action}</h3>
+                </div>
               </div>
               <button
                 onClick={() => setSelectedLog(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+                className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors cursor-pointer"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
-                <span className="text-[10px] text-slate-500 font-mono uppercase block">Actor</span>
-                <span className="text-slate-200 font-mono font-semibold block mt-0.5">{selectedLog.actor}</span>
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4">
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
+                  <span className="text-[10px] text-slate-400 font-mono uppercase font-semibold block">Actor</span>
+                  <span className="text-slate-200 font-mono font-bold block mt-1">{selectedLog.actor}</span>
+                </div>
+                <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
+                  <span className="text-[10px] text-slate-400 font-mono uppercase font-semibold block">Decision</span>
+                  <span className="mt-1 inline-block">{getDecisionBadge(selectedLog.decision)}</span>
+                </div>
+                <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
+                  <span className="text-[10px] text-slate-400 font-mono uppercase font-semibold block">Entity Target</span>
+                  <span className="text-blue-400 font-mono font-bold block mt-1">{selectedLog.entity_id}</span>
+                </div>
+                <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
+                  <span className="text-[10px] text-slate-400 font-mono uppercase font-semibold block">Timestamp</span>
+                  <span className="text-slate-300 font-mono block mt-1 text-[11px]">{new Date(selectedLog.created_at).toLocaleString()}</span>
+                </div>
               </div>
-              <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
-                <span className="text-[10px] text-slate-500 font-mono uppercase block">Decision</span>
-                <span className="mt-1 inline-block">{getDecisionBadge(selectedLog.decision)}</span>
+
+              <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+                <span className="text-[10px] text-slate-400 font-mono uppercase font-bold block">Reason & Audit Context</span>
+                <p className="text-xs text-slate-200 leading-relaxed font-sans">{selectedLog.reason}</p>
               </div>
-              <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
-                <span className="text-[10px] text-slate-500 font-mono uppercase block">Entity Target</span>
-                <span className="text-blue-400 font-mono font-semibold block mt-0.5">{selectedLog.entity_id}</span>
-              </div>
-              <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
-                <span className="text-[10px] text-slate-500 font-mono uppercase block">Timestamp</span>
-                <span className="text-slate-300 font-mono block mt-0.5">{new Date(selectedLog.created_at).toLocaleString()}</span>
-              </div>
+
+              {selectedLog.metadata && Object.keys(selectedLog.metadata).length > 0 && (
+                <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-2">
+                  <span className="text-[10px] text-slate-400 font-mono uppercase font-bold block">Immutable Audit Metadata</span>
+                  <pre className="text-[11px] font-mono text-slate-300 overflow-x-auto p-3 bg-slate-900/80 rounded-xl border border-slate-800 max-h-60">
+                    {JSON.stringify(selectedLog.metadata, null, 2)}
+                  </pre>
+                </div>
+              )}
             </div>
 
-            <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
-              <span className="text-[10px] text-slate-500 font-mono uppercase block mb-1">Reason & Context</span>
-              <p className="text-xs text-slate-200">{selectedLog.reason}</p>
-            </div>
-
-            {selectedLog.metadata && Object.keys(selectedLog.metadata).length > 0 && (
-              <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
-                <span className="text-[10px] text-slate-500 font-mono uppercase block mb-1">Audit Metadata</span>
-                <pre className="text-[11px] font-mono text-slate-300 overflow-x-auto p-2 bg-slate-900/60 rounded border border-slate-800 max-h-48">
-                  {JSON.stringify(selectedLog.metadata, null, 2)}
-                </pre>
-              </div>
-            )}
-
-            <div className="flex justify-end pt-2">
+            {/* Footer */}
+            <div className="p-4 border-t border-slate-800 bg-slate-950/80 flex justify-between items-center">
+              <span className="text-[10px] text-slate-500 font-mono">
+                Press <kbd className="px-1.5 py-0.5 bg-slate-900 border border-slate-700 rounded text-slate-300">Esc</kbd> to close
+              </span>
               <button
                 onClick={() => setSelectedLog(null)}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl"
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl transition-colors cursor-pointer"
               >
-                Close
+                Close Panel
               </button>
             </div>
           </div>
