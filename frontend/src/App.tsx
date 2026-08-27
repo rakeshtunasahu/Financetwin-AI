@@ -12,6 +12,7 @@ import Anomalies from './pages/Anomalies';
 import About from './pages/About';
 import Calculator from './pages/Calculator';
 import Login from './pages/Login';
+import Signup from './pages/Signup';
 import AuditLogs from './pages/AuditLogs';
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/reconciliation" element={<Reconciliation />} />
             <Route path="/exceptions" element={<Exceptions />} />
