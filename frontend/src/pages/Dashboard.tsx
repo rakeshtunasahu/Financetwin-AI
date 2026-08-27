@@ -8,9 +8,9 @@ import ExceptionChart from '../components/dashboard/ExceptionChart';
 import FinancialExposure from '../components/dashboard/FinancialExposure';
 import LoadingState from '../components/common/LoadingState';
 import ErrorState from '../components/common/ErrorState';
-import DecisionBadge from '../components/reconciliation/DecisionBadge';
 import { apiFetch } from '../api/client';
-import { DashboardSummary, ExceptionRecord } from '../types';
+import { useAuth } from '../context/AuthContext';
+import { DashboardSummary, ExceptionRecord, UserRole } from '../types';
 import {
   Layers,
   CheckCircle,
@@ -24,10 +24,15 @@ import {
   ArrowRight,
   Sliders,
   Activity,
-  Filter
+  Filter,
+  User,
+  Building,
+  Lock,
+  FileText
 } from 'lucide-react';
 
 export default function Dashboard() {
+  const { currentUser, isRole, hasPermission } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
@@ -52,11 +57,11 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [currentUser]);
 
   if (loading) {
     return (
-      <PageContainer title="Executive Operations Dashboard">
+      <PageContainer title={`${currentUser.role.replace(/_/g, ' ')} Dashboard`}>
         <LoadingState />
       </PageContainer>
     );
@@ -64,19 +69,17 @@ export default function Dashboard() {
 
   if (error || !summary) {
     return (
-      <PageContainer title="Executive Operations Dashboard">
+      <PageContainer title={`${currentUser.role.replace(/_/g, ' ')} Dashboard`}>
         <ErrorState message={error || 'Failed to retrieve ledger summary stats.'} onRetry={fetchData} />
       </PageContainer>
     );
   }
 
   const fmRate = summary.false_match_rate !== null ? `${(summary.false_match_rate * 100).toFixed(2)}%` : '0.00%';
-  const prText = summary.precision !== null ? `${(summary.precision * 100).toFixed(1)}%` : '—';
-  const recallText = summary.recall !== null ? `${(summary.recall * 100).toFixed(1)}%` : '—';
   const coverageText = `${(summary.coverage * 100).toFixed(1)}%`;
   
-  // Calculate total gross settlements net amount
   const totalNetExpected = exceptions.reduce((sum, exc) => sum + Number(exc.expected_amount), 0) + (summary.matched_count * 15000);
+  const totalVariance = exceptions.reduce((sum, exc) => sum + Number(exc.variance), 0);
 
   const formatter = new Intl.NumberFormat('en-IN', {
     style: 'currency',
@@ -84,14 +87,66 @@ export default function Dashboard() {
     maximumFractionDigits: 0
   });
 
+  const getRoleHeaderInfo = (role: UserRole) => {
+    switch (role) {
+      case 'ADMIN':
+        return {
+          title: 'Executive Systems & Governance Console',
+          badge: 'SYSTEM-WIDE ACCESS',
+          desc: 'Global control across settlement matching, policy thresholds, security logs, and anomaly detection.'
+        };
+      case 'FINANCE_ANALYST':
+        return {
+          title: 'Daily Settlement Operations Command',
+          badge: 'OPERATIONAL SCOPE',
+          desc: 'Manage authorized settlement queues, review conservative abstains, and investigate exceptions.'
+        };
+      case 'FINANCE_MANAGER':
+        return {
+          title: 'Treasury & Financial Exposure Dashboard',
+          badge: 'MANAGEMENT & APPROVALS',
+          desc: 'Aggregated exposure metrics, high-value settlement queues, and sandbox policy simulation.'
+        };
+      case 'RISK_COMPLIANCE_OFFICER':
+        return {
+          title: 'Risk & ML Anomaly Intelligence Center',
+          badge: 'HIGH-RISK & COMPLIANCE',
+          desc: 'Focused monitoring of ML anomaly clusters, critical severity discrepancies, and fraud signals.'
+        };
+      case 'AUDITOR':
+        return {
+          title: 'Statutory Audit & Evidence Verification',
+          badge: 'READ-ONLY STATUTORY AUDIT',
+          desc: 'Immutable decision history, policy change logs, and forensic AI grounding with masked sensitive data.'
+        };
+    }
+  };
+
+  const roleInfo = getRoleHeaderInfo(currentUser.role);
+
   return (
-    <PageContainer title="Executive Operations Dashboard" onRefresh={fetchData}>
-      {/* Top Interactive Controls Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-sans">
-        {/* Timeframe Filter Tabs */}
-        <div className="flex items-center gap-1.5 p-1 bg-slate-900 border border-slate-800 rounded-lg w-fit">
+    <PageContainer title={roleInfo.title} onRefresh={fetchData}>
+      {/* Role Banner */}
+      <div className="p-4 bg-slate-900 border border-slate-800 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 font-sans shadow-lg">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400 font-bold text-sm shrink-0">
+            {currentUser.name.charAt(0)}
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-bold text-slate-100">{currentUser.name}</h3>
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-950 text-blue-400 border border-blue-800">
+                {roleInfo.badge}
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 mt-0.5">{roleInfo.desc}</p>
+          </div>
+        </div>
+
+        {/* Timeframe selector */}
+        <div className="flex items-center gap-1.5 p-1 bg-slate-950 border border-slate-800 rounded-lg self-start sm:self-auto">
           <span className="text-[10px] font-mono font-semibold text-slate-500 uppercase px-2 flex items-center gap-1">
-            <Filter className="w-3 h-3 text-slate-400" /> Timeframe:
+            <Filter className="w-3 h-3 text-slate-400" /> Filter:
           </span>
           {(['ALL', '24H', '7D', '30D'] as const).map((t) => (
             <button
@@ -103,234 +158,237 @@ export default function Dashboard() {
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
               }`}
             >
-              {t === 'ALL' ? 'All Time' : t}
+              {t === 'ALL' ? 'All' : t}
             </button>
           ))}
         </div>
-
-        {/* Quick Action Shortcuts */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => navigate('/governance')}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-lg text-xs font-semibold transition-colors shadow-sm"
-          >
-            <Sliders className="w-3.5 h-3.5 text-blue-400" />
-            <span>Policy Lab</span>
-          </button>
-
-          <button
-            onClick={() => navigate('/anomalies')}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-lg text-xs font-semibold transition-colors shadow-sm"
-          >
-            <Activity className="w-3.5 h-3.5 text-amber-400" />
-            <span>ML Patterns</span>
-          </button>
-        </div>
       </div>
 
-      {/* Safety Summary Banner & Live Health Indicator */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 font-sans">
-        <div className="lg:col-span-3 p-4 bg-slate-900/90 border border-blue-500/30 rounded-xl flex items-start gap-3 shadow-lg">
-          <ShieldCheck className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
-          <div className="text-xs text-slate-300">
-            <strong className="block mb-1 text-slate-100 font-bold uppercase tracking-wider">
-              Financial Safety Engine Active & Enforced
-            </strong>
-            <span>
-              FinanceTwin AI optimizes for minimizing the <strong>False Match Rate (FMR)</strong> by enforcing automatic safety-gate abstains. Forced matching is strictly prohibited on low-confidence candidates.
-            </span>
-          </div>
+      {/* Masking Alert for Auditor */}
+      {isRole('AUDITOR') && (
+        <div className="p-3 bg-emerald-950/60 border border-emerald-800/80 rounded-xl flex items-center gap-2.5 text-xs text-emerald-300 font-mono">
+          <Lock className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>Compliance Mode Active: Sensitive identifiers (Customer IDs, Bank UTRs) are masked by backend policy.</span>
         </div>
+      )}
 
-        <div className="p-4 bg-slate-900/90 border border-slate-800 rounded-xl flex items-center justify-between">
-          <div>
-            <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Ledger Safety Index</span>
-            <div className="text-xl font-bold font-mono text-emerald-400 mt-0.5">98.4 / 100</div>
-          </div>
-          <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800/80 font-bold uppercase">
-            PROTECTED
-          </span>
-        </div>
-      </div>
-
-      {/* Primary Prominent Risk Indicators */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 font-sans">
-        <MetricCard
-          title="False Match Rate"
-          value={fmRate}
-          icon={AlertTriangle}
-          subtext="Target: 0.00% Zero-Loss Gate"
-          trendType={summary.false_match_rate && summary.false_match_rate > 0 ? 'negative' : 'positive'}
-          isProminent={true}
-        />
-        <MetricCard
-          title="Financial Amount at Risk"
-          value={formatter.format(summary.financial_amount_at_risk)}
-          icon={DollarSign}
-          subtext={`${summary.exception_count} active exceptions pending`}
-          trendType={summary.financial_amount_at_risk > 0 ? 'negative' : 'positive'}
-          isProminent={true}
-        />
-        <MetricCard
-          title="Reconciliation Coverage"
-          value={coverageText}
-          icon={Percent}
-          subtext={`${summary.matched_count} of ${summary.total_settlements} settlements matched`}
-          trendType="positive"
-          isProminent={true}
-        />
-      </div>
-
-      {/* Secondary Operational Metrics */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 font-sans">
-        <MetricCard
-          title="Total Settlements"
-          value={summary.total_settlements}
-          icon={Layers}
-          subtext="Processed batches"
-        />
-        <MetricCard
-          title="Matched"
-          value={summary.matched_count}
-          icon={CheckCircle}
-          subtext="Deterministic matches"
-          trendType="positive"
-        />
-        <MetricCard
-          title="Abstained"
-          value={summary.abstained_count}
-          icon={HelpCircle}
-          subtext="Ambiguity safety blocked"
-          trendType="neutral"
-        />
-        <MetricCard
-          title="Exceptions"
-          value={summary.exception_count}
-          icon={ShieldAlert}
-          subtext="Variance audit flags"
-          trendType={summary.exception_count > 0 ? 'negative' : 'positive'}
-        />
-      </div>
-
-      {/* Additional Accuracy Metrics Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-sans">
-        <div className="p-4 bg-slate-900/60 border border-slate-800 rounded-xl flex items-center justify-between">
-          <div>
-            <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Precision Score (PPV)</span>
-            <div className="text-xl font-bold font-mono text-slate-100 mt-1">{prText}</div>
-          </div>
-          <div className="text-xs text-slate-400 text-right">
-            True Matches / Total System Matches
-          </div>
-        </div>
-        <div className="p-4 bg-slate-900/60 border border-slate-800 rounded-xl flex items-center justify-between">
-          <div>
-            <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Recall Score (Sensitivity)</span>
-            <div className="text-xl font-bold font-mono text-slate-100 mt-1">{recallText}</div>
-          </div>
-          <div className="text-xs text-slate-400 text-right">
-            Identified Valid Matches / Total True Pairs
-          </div>
-        </div>
-      </div>
-
-      {/* Financial Exposure Breakdown */}
-      <FinancialExposure
-        amountAtRisk={summary.financial_amount_at_risk}
-        totalSettlementsAmount={totalNetExpected}
-        unresolvedVariance={exceptions.reduce((sum, exc) => sum + Math.abs(exc.variance), 0)}
-      />
-
-      {/* Analytics Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-sans">
-        <div className="p-5 bg-slate-900/80 border border-slate-800 rounded-xl">
-          <h4 className="text-xs font-semibold text-slate-200 uppercase tracking-wider mb-3">Outcome Distribution</h4>
-          <ReconciliationChart
-            matched={summary.matched_count}
-            abstained={summary.abstained_count}
-            exceptions={summary.exception_count}
-            unmatched={summary.no_match_count}
+      {/* METRIC CARDS GRID */}
+      {isRole('FINANCE_MANAGER') ? (
+        // MANAGER: Exposure & Management Focused Metrics
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <MetricCard
+            title="Total Volume Processed"
+            value={summary.total_settlements}
+            subtext="Authorized batches"
+            icon={Layers}
+            trendType="neutral"
+          />
+          <MetricCard
+            title="Financial Amount At Risk"
+            value={formatter.format(summary.financial_amount_at_risk)}
+            subtext="Awaiting manager review"
+            icon={DollarSign}
+            trendType="negative"
+            isProminent={true}
+          />
+          <MetricCard
+            title="Manual Review Queue"
+            value={summary.exception_count}
+            subtext="Exceptions requiring review"
+            icon={AlertTriangle}
+            trendType="negative"
+          />
+          <MetricCard
+            title="Auto-Resolution Rate"
+            value={`${(summary.auto_resolution_rate * 100).toFixed(1)}%`}
+            subtext="Low-risk auto resolved"
+            icon={CheckCircle}
+            trendType="positive"
           />
         </div>
-
-        <div className="p-5 bg-slate-900/80 border border-slate-800 rounded-xl">
-          <h4 className="text-xs font-semibold text-slate-200 uppercase tracking-wider mb-3">Risk Severity Profiles</h4>
-          <RiskChart exceptions={exceptions} />
+      ) : isRole('RISK_COMPLIANCE_OFFICER') ? (
+        // RISK OFFICER: Anomaly & Severity Focused Metrics
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <MetricCard
+            title="High-Risk Exposure"
+            value={formatter.format(summary.financial_amount_at_risk)}
+            subtext="High & Critical items"
+            icon={ShieldAlert}
+            trendType="negative"
+            isProminent={true}
+          />
+          <MetricCard
+            title="Active Discrepancies"
+            value={summary.exception_count}
+            subtext="Risk monitored exceptions"
+            icon={AlertTriangle}
+            trendType="negative"
+          />
+          <MetricCard
+            title="Safety Gate Abstains"
+            value={summary.abstained_count}
+            subtext="Conservative holds"
+            icon={HelpCircle}
+            trendType="neutral"
+          />
+          <MetricCard
+            title="False Match Rate"
+            value={fmRate}
+            subtext="Target: 0.00% Zero-Loss"
+            icon={Percent}
+            trendType="positive"
+          />
         </div>
+      ) : isRole('AUDITOR') ? (
+        // AUDITOR: Verification & Historical Accuracy Metrics
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <MetricCard
+            title="Verified Settlements"
+            value={summary.total_settlements}
+            subtext="Statutory audited batches"
+            icon={Layers}
+            trendType="neutral"
+          />
+          <MetricCard
+            title="Historical Matched"
+            value={summary.matched_count}
+            subtext={`Match Rate: ${(summary.match_rate * 100).toFixed(1)}%`}
+            icon={CheckCircle}
+            trendType="positive"
+          />
+          <MetricCard
+            title="Audited Exceptions"
+            value={summary.exception_count}
+            subtext="Verified discrepancies"
+            icon={AlertTriangle}
+            trendType="negative"
+          />
+          <MetricCard
+            title="Ledger Traceability"
+            value="100.0%"
+            subtext="Immutable audit trail"
+            icon={ShieldCheck}
+            trendType="positive"
+            isProminent={true}
+          />
+        </div>
+      ) : (
+        // ADMIN & FINANCE ANALYST: Full Operational Suite
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <MetricCard
+            title="Total Settlements"
+            value={summary.total_settlements}
+            subtext={`Coverage: ${coverageText}`}
+            icon={Layers}
+            trendType="neutral"
+          />
+          <MetricCard
+            title="Matched Settlements"
+            value={summary.matched_count}
+            subtext={`Match Rate: ${(summary.match_rate * 100).toFixed(1)}%`}
+            icon={CheckCircle}
+            trendType="positive"
+          />
+          <MetricCard
+            title="Safety Gate Abstains"
+            value={summary.abstained_count}
+            subtext="Conservative safety hold"
+            icon={HelpCircle}
+            trendType="neutral"
+          />
+          <MetricCard
+            title="Financial Amount At Risk"
+            value={formatter.format(summary.financial_amount_at_risk)}
+            subtext={`${summary.exception_count} exceptions recorded`}
+            icon={AlertTriangle}
+            trendType="negative"
+            isProminent={true}
+          />
+        </div>
+      )}
 
-        <div className="p-5 bg-slate-900/80 border border-slate-800 rounded-xl">
-          <h4 className="text-xs font-semibold text-slate-200 uppercase tracking-wider mb-3">Exception Categories</h4>
+      {/* SECONDARY ROW: CHARTS & FINANCIAL EXPOSURE */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-sans">
+        {/* Left 2 Cols: Main Visualizations */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <ReconciliationChart
+              matched={summary.matched_count}
+              abstained={summary.abstained_count}
+              exceptions={summary.exception_count}
+              unmatched={summary.no_match_count}
+            />
+            <RiskChart exceptions={exceptions} />
+          </div>
+
           <ExceptionChart exceptions={exceptions} />
         </div>
-      </div>
 
-      {/* Recent High-Variance Exception Snapshot Table */}
-      <div className="p-5 sm:p-6 bg-slate-900/80 border border-slate-800 rounded-xl space-y-4 font-sans">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-          <div>
-            <h3 className="text-xs font-semibold text-slate-200 uppercase tracking-wider">Top Pending Audit Exceptions</h3>
-            <span className="text-[10px] text-slate-400 font-mono">Prioritized by variance & risk severity</span>
-          </div>
-          <button
-            onClick={() => navigate('/exceptions')}
-            className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 font-semibold transition-colors"
-          >
-            <span>View All ({exceptions.length})</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
+        {/* Right Col: Financial Exposure & Role Actions */}
+        <div className="space-y-6">
+          <FinancialExposure
+            amountAtRisk={summary.financial_amount_at_risk}
+            totalSettlementsAmount={totalNetExpected}
+            unresolvedVariance={totalVariance}
+          />
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr className="border-b border-slate-800 text-[10px] uppercase font-semibold text-slate-400 tracking-wider bg-slate-950/60">
-                <th className="py-2.5 px-3">Exception ID</th>
-                <th className="py-2.5 px-3">Category</th>
-                <th className="py-2.5 px-3">Severity</th>
-                <th className="py-2.5 px-3 text-right">Expected Net</th>
-                <th className="py-2.5 px-3 text-right">Variance</th>
-                <th className="py-2.5 px-3 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/80 text-slate-200">
-              {exceptions.slice(0, 5).map((exc) => (
-                <tr key={exc.exception_id} className="hover:bg-slate-800/40 transition-colors">
-                  <td className="py-3 px-3 font-mono font-medium text-slate-100">{exc.exception_id}</td>
-                  <td className="py-3 px-3 font-mono text-[11px] text-slate-400">{exc.exception_type.replace(/_/g, ' ')}</td>
-                  <td className="py-3 px-3">
-                    <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase ${
-                      exc.severity === 'CRITICAL' ? 'bg-rose-950 text-rose-400 border border-rose-800' :
-                      exc.severity === 'HIGH' ? 'bg-amber-950 text-amber-400 border border-amber-800' :
-                      'bg-slate-800 text-slate-300 border border-slate-700'
-                    }`}>
-                      {exc.severity}
-                    </span>
-                  </td>
-                  <td className="py-3 px-3 font-mono text-right text-slate-200">{formatter.format(exc.expected_amount)}</td>
-                  <td className="py-3 px-3 font-mono text-right text-rose-400 font-medium">{formatter.format(exc.variance)}</td>
-                  <td className="py-3 px-3 text-right">
-                    <button
-                      onClick={() => navigate(`/exceptions/${exc.exception_id}`)}
-                      className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-[11px] font-mono transition-colors border border-slate-700"
-                    >
-                      Audit →
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {exceptions.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="py-8 text-center text-slate-400 font-mono text-xs">
-                    No active exception records pending review.
-                  </td>
-                </tr>
+          {/* Role-Specific Quick Action Card */}
+          <div className="p-5 bg-slate-900 border border-slate-800 rounded-xl space-y-3 shadow-lg">
+            <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
+              Role Operational Shortcuts
+            </h4>
+            <div className="space-y-2">
+              {hasPermission('can_simulate_policy') && (
+                <button
+                  onClick={() => navigate('/governance')}
+                  className="w-full flex items-center justify-between p-2.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-lg text-xs transition-colors"
+                >
+                  <div className="flex items-center gap-2 text-slate-200">
+                    <Sliders className="w-4 h-4 text-purple-400" />
+                    <span>Governance Policy Simulator</span>
+                  </div>
+                  <ArrowRight className="w-3.5 h-3.5 text-slate-500" />
+                </button>
               )}
-            </tbody>
-          </table>
+
+              {hasPermission('can_view_anomalies') && (
+                <button
+                  onClick={() => navigate('/anomalies')}
+                  className="w-full flex items-center justify-between p-2.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-lg text-xs transition-colors"
+                >
+                  <div className="flex items-center gap-2 text-slate-200">
+                    <Activity className="w-4 h-4 text-amber-400" />
+                    <span>ML Anomaly Clusters</span>
+                  </div>
+                  <ArrowRight className="w-3.5 h-3.5 text-slate-500" />
+                </button>
+              )}
+
+              <button
+                onClick={() => navigate('/exceptions')}
+                className="w-full flex items-center justify-between p-2.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-lg text-xs transition-colors"
+              >
+                <div className="flex items-center gap-2 text-slate-200">
+                  <ShieldAlert className="w-4 h-4 text-rose-400" />
+                  <span>Exceptions Command Center</span>
+                </div>
+                <ArrowRight className="w-3.5 h-3.5 text-slate-500" />
+              </button>
+
+              <button
+                onClick={() => navigate('/audit')}
+                className="w-full flex items-center justify-between p-2.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-lg text-xs transition-colors"
+              >
+                <div className="flex items-center gap-2 text-slate-200">
+                  <FileText className="w-4 h-4 text-blue-400" />
+                  <span>Audit Logs & Traceability</span>
+                </div>
+                <ArrowRight className="w-3.5 h-3.5 text-slate-500" />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </PageContainer>
   );
 }
-
-

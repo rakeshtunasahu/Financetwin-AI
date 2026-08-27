@@ -1,6 +1,6 @@
 import os
 from decimal import Decimal
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from backend.app.db.session import get_db
 from backend.app.models.reconciliation import ReconciliationRun, ExceptionRecord, AuditLog
@@ -8,11 +8,20 @@ from backend.app.services.evaluation_service import evaluate_run
 from backend.app.services.ml_clustering import run_anomaly_detection_and_clustering
 from backend.app.schemas.dashboard import DashboardSummarySchema
 from backend.app.utils.money import to_decimal
+from backend.app.core.rbac import (
+    get_current_user,
+    require_permission,
+    Role,
+    DemoUser
+)
 
 router = APIRouter(prefix="/api/dashboard", tags=["Dashboard"])
 
 @router.get("/summary", response_model=DashboardSummarySchema)
-def get_dashboard_summary(db: Session = Depends(get_db)):
+def get_dashboard_summary(
+    db: Session = Depends(get_db),
+    user: DemoUser = Depends(require_permission("can_view_dashboard"))
+):
     # Retrieve the most recent reconciliation run
     latest_run = db.query(ReconciliationRun).order_by(ReconciliationRun.created_at.desc()).first()
     if not latest_run:
@@ -79,7 +88,10 @@ def get_dashboard_summary(db: Session = Depends(get_db)):
     )
 
 @router.get("/anomalies")
-def get_anomalies(db: Session = Depends(get_db)):
+def get_anomalies(
+    db: Session = Depends(get_db),
+    user: DemoUser = Depends(get_current_user)
+):
     exceptions = db.query(ExceptionRecord).all()
     if not exceptions:
         return {"anomaly_count": 0, "total_exceptions": 0, "anomaly_rate": 0.0, "anomalies": []}
@@ -122,7 +134,10 @@ def get_anomalies(db: Session = Depends(get_db)):
     }
 
 @router.get("/clusters")
-def get_clusters(db: Session = Depends(get_db)):
+def get_clusters(
+    db: Session = Depends(get_db),
+    user: DemoUser = Depends(get_current_user)
+):
     exceptions = db.query(ExceptionRecord).all()
     if not exceptions:
         return {"cluster_count": 0, "clusters": []}

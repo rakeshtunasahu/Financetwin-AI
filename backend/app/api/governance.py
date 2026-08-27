@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from backend.app.db.session import get_db
 from backend.app.schemas.governance import PolicySchema, PolicySimulationRequest, PolicySimulationResponse, PolicyImpactMetrics
@@ -10,15 +10,27 @@ from backend.app.models.entities import SettlementBatch, BankTransaction
 from backend.app.services.matcher import match_batch
 from backend.app.services.risk_engine import calculate_risk_score, recommend_action
 from backend.app.services.audit_service import log_action
+from backend.app.core.rbac import (
+    get_current_user,
+    require_permission,
+    Role,
+    DemoUser
+)
 
 router = APIRouter(prefix="/api/governance", tags=["Governance"])
 
 @router.get("/policy", response_model=PolicySchema)
-def get_policy():
+def get_policy(user: DemoUser = Depends(get_current_user)):
+    # Accessible by all roles for viewing active governance thresholds
     return get_active_policy()
 
 @router.post("/policy", response_model=PolicySchema)
-def update_policy(policy: PolicySchema, db: Session = Depends(get_db)):
+def update_policy(
+    policy: PolicySchema,
+    db: Session = Depends(get_db),
+    user: DemoUser = Depends(require_permission("can_apply_policy"))
+):
+    # Only ADMIN role has permission "can_apply_policy"
     policy_dict = policy.model_dump()
     save_policy(policy_dict)
     
@@ -27,15 +39,20 @@ def update_policy(policy: PolicySchema, db: Session = Depends(get_db)):
         entity_type="Policy",
         entity_id="current_active_policy",
         action="POLICY_APPLIED",
-        actor="governance_manager",
+        actor=f"{user.name} ({user.email})",
         decision="APPLY",
-        reason="Updated global reconciliation safety limits and thresholds.",
+        reason=f"Updated global reconciliation safety limits and thresholds by {user.role.value}.",
         metadata_json=policy_dict
     )
     return policy_dict
 
 @router.post("/simulate", response_model=PolicySimulationResponse)
-def simulate_policy_change(req: PolicySimulationRequest, db: Session = Depends(get_db)):
+def simulate_policy_change(
+    req: PolicySimulationRequest,
+    db: Session = Depends(get_db),
+    user: DemoUser = Depends(require_permission("can_simulate_policy"))
+):
+    # Allowed for ADMIN, FINANCE_MANAGER, RISK_COMPLIANCE_OFFICER
     current_policy = get_active_policy()
     
     # Build simulated policy dictionary overriding only set parameters
@@ -45,7 +62,7 @@ def simulate_policy_change(req: PolicySimulationRequest, db: Session = Depends(g
         if v is not None:
             sim_policy[k] = v
             
-    # Load evaluation ground truth if exists to honestly calculate simulation FMR
+    # Load evaluation ground truth if exists to calculate simulation FMR
     base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     gt_path = os.path.join(base_path, "data", "evaluation", "ground_truth.csv")
     gt_df = pd.read_csv(gt_path) if os.path.exists(gt_path) else None
@@ -83,7 +100,6 @@ def simulate_policy_change(req: PolicySimulationRequest, db: Session = Depends(g
                     if dec == "MATCH":
                         predicted_matches += 1
                         pred_btx_id = tx.bank_transaction_id if tx else ""
-                        # If ground truth doesn't match or bank transaction doesn't match
                         if not (true_dec == "MATCH" and pred_btx_id == true_btx):
                             incorrect_matches += 1
             
@@ -131,6 +147,22 @@ def simulate_policy_change(req: PolicySimulationRequest, db: Session = Depends(g
     before_metrics = calculate_metrics(current_policy)
     after_metrics = calculate_metrics(sim_policy)
     
+    # Audit log the simulation execution
+    log_action(
+        db,
+        entity_type="PolicySimulation",
+        entity_id="sandbox_simulation",
+        action="POLICY_SIMULATED",
+        actor=f"{user.name} ({user.email})",
+        decision="SIMULATED",
+        reason=f"Executed policy parameter stress simulation by {user.role.value}.",
+        metadata_json={
+            "simulated_params": req_dict,
+            "projected_coverage": after_metrics.coverage,
+            "projected_fmr": after_metrics.false_match_rate
+        }
+    )
+
     return PolicySimulationResponse(
         before=before_metrics,
         after=after_metrics

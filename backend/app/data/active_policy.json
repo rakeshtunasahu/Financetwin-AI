@@ -1,0 +1,13 @@
+{
+    "minimum_match_confidence": 0.95,
+    "minimum_confidence_margin": 0.05,
+    "max_auto_resolve_amount": 5000.0,
+    "high_value_transaction_threshold": 100000.0,
+    "amount_tolerance": 1.0,
+    "date_tolerance_days": 2,
+    "tax_rate": 0.18,
+    "severity_weight_low": 0.5,
+    "severity_weight_medium": 1.0,
+    "severity_weight_high": 2.0,
+    "severity_weight_critical": 5.0
+}

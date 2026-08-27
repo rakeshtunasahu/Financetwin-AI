@@ -6,12 +6,16 @@ import PolicyImpact from '../components/governance/PolicyImpact';
 import LoadingState from '../components/common/LoadingState';
 import ErrorState from '../components/common/ErrorState';
 import { apiFetch } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 import { Policy, PolicySimulationResponse } from '../types';
+import { ShieldCheck, Lock, Sliders, AlertCircle } from 'lucide-react';
 
 export default function Governance() {
+  const { currentUser, hasPermission, isRole } = useAuth();
   const [loading, setLoading] = useState(true);
   const [simulating, setSimulating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [policy, setPolicy] = useState<Policy | null>(null);
   const [simulation, setSimulation] = useState<PolicySimulationResponse | null>(null);
 
@@ -30,11 +34,12 @@ export default function Governance() {
 
   useEffect(() => {
     fetchPolicy();
-  }, []);
+  }, [currentUser]);
 
   const handleSimulate = async (simValues: Partial<Policy>) => {
     setSimulating(true);
     setError(null);
+    setSuccessMsg(null);
     try {
       const data = await apiFetch<PolicySimulationResponse>('/api/governance/simulate', {
         method: 'POST',
@@ -51,6 +56,7 @@ export default function Governance() {
   const handleApply = async (applyValues: Policy) => {
     setSimulating(true);
     setError(null);
+    setSuccessMsg(null);
     try {
       const data = await apiFetch<Policy>('/api/governance/policy', {
         method: 'POST',
@@ -58,7 +64,8 @@ export default function Governance() {
       });
       setPolicy(data);
       setSimulation(null);
-      alert('Governance policy changes applied live to the matching engine.');
+      setSuccessMsg('Governance policy changes applied live to the matching engine.');
+      setTimeout(() => setSuccessMsg(null), 6000);
     } catch (err: any) {
       setError(err.message || 'Failed to apply policy.');
     } finally {
@@ -68,6 +75,37 @@ export default function Governance() {
 
   return (
     <PageContainer title="Governance & Policy Simulation Engine" onRefresh={fetchPolicy}>
+      {/* Role Banner */}
+      <div className="p-4 bg-slate-900 border border-slate-800 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 font-sans shadow-lg">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-purple-950 border border-purple-800 flex items-center justify-center text-purple-400 shrink-0">
+            <Sliders className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-bold text-slate-100">Governance Scope: {currentUser.role}</h3>
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-purple-900/60 text-purple-300 border border-purple-700">
+                {currentUser.title}
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 mt-0.5">
+              {isRole('ADMIN')
+                ? 'Authorized to simulate parameters and apply live thresholds directly to the matching engine.'
+                : isRole('FINANCE_MANAGER') || isRole('RISK_COMPLIANCE_OFFICER')
+                ? 'Authorized for policy parameter simulation and financial exposure stress testing (Apply disabled).'
+                : 'Read-only view of active governance safety limits and thresholds.'}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {successMsg && (
+        <div className="p-3 bg-emerald-950/80 border border-emerald-800 rounded-xl text-xs font-mono text-emerald-300 flex items-center gap-2">
+          <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>{successMsg}</span>
+        </div>
+      )}
+
       {loading ? (
         <LoadingState />
       ) : error && !policy ? (
@@ -94,4 +132,3 @@ export default function Governance() {
     </PageContainer>
   );
 }
-

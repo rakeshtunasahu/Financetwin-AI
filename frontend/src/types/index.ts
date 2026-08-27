@@ -1,3 +1,20 @@
+export type UserRole =
+  | 'ADMIN'
+  | 'FINANCE_ANALYST'
+  | 'FINANCE_MANAGER'
+  | 'RISK_COMPLIANCE_OFFICER'
+  | 'AUDITOR';
+
+export interface DemoUser {
+  email: string;
+  name: string;
+  role: UserRole;
+  title: string;
+  department: string;
+  organization: string;
+  permissions: string[];
+}
+
 export interface Payment {
   id: number;
   payment_id: string;
@@ -89,7 +106,6 @@ export interface ReconciliationMatch {
   bank_transaction: BankTransaction | null;
 }
 
-
 export interface ExceptionRecord {
   id: number;
   exception_id: string;
@@ -110,6 +126,9 @@ export interface ExceptionRecord {
 }
 
 export interface AuditLogEntry {
+  id?: number;
+  entity_type: string;
+  entity_id: string;
   action: string;
   actor: string;
   decision: string;

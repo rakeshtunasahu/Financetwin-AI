@@ -8,6 +8,22 @@ export async function apiFetch<T>(endpoint: string, options?: RequestInit): Prom
     headers.set('Content-Type', 'application/json');
   }
 
+  // Automatically attach active authenticated user context headers for backend RBAC
+  try {
+    const savedUser = localStorage.getItem('financetwin_active_user');
+    if (savedUser) {
+      const user = JSON.parse(savedUser);
+      if (user.email) {
+        headers.set('X-User-Email', user.email);
+      }
+      if (user.role) {
+        headers.set('X-User-Role', user.role);
+      }
+    }
+  } catch (e) {
+    // Ignore localStorage parse errors in non-browser environments
+  }
+
   const response = await fetch(url, {
     ...options,
     headers,
