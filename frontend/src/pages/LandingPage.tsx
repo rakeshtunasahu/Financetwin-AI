@@ -463,7 +463,7 @@ export default function LandingPage({ initialLoginOpen = false }: LandingPagePro
               </button>
             </form>
 
-            {/* Sign Up Link: OPENS IN NEW TAB */}
+            {/* Sign Up Link */}
             <div className="text-center text-xs text-slate-400 pt-1">
               <span>Don't have an account? </span>
               <a
@@ -472,7 +472,7 @@ export default function LandingPage({ initialLoginOpen = false }: LandingPagePro
                 rel="noopener noreferrer"
                 className="text-blue-400 hover:text-blue-300 font-bold inline-flex items-center gap-1 cursor-pointer"
               >
-                <span>Sign Up (opens in new tab)</span>
+                <span>Sign Up</span>
                 <ArrowRight className="w-3 h-3" />
               </a>
             </div>
