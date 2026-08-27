@@ -102,8 +102,8 @@ export default function Login() {
         
         {/* App Header & Definition Lines */}
         <div className="text-center space-y-2.5">
-          <Link to="/" className="inline-flex items-center gap-2.5 group">
-            <div className="w-11 h-11 rounded-2xl bg-blue-600 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-blue-600/30 group-hover:scale-105 transition-transform">
+          <div className="inline-flex items-center gap-2.5">
+            <div className="w-11 h-11 rounded-2xl bg-blue-600 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-blue-600/30">
               FT
             </div>
             <div className="text-left">
@@ -114,7 +114,7 @@ export default function Login() {
                 Settlement & Risk Engine
               </span>
             </div>
-          </Link>
+          </div>
 
           <div>
             <span className="text-xs font-medium text-slate-400 block">
@@ -306,9 +306,6 @@ export default function Login() {
         {/* Security & Disclaimer Footer */}
         <div className="text-center space-y-1 text-[10px] text-slate-500 font-mono pt-1">
           <p>Protected by 256-bit encryption & SOC-2 compliance.</p>
-          <Link to="/" className="text-slate-400 hover:text-slate-200 underline inline-block mt-1">
-            ← Back to Main Website
-          </Link>
         </div>
       </div>
     </div>
