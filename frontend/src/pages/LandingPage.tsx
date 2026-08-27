@@ -463,43 +463,6 @@ export default function LandingPage({ initialLoginOpen = false }: LandingPagePro
               </button>
             </form>
 
-            {/* Quick 1-Click Demo Persona Access */}
-            <div className="p-3 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-2">
-              <div className="flex items-center justify-between text-[11px] font-mono text-slate-400">
-                <span className="text-slate-300 font-semibold flex items-center gap-1.5">
-                  <UserCheck className="w-3.5 h-3.5 text-blue-400" />
-                  ⚡ Quick 1-Click Demo Login:
-                </span>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={async () => {
-                    await login('admin@financetwin.ai');
-                    setShowLoginModal(false);
-                    navigate('/dashboard');
-                  }}
-                  className="p-2 bg-purple-950/40 hover:bg-purple-900/50 border border-purple-800/60 rounded-xl text-left transition-colors cursor-pointer"
-                >
-                  <div className="text-[11px] font-bold text-purple-300">Admin User</div>
-                  <div className="text-[9px] text-purple-400/80 font-mono">Full Access</div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={async () => {
-                    await login('analyst.priya@financetwin.ai');
-                    setShowLoginModal(false);
-                    navigate('/dashboard');
-                  }}
-                  className="p-2 bg-blue-950/40 hover:bg-blue-900/50 border border-blue-800/60 rounded-xl text-left transition-colors cursor-pointer"
-                >
-                  <div className="text-[11px] font-bold text-blue-300">Finance Analyst</div>
-                  <div className="text-[9px] text-blue-400/80 font-mono">Priya Sharma</div>
-                </button>
-              </div>
-            </div>
-
             {/* Sign Up Link: OPENS IN NEW TAB */}
             <div className="text-center text-xs text-slate-400 pt-1">
               <span>Don't have an account? </span>

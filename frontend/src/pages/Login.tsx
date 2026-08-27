@@ -303,41 +303,6 @@ export default function Login() {
           </button>
         </form>
 
-        {/* Demo Personas 1-Click Access for Evaluation */}
-        <div className="p-3.5 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-2">
-          <div className="flex items-center justify-between text-[11px] font-mono text-slate-400">
-            <span className="text-slate-300 font-semibold flex items-center gap-1.5">
-              <UserCheck className="w-3.5 h-3.5 text-blue-400" />
-              ⚡ Instant 1-Click Demo Login:
-            </span>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={async () => {
-                await authLogin('admin@financetwin.ai');
-                navigate('/dashboard');
-              }}
-              className="p-2 bg-purple-950/40 hover:bg-purple-900/50 border border-purple-800/60 rounded-xl text-left transition-colors cursor-pointer"
-            >
-              <div className="text-[11px] font-bold text-purple-300">Admin User</div>
-              <div className="text-[9px] text-purple-400/80 font-mono">Full Ledger Access</div>
-            </button>
-
-            <button
-              type="button"
-              onClick={async () => {
-                await authLogin('analyst.priya@financetwin.ai');
-                navigate('/dashboard');
-              }}
-              className="p-2 bg-blue-950/40 hover:bg-blue-900/50 border border-blue-800/60 rounded-xl text-left transition-colors cursor-pointer"
-            >
-              <div className="text-[11px] font-bold text-blue-300">Finance Analyst</div>
-              <div className="text-[9px] text-blue-400/80 font-mono">Priya Sharma</div>
-            </button>
-          </div>
-        </div>
-
         {/* Security & Disclaimer Footer */}
         <div className="text-center space-y-1 text-[10px] text-slate-500 font-mono pt-1">
           <p>Protected by 256-bit encryption & SOC-2 compliance.</p>
