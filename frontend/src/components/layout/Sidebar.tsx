@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   GitCompare,
@@ -8,12 +8,11 @@ import {
   Activity,
   BookOpen,
   Calculator,
-  LogIn,
+  LogOut,
   ShieldCheck,
   X,
   UserCheck,
-  FileText,
-  Lock
+  FileText
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { UserRole } from '../../types';
@@ -24,9 +23,16 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
-  const { currentUser } = useAuth();
+  const { currentUser, logout } = useAuth();
+  const navigate = useNavigate();
 
-  // Role-specific navigation items configuration
+  const handleSignOut = () => {
+    logout();
+    if (onClose) onClose();
+    navigate('/');
+  };
+
+  // Role-specific navigation items configuration (Sign In removed as it is on the main landing page)
   const getMenuItems = (role: UserRole) => {
     switch (role) {
       case 'FINANCE_ANALYST':
@@ -35,8 +41,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
           { name: 'Operational Dashboard', path: '/dashboard', icon: LayoutDashboard },
           { name: 'Reconciliation Queue', path: '/reconciliation', icon: GitCompare },
           { name: 'Exception Operations', path: '/exceptions', icon: ShieldAlert },
-          { name: 'Settlement Calculator', path: '/calculator', icon: Calculator },
-          { name: 'Sign In / Account', path: '/login', icon: LogIn }
+          { name: 'Settlement Calculator', path: '/calculator', icon: Calculator }
         ];
 
       case 'FINANCE_MANAGER':
@@ -47,8 +52,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
           { name: 'Approvals & Exceptions', path: '/exceptions', icon: ShieldAlert },
           { name: 'Policy Simulation Lab', path: '/governance', icon: Sliders },
           { name: 'Approval Audit Trail', path: '/audit', icon: FileText },
-          { name: 'Settlement Calculator', path: '/calculator', icon: Calculator },
-          { name: 'Sign In / Account', path: '/login', icon: LogIn }
+          { name: 'Settlement Calculator', path: '/calculator', icon: Calculator }
         ];
 
       case 'RISK_COMPLIANCE_OFFICER':
@@ -59,8 +63,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
           { name: 'ML Anomaly Clusters', path: '/anomalies', icon: Activity },
           { name: 'Governance Policy View', path: '/governance', icon: Sliders },
           { name: 'Forensic Audit Logs', path: '/audit', icon: FileText },
-          { name: 'Settlement Calculator', path: '/calculator', icon: Calculator },
-          { name: 'Sign In / Account', path: '/login', icon: LogIn }
+          { name: 'Settlement Calculator', path: '/calculator', icon: Calculator }
         ];
 
       case 'AUDITOR':
@@ -71,8 +74,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
           { name: 'Historical Exceptions', path: '/exceptions', icon: ShieldAlert },
           { name: 'Immutable Audit Trail', path: '/audit', icon: FileText },
           { name: 'Governance Policy Audit', path: '/governance', icon: Sliders },
-          { name: 'Settlement Calculator', path: '/calculator', icon: Calculator },
-          { name: 'Sign In / Account', path: '/login', icon: LogIn }
+          { name: 'Settlement Calculator', path: '/calculator', icon: Calculator }
         ];
 
       case 'ADMIN':
@@ -85,8 +87,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
           { name: 'Anomaly Patterns', path: '/anomalies', icon: Activity },
           { name: 'Governance Lab', path: '/governance', icon: Sliders },
           { name: 'Audit Trail & Logs', path: '/audit', icon: FileText },
-          { name: 'Settlement Calculator', path: '/calculator', icon: Calculator },
-          { name: 'Sign In / Account', path: '/login', icon: LogIn }
+          { name: 'Settlement Calculator', path: '/calculator', icon: Calculator }
         ];
     }
   };
@@ -173,21 +174,32 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
           ))}
         </nav>
         
-        {/* Bottom Safety & Active Persona Status */}
+        {/* Bottom Safety, Active Persona & Sign Out Action */}
         <div className="p-4 border-t border-slate-800 space-y-2.5 bg-slate-900/60">
-          <div className="flex items-center gap-2.5 p-2.5 bg-slate-950/70 rounded-lg border border-slate-800/80">
-            <div className={`w-7 h-7 rounded-md ${theme.bg} ${theme.text} flex items-center justify-center font-bold text-xs border ${theme.border}`}>
-              <UserCheck className="w-3.5 h-3.5" />
-            </div>
-            <div className="overflow-hidden">
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs font-semibold text-slate-200 block truncate">{currentUser.name}</span>
-                <span className={`text-[8px] font-mono px-1 py-0.2 rounded border font-bold uppercase ${theme.bg} ${theme.text} ${theme.border}`}>
-                  {theme.badge}
-                </span>
+          <div className="p-2.5 bg-slate-950/70 rounded-lg border border-slate-800/80 space-y-2">
+            <div className="flex items-center gap-2.5">
+              <div className={`w-7 h-7 rounded-md ${theme.bg} ${theme.text} flex items-center justify-center font-bold text-xs border ${theme.border}`}>
+                <UserCheck className="w-3.5 h-3.5" />
               </div>
-              <span className="text-[10px] text-slate-400 font-mono block truncate">{currentUser.email}</span>
+              <div className="overflow-hidden flex-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-semibold text-slate-200 block truncate">{currentUser.name}</span>
+                  <span className={`text-[8px] font-mono px-1 py-0.2 rounded border font-bold uppercase ${theme.bg} ${theme.text} ${theme.border}`}>
+                    {theme.badge}
+                  </span>
+                </div>
+                <span className="text-[10px] text-slate-400 font-mono block truncate">{currentUser.email}</span>
+              </div>
             </div>
+
+            {/* Dedicated Sign Out Button */}
+            <button
+              onClick={handleSignOut}
+              className="w-full flex items-center justify-center gap-2 px-2.5 py-1.5 bg-slate-900 hover:bg-rose-950/40 hover:border-rose-800/60 text-slate-400 hover:text-rose-300 border border-slate-800 rounded-md text-[11px] font-semibold transition-all cursor-pointer"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Sign Out</span>
+            </button>
           </div>
 
           <div className="px-2.5 py-2 bg-slate-950/50 rounded-lg border border-slate-800/60 flex items-center justify-between">
