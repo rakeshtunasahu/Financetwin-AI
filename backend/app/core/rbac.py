@@ -18,7 +18,7 @@ class DemoUser:
         role: Role,
         title: str,
         department: str,
-        organization: str = "Razorpay FinTwin Org",
+        organization: str = "RevenueRescue AI Org",
         aliases: Optional[List[str]] = None
     ):
         self.email = email
@@ -40,47 +40,47 @@ class DemoUser:
             "permissions": PERMISSIONS.get(self.role, [])
         }
 
-# 5 distinct enterprise personas with role-related emails
+# 5 distinct enterprise personas with role-related emails (RevenueRescue AI)
 DEMO_USERS: List[DemoUser] = [
     DemoUser(
-        email="admin@financetwin.ai",
+        email="admin@revenuerescue.ai",
         name="Admin User",
         role=Role.ADMIN,
         title="Chief Systems Architect & Controller",
-        department="FinOps Leadership",
-        aliases=["admin.root@financetwin.ai"]
+        department="Autonomous Recovery Leadership",
+        aliases=["admin.root@revenuerescue.ai", "admin@financetwin.ai", "admin.root@financetwin.ai"]
     ),
     DemoUser(
-        email="analyst.priya@financetwin.ai",
+        email="analyst.priya@revenuerescue.ai",
         name="Priya Sharma",
         role=Role.FINANCE_ANALYST,
-        title="Senior Settlement Analyst",
-        department="Daily Settlement Operations",
-        aliases=["priya.sharma@financetwin.ai"]
+        title="Senior Revenue Recovery Analyst",
+        department="Daily Recovery Operations",
+        aliases=["priya.sharma@revenuerescue.ai", "analyst.priya@financetwin.ai", "priya.sharma@financetwin.ai"]
     ),
     DemoUser(
-        email="manager.rahul@financetwin.ai",
+        email="manager.rahul@revenuerescue.ai",
         name="Rahul Verma",
         role=Role.FINANCE_MANAGER,
-        title="Finance Operations Manager",
-        department="Treasury & Exposure Control",
-        aliases=["rahul.verma@financetwin.ai"]
+        title="Finance & Recovery Operations Manager",
+        department="Treasury & Revenue Exposure Control",
+        aliases=["rahul.verma@revenuerescue.ai", "manager.rahul@financetwin.ai", "rahul.verma@financetwin.ai"]
     ),
     DemoUser(
-        email="risk.ananya@financetwin.ai",
+        email="risk.ananya@revenuerescue.ai",
         name="Ananya Singh",
         role=Role.RISK_COMPLIANCE_OFFICER,
-        title="Risk & Compliance Officer",
-        department="FinCrime & Anomaly Governance",
-        aliases=["ananya.singh@financetwin.ai"]
+        title="Risk & Recovery Compliance Officer",
+        department="Safety Governance & Anomaly Control",
+        aliases=["ananya.singh@revenuerescue.ai", "risk.ananya@financetwin.ai", "ananya.singh@financetwin.ai"]
     ),
     DemoUser(
-        email="auditor.vikram@financetwin.ai",
+        email="auditor.vikram@revenuerescue.ai",
         name="Vikram Mehta",
         role=Role.AUDITOR,
-        title="External Financial Auditor",
+        title="External Financial & Recovery Auditor",
         department="Statutory Audit & Verification",
-        aliases=["vikram.mehta@financetwin.ai", "auditor@financetwin.ai"]
+        aliases=["vikram.mehta@revenuerescue.ai", "auditor@revenuerescue.ai", "auditor.vikram@financetwin.ai", "auditor@financetwin.ai"]
     )
 ]
 
@@ -106,7 +106,13 @@ PERMISSIONS: Dict[Role, List[str]] = {
         "can_view_risk_cases",
         "can_approve_high_risk_case",
         "can_view_anomalies",
-        "can_view_calculator"
+        "can_view_calculator",
+        # RevenueRescue AI Permissions
+        "can_view_recovery_cases",
+        "can_run_recovery_batch",
+        "can_execute_recovery_action",
+        "can_approve_recovery",
+        "can_view_policy_violations"
     ],
     Role.FINANCE_ANALYST: [
         "can_view_dashboard",
@@ -115,7 +121,10 @@ PERMISSIONS: Dict[Role, List[str]] = {
         "can_investigate_exception",
         "can_trigger_ai_investigation",
         "can_view_audit_logs",
-        "can_view_calculator"
+        "can_view_calculator",
+        # RevenueRescue AI Permissions
+        "can_view_recovery_cases",
+        "can_execute_recovery_action"
     ],
     Role.FINANCE_MANAGER: [
         "can_view_dashboard",
@@ -125,7 +134,11 @@ PERMISSIONS: Dict[Role, List[str]] = {
         "can_view_audit_logs",
         "can_view_risk_cases",
         "can_approve_high_risk_case",
-        "can_view_calculator"
+        "can_view_calculator",
+        # RevenueRescue AI Permissions
+        "can_view_recovery_cases",
+        "can_approve_recovery",
+        "can_view_policy_violations"
     ],
     Role.RISK_COMPLIANCE_OFFICER: [
         "can_view_dashboard",
@@ -135,14 +148,19 @@ PERMISSIONS: Dict[Role, List[str]] = {
         "can_view_audit_logs",
         "can_view_risk_cases",
         "can_view_anomalies",
-        "can_view_calculator"
+        "can_view_calculator",
+        # RevenueRescue AI Permissions
+        "can_view_recovery_cases",
+        "can_view_policy_violations"
     ],
     Role.AUDITOR: [
         "can_view_dashboard",
         "can_view_audit_logs",
         "can_view_full_reconciliation",
         "can_view_historical_records",
-        "can_view_calculator"
+        "can_view_calculator",
+        # RevenueRescue AI Permissions (read-only)
+        "can_view_recovery_cases"
     ],
 }
 
