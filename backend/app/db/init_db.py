@@ -10,6 +10,10 @@ from backend.app.models.reconciliation import (
     AIInvestigation,
     AuditLog
 )
+from backend.app.models.recovery import (
+    RecoveryCase,
+    RecoveryAction
+)
 
 logger = logging.getLogger("financetwin")
 
@@ -58,6 +62,17 @@ def init_db():
                 }
             )
             logger.info(f"Database bootstrap complete! Initial run {run.run_id} processed {run.total_settlements} batches.")
+
+        # Seed Recovery Cases if empty
+        recovery_count = db.query(RecoveryCase).count()
+        if recovery_count == 0:
+            logger.info("Initializing RevenueRescue AI recovery cases and running initial batch...")
+            from backend.app.services.recovery_dataset import generate_recovery_batch
+            from backend.app.services.recovery_agent import run_batch_recovery
+            
+            initial_cases = generate_recovery_batch(payment_failures=30, checkout_abandonments=25, overdue_receivables=25)
+            summary = run_batch_recovery(db, initial_cases, actor="System Bootstrapper")
+            logger.info(f"Recovery bootstrap complete! Seeded {summary['batch_size']} recovery cases with {summary['recovery_rate_pct']}% recovery rate.")
     except Exception as e:
         logger.error(f"Error during automatic database initialization: {e}")
     finally:

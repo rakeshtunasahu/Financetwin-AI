@@ -9,6 +9,7 @@ POLICY_FILE_PATH = os.path.join(
 )
 
 DEFAULT_POLICY = {
+    # ── Reconciliation matching thresholds ───────────────────────────────────
     "minimum_match_confidence": settings.MINIMUM_MATCH_CONFIDENCE,
     "minimum_confidence_margin": settings.MINIMUM_CONFIDENCE_MARGIN,
     "max_auto_resolve_amount": settings.MAX_AUTO_RESOLVE_AMOUNT,
@@ -19,7 +20,21 @@ DEFAULT_POLICY = {
     "severity_weight_low": 0.5,
     "severity_weight_medium": 1.0,
     "severity_weight_high": 2.0,
-    "severity_weight_critical": 5.0
+    "severity_weight_critical": 5.0,
+
+    # ── RevenueRescue AI — Recovery Guardrails ───────────────────────────────
+    # Maximum number of payment retry attempts per recovery case
+    "max_payment_retries": 3,
+    # Maximum number of customer reminders/chasers per recovery case
+    "max_customer_reminders": 3,
+    # Maximum days before a recovery workflow expires automatically
+    "max_workflow_duration_days": 7,
+    # Cases above this amount (INR) must be escalated to a human reviewer
+    "high_value_escalation_threshold": 50000.0,
+    # Maximum number of broken promise-to-pay commitments before escalation
+    "max_promise_to_pay_misses": 2,
+    # Minimum hours between consecutive retry attempts (cooldown period)
+    "retry_cooldown_hours": 24,
 }
 
 def get_active_policy() -> dict:
