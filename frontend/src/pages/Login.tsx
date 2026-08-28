@@ -108,32 +108,33 @@ export default function Login({ initialModeProp }: LoginProps = {}) {
         {/* App Header & Definition Lines */}
         <div className="text-center space-y-2.5">
           <div className="inline-flex items-center gap-2.5">
-            <div className="w-11 h-11 rounded-2xl bg-blue-600 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-blue-600/30">
-              FT
+            <div className="w-11 h-11 rounded-2xl bg-emerald-600 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-emerald-600/30">
+              RR
             </div>
             <div className="text-left">
               <span className="font-extrabold text-lg text-slate-100 tracking-tight block leading-none">
-                FinanceTwin <span className="text-blue-400 font-semibold">AI</span>
+                RevenueRescue <span className="text-emerald-400 font-semibold">AI</span>
               </span>
-              <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mt-0.5">
-                Settlement & Risk Engine
+              <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-wider block mt-0.5 font-bold">
+                Autonomous Recovery Agent
               </span>
             </div>
           </div>
 
           <div>
             <span className="text-xs font-medium text-slate-400 block">
-              Welcome to <strong className="text-slate-200">FinanceTwin AI</strong>
+              Welcome to <strong className="text-slate-200">RevenueRescue AI</strong>
             </span>
             <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto leading-relaxed">
-              Autonomous multi-pass reconciliation platform with AI risk scoring & 0.00% false-match safety gates.
+              Autonomous, policy-bounded revenue recovery across failed payments, drop-offs, and B2B invoices.
+              <strong className="text-emerald-400 ml-1">Detect. Decide. Recover.</strong>
             </p>
           </div>
 
           {/* App Defining Status Pill */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-950/60 border border-blue-800/60 rounded-full text-[11px] font-mono text-blue-300">
-            <Cpu className="w-3.5 h-3.5 text-blue-400" />
-            <span>Enterprise Ledger Safety Active</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-950/60 border border-emerald-800/60 rounded-full text-[11px] font-mono text-emerald-300">
+            <Cpu className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Autonomous Recovery Engine Active</span>
           </div>
         </div>
 
@@ -148,7 +149,7 @@ export default function Login({ initialModeProp }: LoginProps = {}) {
             }}
             className={`py-2 rounded-lg transition-all text-center cursor-pointer ${
               mode === 'login'
-                ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 font-bold'
+                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30 font-bold'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
@@ -163,7 +164,7 @@ export default function Login({ initialModeProp }: LoginProps = {}) {
             }}
             className={`py-2 rounded-lg transition-all text-center cursor-pointer ${
               mode === 'register'
-                ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 font-bold'
+                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30 font-bold'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
@@ -199,39 +200,39 @@ export default function Login({ initialModeProp }: LoginProps = {}) {
             <button
               type="button"
               onClick={async () => {
-                setEmail('admin@financetwin.ai');
+                setEmail('admin@revenuerescue.ai');
                 setPassword('admin123');
                 setIsLoading(true);
-                await authLogin('admin@financetwin.ai');
-                navigate('/dashboard');
+                await authLogin('admin@revenuerescue.ai');
+                navigate('/recovery');
               }}
-              className="px-2 py-1.5 bg-slate-950 hover:bg-blue-950/40 border border-slate-800 hover:border-blue-700/60 rounded-xl text-center transition-all cursor-pointer group"
+              className="px-2 py-1.5 bg-slate-950 hover:bg-emerald-950/40 border border-slate-800 hover:border-emerald-700/60 rounded-xl text-center transition-all cursor-pointer group"
             >
-              <span className="block text-[11px] font-bold text-slate-200 group-hover:text-blue-300">Admin</span>
+              <span className="block text-[11px] font-bold text-slate-200 group-hover:text-emerald-300">Admin</span>
               <span className="block text-[9px] text-slate-500 font-mono">Full Access</span>
             </button>
             <button
               type="button"
               onClick={async () => {
-                setEmail('ops@financetwin.ai');
-                setPassword('ops123');
+                setEmail('analyst.priya@revenuerescue.ai');
+                setPassword('analyst123');
                 setIsLoading(true);
-                await authLogin('ops@financetwin.ai');
-                navigate('/dashboard');
+                await authLogin('analyst.priya@revenuerescue.ai');
+                navigate('/recovery');
               }}
-              className="px-2 py-1.5 bg-slate-950 hover:bg-emerald-950/40 border border-slate-800 hover:border-emerald-700/60 rounded-xl text-center transition-all cursor-pointer group"
+              className="px-2 py-1.5 bg-slate-950 hover:bg-blue-950/40 border border-slate-800 hover:border-blue-700/60 rounded-xl text-center transition-all cursor-pointer group"
             >
-              <span className="block text-[11px] font-bold text-slate-200 group-hover:text-emerald-300">Ops Lead</span>
-              <span className="block text-[9px] text-slate-500 font-mono">Reconcile</span>
+              <span className="block text-[11px] font-bold text-slate-200 group-hover:text-blue-300">Analyst</span>
+              <span className="block text-[9px] text-slate-500 font-mono">Recovery Ops</span>
             </button>
             <button
               type="button"
               onClick={async () => {
-                setEmail('auditor@financetwin.ai');
+                setEmail('auditor.vikram@revenuerescue.ai');
                 setPassword('auditor123');
                 setIsLoading(true);
-                await authLogin('auditor@financetwin.ai');
-                navigate('/dashboard');
+                await authLogin('auditor.vikram@revenuerescue.ai');
+                navigate('/recovery');
               }}
               className="px-2 py-1.5 bg-slate-950 hover:bg-purple-950/40 border border-slate-800 hover:border-purple-700/60 rounded-xl text-center transition-all cursor-pointer group"
             >

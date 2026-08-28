@@ -81,11 +81,11 @@ export default function Signup() {
     setIsLoading(true);
     setError(null);
     try {
-      await authLogin('admin@financetwin.ai');
+      await authLogin('admin@revenuerescue.ai');
       setSuccess('Google verification verified! Setting up environment...');
       setTimeout(() => {
         setIsLoading(false);
-        navigate('/dashboard');
+        navigate('/recovery');
       }, 700);
     } catch (err: any) {
       setIsLoading(false);
@@ -94,10 +94,10 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-4 sm:p-6 font-sans relative overflow-hidden selection:bg-blue-600 selection:text-white">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-4 sm:p-6 font-sans relative overflow-hidden selection:bg-emerald-600 selection:text-white">
       {/* Subtle Ambient Glows */}
-      <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute -bottom-40 -right-40 w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-emerald-600/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute -bottom-40 -right-40 w-[600px] h-[600px] bg-teal-600/10 rounded-full blur-[140px] pointer-events-none" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-cyan-500/5 rounded-full blur-[160px] pointer-events-none" />
 
       {/* Main Dedicated Create Account Container */}
@@ -106,15 +106,15 @@ export default function Signup() {
         {/* Brand Header */}
         <div className="text-center space-y-2">
           <div className="inline-flex items-center gap-2.5">
-            <div className="w-11 h-11 rounded-2xl bg-blue-600 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-blue-600/30">
-              FT
+            <div className="w-11 h-11 rounded-2xl bg-emerald-600 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-emerald-600/30">
+              RR
             </div>
             <div className="text-left">
               <span className="font-extrabold text-lg text-slate-100 tracking-tight block leading-none">
-                FinanceTwin <span className="text-blue-400 font-semibold">AI</span>
+                RevenueRescue <span className="text-emerald-400 font-semibold">AI</span>
               </span>
-              <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mt-0.5">
-                Settlement & Risk Engine
+              <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-wider block mt-0.5 font-bold">
+                Autonomous Recovery Agent
               </span>
             </div>
           </div>
@@ -122,13 +122,13 @@ export default function Signup() {
           <div>
             <h1 className="text-xl font-bold text-slate-100 mt-1">Create Your Account</h1>
             <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto leading-relaxed">
-              Get instant access to autonomous multi-pass reconciliation, AI risk analysis, and audit trails.
+              Get instant access to autonomous revenue recovery across failed payments, abandoned carts, and overdue invoices.
             </p>
           </div>
 
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-950/60 border border-blue-800/60 rounded-full text-[11px] font-mono text-blue-300">
-            <Cpu className="w-3.5 h-3.5 text-blue-400" />
-            <span>0.00% False Match Rate Protected</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-950/60 border border-emerald-800/60 rounded-full text-[11px] font-mono text-emerald-300">
+            <Cpu className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Autonomous Recovery Engine Active</span>
           </div>
         </div>
 

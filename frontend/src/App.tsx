@@ -14,6 +14,10 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import LandingPage from './pages/LandingPage';
 import AuditLogs from './pages/AuditLogs';
+import RecoveryCommandCenter from './pages/RecoveryCommandCenter';
+import BatchRecovery from './pages/BatchRecovery';
+import RecoveryCases from './pages/RecoveryCases';
+import RecoveryCaseDetail from './pages/RecoveryCaseDetail';
 
 const queryClient = new QueryClient();
 
@@ -26,6 +30,10 @@ export default function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/recovery" element={<RecoveryCommandCenter />} />
+            <Route path="/recovery/batch" element={<BatchRecovery />} />
+            <Route path="/recovery/cases" element={<RecoveryCases />} />
+            <Route path="/recovery/cases/:id" element={<RecoveryCaseDetail />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/reconciliation" element={<Reconciliation />} />
             <Route path="/exceptions" element={<Exceptions />} />
@@ -41,3 +49,4 @@ export default function App() {
     </QueryClientProvider>
   );
 }
+

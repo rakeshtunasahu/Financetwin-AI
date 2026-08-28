@@ -3,12 +3,12 @@ import { DemoUser, UserRole } from '../types';
 
 export const DEMO_PERSONAS: DemoUser[] = [
   {
-    email: 'admin@financetwin.ai',
+    email: 'admin@revenuerescue.ai',
     name: 'Admin User',
     role: 'ADMIN',
-    title: 'Chief Systems Architect & Controller',
-    department: 'FinOps Leadership',
-    organization: 'Razorpay FinTwin Org',
+    title: 'Chief Systems Architect & Recovery Controller',
+    department: 'Autonomous Recovery Leadership',
+    organization: 'RevenueRescue AI Org',
     permissions: [
       'can_view_dashboard',
       'can_run_reconciliation',
@@ -22,16 +22,22 @@ export const DEMO_PERSONAS: DemoUser[] = [
       'can_view_risk_cases',
       'can_approve_high_risk_case',
       'can_view_anomalies',
-      'can_view_calculator'
+      'can_view_calculator',
+      // Recovery Permissions
+      'can_view_recovery_cases',
+      'can_run_recovery_batch',
+      'can_execute_recovery_action',
+      'can_approve_recovery',
+      'can_view_policy_violations'
     ]
   },
   {
-    email: 'analyst.priya@financetwin.ai',
+    email: 'analyst.priya@revenuerescue.ai',
     name: 'Priya Sharma',
     role: 'FINANCE_ANALYST',
-    title: 'Senior Settlement Analyst',
-    department: 'Daily Settlement Operations',
-    organization: 'Razorpay FinTwin Org',
+    title: 'Senior Revenue Recovery Analyst',
+    department: 'Daily Recovery Operations',
+    organization: 'RevenueRescue AI Org',
     permissions: [
       'can_view_dashboard',
       'can_run_reconciliation',
@@ -39,16 +45,19 @@ export const DEMO_PERSONAS: DemoUser[] = [
       'can_investigate_exception',
       'can_trigger_ai_investigation',
       'can_view_audit_logs',
-      'can_view_calculator'
+      'can_view_calculator',
+      // Recovery Permissions
+      'can_view_recovery_cases',
+      'can_execute_recovery_action'
     ]
   },
   {
-    email: 'manager.rahul@financetwin.ai',
+    email: 'manager.rahul@revenuerescue.ai',
     name: 'Rahul Verma',
     role: 'FINANCE_MANAGER',
-    title: 'Finance Operations Manager',
-    department: 'Treasury & Exposure Control',
-    organization: 'Razorpay FinTwin Org',
+    title: 'Finance & Recovery Operations Manager',
+    department: 'Treasury & Revenue Exposure Control',
+    organization: 'RevenueRescue AI Org',
     permissions: [
       'can_view_dashboard',
       'can_view_full_reconciliation',
@@ -57,16 +66,20 @@ export const DEMO_PERSONAS: DemoUser[] = [
       'can_view_audit_logs',
       'can_view_risk_cases',
       'can_approve_high_risk_case',
-      'can_view_calculator'
+      'can_view_calculator',
+      // Recovery Permissions
+      'can_view_recovery_cases',
+      'can_approve_recovery',
+      'can_view_policy_violations'
     ]
   },
   {
-    email: 'risk.ananya@financetwin.ai',
+    email: 'risk.ananya@revenuerescue.ai',
     name: 'Ananya Singh',
     role: 'RISK_COMPLIANCE_OFFICER',
-    title: 'Risk & Compliance Officer',
-    department: 'FinCrime & Anomaly Governance',
-    organization: 'Razorpay FinTwin Org',
+    title: 'Risk & Recovery Compliance Officer',
+    department: 'Safety Governance & Anomaly Control',
+    organization: 'RevenueRescue AI Org',
     permissions: [
       'can_view_dashboard',
       'can_investigate_exception',
@@ -75,22 +88,27 @@ export const DEMO_PERSONAS: DemoUser[] = [
       'can_view_audit_logs',
       'can_view_risk_cases',
       'can_view_anomalies',
-      'can_view_calculator'
+      'can_view_calculator',
+      // Recovery Permissions
+      'can_view_recovery_cases',
+      'can_view_policy_violations'
     ]
   },
   {
-    email: 'auditor.vikram@financetwin.ai',
+    email: 'auditor.vikram@revenuerescue.ai',
     name: 'Vikram Mehta',
     role: 'AUDITOR',
-    title: 'External Financial Auditor',
+    title: 'External Financial & Recovery Auditor',
     department: 'Statutory Audit & Verification',
-    organization: 'Razorpay FinTwin Org',
+    organization: 'RevenueRescue AI Org',
     permissions: [
       'can_view_dashboard',
       'can_view_audit_logs',
       'can_view_full_reconciliation',
       'can_view_historical_records',
-      'can_view_calculator'
+      'can_view_calculator',
+      // Recovery Permissions (read-only)
+      'can_view_recovery_cases'
     ]
   }
 ];

@@ -255,3 +255,143 @@ export interface Cluster {
     variance: number;
   }>;
 }
+
+// ==========================================
+// RevenueRescue AI — Recovery Types
+// ==========================================
+
+export type RecoveryCaseStatus =
+  | 'DETECTED'
+  | 'DIAGNOSED'
+  | 'PRIORITIZED'
+  | 'ACTION_SELECTED'
+  | 'POLICY_CHECKED'
+  | 'ACTION_EXECUTED'
+  | 'WAITING_FOR_OUTCOME'
+  | 'RECOVERED'
+  | 'RETRY'
+  | 'STOPPED'
+  | 'ESCALATED'
+  | 'UNRECOVERABLE'
+  | 'EXPIRED';
+
+export type RecoveryType =
+  | 'PAYMENT_FAILURE'
+  | 'CHECKOUT_ABANDONMENT'
+  | 'OVERDUE_RECEIVABLE'
+  | 'MANDATE_FAILURE'
+  | 'SUBSCRIPTION_FAILURE'
+  | 'SETTLEMENT_SHORTFALL';
+
+export interface RecoveryAction {
+  id: number;
+  action_id: string;
+  case_id: string;
+  action_type: string;
+  action_sequence: number;
+  parameters: Record<string, any>;
+  policy_checked: boolean;
+  policy_passed: boolean;
+  policy_denial_reason?: string | null;
+  executed_at?: string | null;
+  execution_mode: 'SIMULATED' | 'LIVE';
+  outcome_status: string;
+  outcome_notes?: string | null;
+  amount_recovered: number;
+  cost_incurred: number;
+  audit_hash?: string | null;
+  created_at: string;
+}
+
+export interface RecoveryCase {
+  id: number;
+  case_id: string;
+  source_exception_id?: string | null;
+  source_transaction_id?: string | null;
+  customer_id?: string | null;
+  customer_name?: string | null;
+  customer_email?: string | null;
+  customer_phone?: string | null;
+  recovery_type: RecoveryType | string;
+  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  amount_at_risk: number;
+  amount_recovered: number;
+  root_cause: string;
+  diagnosis_confidence: number;
+  diagnosis_evidence?: {
+    evidence?: string[];
+    suggested_action?: string;
+    details?: string;
+    [key: string]: any;
+  };
+  recovery_probability: number;
+  priority_score: number;
+  current_status: RecoveryCaseStatus | string;
+  retry_count: number;
+  max_retries_allowed: number;
+  reminder_count: number;
+  max_reminders_allowed: number;
+  workflow_started_at?: string | null;
+  workflow_expires_at?: string | null;
+  last_action_at?: string | null;
+  next_retry_at?: string | null;
+  is_high_value: boolean;
+  is_disputed: boolean;
+  promise_to_pay_date?: string | null;
+  promise_to_pay_misses: number;
+  assigned_to?: string | null;
+  escalation_reason?: string | null;
+  anomaly_score?: number | null;
+  audit_hash?: string | null;
+  created_at: string;
+  updated_at?: string | null;
+  actions?: RecoveryAction[];
+}
+
+export interface RecoveryMetrics {
+  total_cases: number;
+  total_at_risk: number;
+  total_recovered: number;
+  recovery_rate_pct: number;
+  active_cases: number;
+  recovered_cases: number;
+  escalated_cases: number;
+  stopped_cases: number;
+  in_progress_cases: number;
+  avg_time_to_recovery_hours: number;
+  by_type: Record<string, { count: number; at_risk: number; recovered: number; recovery_rate_pct: number }>;
+  by_severity: Record<string, { count: number; at_risk: number; recovered: number }>;
+  funnel: {
+    detected: number;
+    diagnosed: number;
+    actioned: number;
+    recovered: number;
+  };
+}
+
+export interface BatchSummary {
+  batch_size: number;
+  total_at_risk: number;
+  total_recovered: number;
+  in_progress_amount: number;
+  stopped_amount: number;
+  escalated_amount: number;
+  unrecovered_amount: number;
+  recovery_rate_pct: number;
+  cases_recovered: number;
+  cases_stopped: number;
+  cases_escalated: number;
+  cases_in_progress: number;
+  by_type: Record<string, any>;
+  all_results: any[];
+}
+
+export interface RecoveryPolicy {
+  max_payment_retries: number;
+  max_customer_reminders: number;
+  max_workflow_duration_days: number;
+  high_value_escalation_threshold: number;
+  max_promise_to_pay_misses: number;
+  retry_cooldown_hours: number;
+}
+

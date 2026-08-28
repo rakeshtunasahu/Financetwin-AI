@@ -12,7 +12,10 @@ import {
   ShieldCheck,
   X,
   UserCheck,
-  FileText
+  FileText,
+  Zap,
+  RotateCw,
+  FolderKanban
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { UserRole } from '../../types';
@@ -32,24 +35,32 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
     navigate('/');
   };
 
-  // Role-specific navigation items configuration (Sign In removed as it is on the main landing page)
+  // Role-specific navigation items configuration (Recovery-First)
   const getMenuItems = (role: UserRole) => {
+    const recoveryItems = [
+      { name: 'Recovery Command Center', path: '/recovery', icon: Zap },
+      { name: 'Autonomous Batch Runner', path: '/recovery/batch', icon: RotateCw },
+      { name: 'Recovery Cases Queue', path: '/recovery/cases', icon: FolderKanban },
+    ];
+
     switch (role) {
       case 'FINANCE_ANALYST':
         return [
           { name: 'Home Landing Page', path: '/', icon: BookOpen },
-          { name: 'Operational Dashboard', path: '/dashboard', icon: LayoutDashboard },
+          ...recoveryItems,
           { name: 'Reconciliation Queue', path: '/reconciliation', icon: GitCompare },
           { name: 'Exception Operations', path: '/exceptions', icon: ShieldAlert },
+          { name: 'Operational Dashboard', path: '/dashboard', icon: LayoutDashboard },
           { name: 'Settlement Calculator', path: '/calculator', icon: Calculator }
         ];
 
       case 'FINANCE_MANAGER':
         return [
           { name: 'Home Landing Page', path: '/', icon: BookOpen },
+          ...recoveryItems,
           { name: 'Management Dashboard', path: '/dashboard', icon: LayoutDashboard },
-          { name: 'High-Value Reconciliations', path: '/reconciliation', icon: GitCompare },
           { name: 'Approvals & Exceptions', path: '/exceptions', icon: ShieldAlert },
+          { name: 'High-Value Reconciliations', path: '/reconciliation', icon: GitCompare },
           { name: 'Policy Simulation Lab', path: '/governance', icon: Sliders },
           { name: 'Approval Audit Trail', path: '/audit', icon: FileText },
           { name: 'Settlement Calculator', path: '/calculator', icon: Calculator }
@@ -58,6 +69,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
       case 'RISK_COMPLIANCE_OFFICER':
         return [
           { name: 'Home Landing Page', path: '/', icon: BookOpen },
+          ...recoveryItems,
           { name: 'Risk & Anomaly Dashboard', path: '/dashboard', icon: LayoutDashboard },
           { name: 'High-Risk Exceptions', path: '/exceptions', icon: ShieldAlert },
           { name: 'ML Anomaly Clusters', path: '/anomalies', icon: Activity },
@@ -69,6 +81,8 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
       case 'AUDITOR':
         return [
           { name: 'Home Landing Page', path: '/', icon: BookOpen },
+          { name: 'Recovery Command Center', path: '/recovery', icon: Zap },
+          { name: 'Recovery Cases Queue', path: '/recovery/cases', icon: FolderKanban },
           { name: 'Statutory Audit Dashboard', path: '/dashboard', icon: LayoutDashboard },
           { name: 'Reconciliation History', path: '/reconciliation', icon: GitCompare },
           { name: 'Historical Exceptions', path: '/exceptions', icon: ShieldAlert },
@@ -81,12 +95,13 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
       default:
         return [
           { name: 'Home Landing Page', path: '/', icon: BookOpen },
-          { name: 'Executive Dashboard', path: '/dashboard', icon: LayoutDashboard },
+          ...recoveryItems,
           { name: 'Reconciliation Engine', path: '/reconciliation', icon: GitCompare },
           { name: 'Exceptions & Audits', path: '/exceptions', icon: ShieldAlert },
           { name: 'Anomaly Patterns', path: '/anomalies', icon: Activity },
           { name: 'Governance Lab', path: '/governance', icon: Sliders },
           { name: 'Audit Trail & Logs', path: '/audit', icon: FileText },
+          { name: 'Executive Dashboard', path: '/dashboard', icon: LayoutDashboard },
           { name: 'Settlement Calculator', path: '/calculator', icon: Calculator }
         ];
     }
@@ -132,13 +147,13 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
         {/* Header Branding */}
         <div className="p-5 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white text-xs tracking-wider shadow-md shadow-blue-500/20">
-              FT
+            <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center font-extrabold text-white text-xs tracking-wider shadow-md shadow-emerald-500/20">
+              RR
             </div>
             <div>
-              <h1 className="font-bold text-sm text-slate-100 leading-none tracking-tight">FinanceTwin AI</h1>
-              <span className="text-[10px] text-slate-400 font-mono uppercase tracking-wider block mt-1">
-                Risk & Safety Engine
+              <h1 className="font-bold text-sm text-slate-100 leading-none tracking-tight">RevenueRescue AI</h1>
+              <span className="text-[10px] text-emerald-400 font-mono uppercase tracking-wider block mt-1 font-semibold">
+                Autonomous Recovery Agent
               </span>
             </div>
           </div>

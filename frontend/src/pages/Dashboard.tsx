@@ -164,6 +164,36 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Autonomous Revenue Recovery Feature Banner */}
+      <div className="p-4 bg-gradient-to-r from-slate-900 via-slate-900 to-emerald-950/40 border border-emerald-800/40 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-lg">
+        <div className="flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-sm shrink-0">
+            RR
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h4 className="text-sm font-bold text-white">RevenueRescue AI: Autonomous Recovery Agent</h4>
+              <span className="text-[9px] font-mono font-bold px-2 py-0.2 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">
+                ACTIVE
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Automated interventions for failed payments, checkout drop-offs & overdue invoices. <strong>Detect. Decide. Recover.</strong>
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => navigate('/recovery')}
+            className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 shadow-md shadow-emerald-950/50 transition-all cursor-pointer"
+          >
+            <span>Open Command Center</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+
       {/* Masking Alert for Auditor */}
       {isRole('AUDITOR') && (
         <div className="p-3 bg-emerald-950/60 border border-emerald-800/80 rounded-xl flex items-center gap-2.5 text-xs text-emerald-300 font-mono">

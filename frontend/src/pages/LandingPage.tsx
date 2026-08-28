@@ -32,7 +32,7 @@ export default function LandingPage({ initialLoginOpen = false }: LandingPagePro
     initialLoginOpen || location.pathname === '/login' || location.search.includes('login=true')
   );
   
-  const [email, setEmail] = useState('admin@financetwin.ai');
+  const [email, setEmail] = useState('admin@revenuerescue.ai');
   const [password, setPassword] = useState('••••••••••••');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -93,25 +93,25 @@ export default function LandingPage({ initialLoginOpen = false }: LandingPagePro
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           {/* Logo & Brand */}
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
-            <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center font-bold text-white text-sm shadow-md shadow-blue-600/30">
-              FT
+            <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center font-black text-white text-sm shadow-md shadow-emerald-600/30">
+              RR
             </div>
             <div>
               <span className="font-bold text-base text-slate-100 tracking-tight block leading-none">
-                FinanceTwin <span className="text-blue-400">AI</span>
+                RevenueRescue <span className="text-emerald-400">AI</span>
               </span>
-              <span className="text-[10px] text-slate-400 font-mono uppercase tracking-wider block mt-0.5">
-                Risk & Safety Engine
+              <span className="text-[10px] text-emerald-400 font-mono uppercase tracking-wider block mt-0.5 font-bold">
+                Autonomous Recovery Agent
               </span>
             </div>
           </div>
 
           {/* Navigation Links */}
           <nav className="hidden md:flex items-center gap-8 text-xs font-semibold text-slate-300">
-            <a href="#features" onClick={(e) => scrollToSection(e, 'features')} className="hover:text-blue-400 transition-colors">Features</a>
-            <a href="#safety-engine" onClick={(e) => scrollToSection(e, 'safety-engine')} className="hover:text-blue-400 transition-colors">Safety Engine</a>
-            <a href="#ml-intelligence" onClick={(e) => scrollToSection(e, 'ml-intelligence')} className="hover:text-blue-400 transition-colors">ML Intelligence</a>
-            <button onClick={() => handleRestrictedAccess('Please sign in first to access system specifications.')} className="hover:text-blue-400 transition-colors">System Specs</button>
+            <a href="#features" onClick={(e) => scrollToSection(e, 'features')} className="hover:text-emerald-400 transition-colors">Features</a>
+            <a href="#safety-engine" onClick={(e) => scrollToSection(e, 'safety-engine')} className="hover:text-emerald-400 transition-colors">Safety Engine</a>
+            <a href="#ml-intelligence" onClick={(e) => scrollToSection(e, 'ml-intelligence')} className="hover:text-emerald-400 transition-colors">ML Intelligence</a>
+            <button onClick={() => navigate('/recovery')} className="hover:text-emerald-400 transition-colors">Command Center</button>
           </nav>
 
           {/* Action CTA Buttons — Login and Sign Up Buttons */}
@@ -126,7 +126,7 @@ export default function LandingPage({ initialLoginOpen = false }: LandingPagePro
               href="/signup"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg transition-all shadow-md shadow-blue-600/20 flex items-center gap-1.5 active:scale-95 cursor-pointer"
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg transition-all shadow-md shadow-emerald-600/20 flex items-center gap-1.5 active:scale-95 cursor-pointer"
             >
               <span>Sign Up</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -139,8 +139,8 @@ export default function LandingPage({ initialLoginOpen = false }: LandingPagePro
       <section className="relative pt-12 pb-24 lg:pt-20 lg:pb-32 overflow-hidden">
         {/* Background Slanted Geometric Angle & Glows */}
         <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pointer-events-none" />
-        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute top-1/2 -right-40 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-emerald-600/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute top-1/2 -right-40 w-[500px] h-[500px] bg-teal-600/10 rounded-full blur-[120px] pointer-events-none" />
 
         {/* Slanted Background Accent Container */}
         <div 
@@ -151,37 +151,37 @@ export default function LandingPage({ initialLoginOpen = false }: LandingPagePro
         <div className="relative max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Left Column: Headline & Hero Text */}
           <div className="lg:col-span-7 space-y-6 text-left">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-950/80 border border-blue-800/80 rounded-full text-xs font-mono text-blue-400">
-              <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-              <span>Autonomous Settlement Reconciliation Platform</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-950/80 border border-emerald-800/80 rounded-full text-xs font-mono text-emerald-400">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Autonomous Revenue Recovery Agent</span>
             </div>
 
             <h1 className="text-4xl sm:text-5xl xl:text-6xl font-extrabold text-slate-100 tracking-tight leading-[1.1]">
-              A New Way to <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-blue-500">
-                Reconcile Enterprise Ledgers
+              Detect. Decide. <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400">
+                Recover Revenue Autonomously
               </span>
             </h1>
 
             <p className="text-sm sm:text-base text-slate-300 max-w-xl leading-relaxed font-sans">
-              FinanceTwin AI is built specifically for payment gateway settlement batches and bank statement reconciliation. Eliminating false matches with conservative auto-abstaining safety gates.
+              RevenueRescue AI continuously turns payment failures, abandoned checkout flows, and overdue B2B receivables into recovered cash with deterministic policy guardrails.
             </p>
 
             <div className="flex flex-wrap items-center gap-4 pt-2">
               <button
                 onClick={openLogin}
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-blue-600/25 flex items-center gap-2 active:scale-95 cursor-pointer"
+                className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-emerald-600/25 flex items-center gap-2 active:scale-95 cursor-pointer"
               >
-                <span>Login to Executive Console</span>
+                <span>Login to Command Center</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
 
               <button
-                onClick={() => handleRestrictedAccess('Please sign in first to access the Executive Operations Dashboard.')}
+                onClick={() => navigate('/recovery')}
                 className="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer"
               >
-                <BarChart2 className="w-4 h-4 text-blue-400" />
-                <span>View Operations Dashboard</span>
+                <BarChart2 className="w-4 h-4 text-emerald-400" />
+                <span>Open Recovery Dashboard</span>
               </button>
             </div>
 

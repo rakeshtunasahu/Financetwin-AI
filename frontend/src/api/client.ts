@@ -45,3 +45,110 @@ export async function apiFetch<T>(endpoint: string, options?: RequestInit): Prom
 
   return response.json() as Promise<T>;
 }
+
+// ==========================================
+// Recovery API Endpoints
+// ==========================================
+
+import type {
+  RecoveryCase,
+  RecoveryAction,
+  RecoveryMetrics,
+  BatchSummary,
+  RecoveryPolicy
+} from '../types';
+
+export const recoveryApi = {
+  getCases: (params?: {
+    status?: string;
+    recovery_type?: string;
+    severity?: string;
+    is_high_value?: boolean;
+    skip?: number;
+    limit?: number;
+  }) => {
+    const query = new URLSearchParams();
+    if (params?.status) query.set('status', params.status);
+    if (params?.recovery_type) query.set('recovery_type', params.recovery_type);
+    if (params?.severity) query.set('severity', params.severity);
+    if (params?.is_high_value !== undefined) query.set('is_high_value', String(params.is_high_value));
+    if (params?.skip !== undefined) query.set('skip', String(params.skip));
+    if (params?.limit !== undefined) query.set('limit', String(params.limit));
+    const qs = query.toString();
+    return apiFetch<RecoveryCase[]>(`/api/recovery/cases${qs ? `?${qs}` : ''}`);
+  },
+
+  getCase: (caseId: string) => {
+    return apiFetch<RecoveryCase>(`/api/recovery/cases/${caseId}`);
+  },
+
+  detectCases: () => {
+    return apiFetch<{ created_cases: string[]; count: number }>(`/api/recovery/detect`, {
+      method: 'POST'
+    });
+  },
+
+  diagnoseCase: (caseId: string) => {
+    return apiFetch<{ case_id: string; root_cause: string; confidence: number; evidence: any }>(
+      `/api/recovery/diagnose/${caseId}`,
+      { method: 'POST' }
+    );
+  },
+
+  decideAction: (caseId: string) => {
+    return apiFetch<{ case_id: string; recommended_action: string; priority_score: number; probability: number }>(
+      `/api/recovery/decide/${caseId}`,
+      { method: 'POST' }
+    );
+  },
+
+  executeAction: (caseId: string, actionType?: string, parameters?: Record<string, any>) => {
+    return apiFetch<{
+      case_id: string;
+      action_id: string;
+      action_type: string;
+      outcome_status: string;
+      amount_recovered: number;
+      policy_passed: boolean;
+      policy_denial_reason?: string;
+      current_status: string;
+    }>(`/api/recovery/execute/${caseId}`, {
+      method: 'POST',
+      body: JSON.stringify({ action_type: actionType, parameters: parameters || {} })
+    });
+  },
+
+  runBatch: (cases?: any[]) => {
+    return apiFetch<BatchSummary>(`/api/recovery/batch/run`, {
+      method: 'POST',
+      body: cases ? JSON.stringify({ cases }) : undefined
+    });
+  },
+
+  getMetrics: () => {
+    return apiFetch<RecoveryMetrics>(`/api/recovery/metrics`);
+  },
+
+  getAudit: (caseId: string) => {
+    return apiFetch<any[]>(`/api/recovery/audit/${caseId}`);
+  },
+
+  getPolicies: () => {
+    return apiFetch<RecoveryPolicy>(`/api/recovery/policies`);
+  },
+
+  simulatePolicies: (policyUpdates: Partial<RecoveryPolicy>) => {
+    return apiFetch<any>(`/api/recovery/policies/simulate`, {
+      method: 'POST',
+      body: JSON.stringify(policyUpdates)
+    });
+  },
+
+  applyPolicies: (policyUpdates: Partial<RecoveryPolicy>) => {
+    return apiFetch<any>(`/api/recovery/policies/apply`, {
+      method: 'POST',
+      body: JSON.stringify(policyUpdates)
+    });
+  }
+};
+
