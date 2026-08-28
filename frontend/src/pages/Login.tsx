@@ -16,14 +16,19 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-export default function Login() {
+interface LoginProps {
+  initialModeProp?: 'login' | 'register';
+}
+
+export default function Login({ initialModeProp }: LoginProps = {}) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const initialMode = searchParams.get('mode') === 'register' ? 'register' : 'login';
+  const determinedMode = initialModeProp || (searchParams.get('mode') === 'register' ? 'register' : 'login');
   
   const { login: authLogin } = useAuth();
 
-  const [mode, setMode] = useState<'login' | 'register'>(initialMode);
+  const [mode, setMode] = useState<'login' | 'register'>(determinedMode);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -185,8 +190,56 @@ export default function Login() {
         {/* Divider */}
         <div className="relative flex items-center justify-center">
           <div className="border-t border-slate-800 w-full" />
-          <span className="bg-slate-900 px-3 text-[11px] text-slate-500 font-mono">or continue with email</span>
+          <span className="bg-slate-900 px-3 text-[11px] text-slate-500 font-mono">or quick login as</span>
         </div>
+
+        {/* 1-Click Demo Profiles */}
+        {mode === 'login' && (
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              type="button"
+              onClick={async () => {
+                setEmail('admin@financetwin.ai');
+                setPassword('admin123');
+                setIsLoading(true);
+                await authLogin('admin@financetwin.ai');
+                navigate('/dashboard');
+              }}
+              className="px-2 py-1.5 bg-slate-950 hover:bg-blue-950/40 border border-slate-800 hover:border-blue-700/60 rounded-xl text-center transition-all cursor-pointer group"
+            >
+              <span className="block text-[11px] font-bold text-slate-200 group-hover:text-blue-300">Admin</span>
+              <span className="block text-[9px] text-slate-500 font-mono">Full Access</span>
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                setEmail('ops@financetwin.ai');
+                setPassword('ops123');
+                setIsLoading(true);
+                await authLogin('ops@financetwin.ai');
+                navigate('/dashboard');
+              }}
+              className="px-2 py-1.5 bg-slate-950 hover:bg-emerald-950/40 border border-slate-800 hover:border-emerald-700/60 rounded-xl text-center transition-all cursor-pointer group"
+            >
+              <span className="block text-[11px] font-bold text-slate-200 group-hover:text-emerald-300">Ops Lead</span>
+              <span className="block text-[9px] text-slate-500 font-mono">Reconcile</span>
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                setEmail('auditor@financetwin.ai');
+                setPassword('auditor123');
+                setIsLoading(true);
+                await authLogin('auditor@financetwin.ai');
+                navigate('/dashboard');
+              }}
+              className="px-2 py-1.5 bg-slate-950 hover:bg-purple-950/40 border border-slate-800 hover:border-purple-700/60 rounded-xl text-center transition-all cursor-pointer group"
+            >
+              <span className="block text-[11px] font-bold text-slate-200 group-hover:text-purple-300">Auditor</span>
+              <span className="block text-[9px] text-slate-500 font-mono">Read Only</span>
+            </button>
+          </div>
+        )}
 
         {/* Error / Success Feedback */}
         {error && (

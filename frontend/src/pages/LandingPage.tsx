@@ -114,7 +114,7 @@ export default function LandingPage({ initialLoginOpen = false }: LandingPagePro
             <button onClick={() => handleRestrictedAccess('Please sign in first to access system specifications.')} className="hover:text-blue-400 transition-colors">System Specs</button>
           </nav>
 
-          {/* Action CTA Buttons — Login and single Sign Up Button */}
+          {/* Action CTA Buttons — Login and Sign Up Buttons */}
           <div className="flex items-center gap-3">
             <button
               onClick={openLogin}
@@ -394,7 +394,47 @@ export default function LandingPage({ initialLoginOpen = false }: LandingPagePro
             {/* Divider */}
             <div className="relative flex items-center justify-center">
               <div className="border-t border-slate-800 w-full" />
-              <span className="bg-slate-900 px-3 text-[10px] text-slate-500 font-mono">or continue with email</span>
+              <span className="bg-slate-900 px-3 text-[10px] text-slate-500 font-mono">or quick login as</span>
+            </div>
+
+            {/* 1-Click Demo Profiles */}
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={async () => {
+                  await login('admin@financetwin.ai');
+                  setShowLoginModal(false);
+                  navigate('/dashboard');
+                }}
+                className="px-2 py-1.5 bg-slate-950 hover:bg-blue-950/40 border border-slate-800 hover:border-blue-700/60 rounded-xl text-center transition-all cursor-pointer group"
+              >
+                <span className="block text-[11px] font-bold text-slate-200 group-hover:text-blue-300">Admin</span>
+                <span className="block text-[9px] text-slate-500 font-mono">Full Access</span>
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  await login('ops@financetwin.ai');
+                  setShowLoginModal(false);
+                  navigate('/dashboard');
+                }}
+                className="px-2 py-1.5 bg-slate-950 hover:bg-emerald-950/40 border border-slate-800 hover:border-emerald-700/60 rounded-xl text-center transition-all cursor-pointer group"
+              >
+                <span className="block text-[11px] font-bold text-slate-200 group-hover:text-emerald-300">Ops Lead</span>
+                <span className="block text-[9px] text-slate-500 font-mono">Reconcile</span>
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  await login('auditor@financetwin.ai');
+                  setShowLoginModal(false);
+                  navigate('/dashboard');
+                }}
+                className="px-2 py-1.5 bg-slate-950 hover:bg-purple-950/40 border border-slate-800 hover:border-purple-700/60 rounded-xl text-center transition-all cursor-pointer group"
+              >
+                <span className="block text-[11px] font-bold text-slate-200 group-hover:text-purple-300">Auditor</span>
+                <span className="block text-[9px] text-slate-500 font-mono">Read Only</span>
+              </button>
             </div>
 
             {/* Validation Error Alert */}
