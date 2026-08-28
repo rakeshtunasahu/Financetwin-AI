@@ -19,19 +19,18 @@ def get_audit_logs(
     query = db.query(AuditLog)
 
     # Role-based record level filtering for audit logs
-    if user.role == Role.FINANCE_ANALYST:
+    if user.role == Role.RECOVERY_OPERATOR:
         query = query.filter(AuditLog.action.in_([
-            "MATCH_DECISION", "EXCEPTION_CREATED", "EXCEPTION_INVESTIGATED", "RECONCILIATION_TRIGGERED"
+            "DIAGNOSIS_TRIGGERED", "INTERVENTION_SELECTED", "RECOVERY_ACTION_EXECUTED",
+            "RECOVERY_CASE_CREATED", "RISK_DETECTED_FROM_EXCEPTION", "EXCEPTION_INVESTIGATED"
         ]))
-    elif user.role == Role.FINANCE_MANAGER:
+    elif user.role == Role.RECOVERY_MANAGER:
         query = query.filter(AuditLog.action.in_([
-            "EXCEPTION_CREATED", "POLICY_SIMULATED", "APPROVAL_GRANTED", "APPROVAL_REJECTED", "MATCH_DECISION"
+            "APPROVAL_GRANTED", "APPROVAL_REJECTED", "RECOVERY_ACTION_EXECUTED",
+            "RECOVERY_POLICY_SIMULATED", "POLICY_SIMULATED", "BATCH_COMPLETED", "ACCESS_DENIED"
         ]))
-    elif user.role == Role.RISK_COMPLIANCE_OFFICER:
-        query = query.filter(AuditLog.action.in_([
-            "EXCEPTION_CREATED", "EXCEPTION_INVESTIGATED", "POLICY_APPLIED", "POLICY_SIMULATED", "ACCESS_DENIED"
-        ]))
-    # ADMIN and AUDITOR see all audit events
+    # RECOVERY_ADMIN sees all system-wide audit events
+
 
     if action:
         query = query.filter(AuditLog.action == action)
@@ -42,12 +41,10 @@ def get_audit_logs(
 
     results = []
     for log in logs:
-        # Mask entity_id if it looks like a sensitive UTR or Account for AUDITOR
         entity_id_val = log.entity_id
-        if user.role == Role.AUDITOR and ("UTR" in entity_id_val or "CUS" in entity_id_val):
-            entity_id_val = mask_sensitive_value(entity_id_val, user.role)
 
         results.append({
+
             "id": log.id,
             "entity_type": log.entity_type,
             "entity_id": entity_id_val,

@@ -89,35 +89,24 @@ export default function Dashboard() {
 
   const getRoleHeaderInfo = (role: UserRole) => {
     switch (role) {
-      case 'ADMIN':
+      case 'RECOVERY_ADMIN':
         return {
-          title: 'Executive Systems & Governance Console',
-          badge: 'SYSTEM-WIDE ACCESS',
-          desc: 'Global control across settlement matching, policy thresholds, security logs, and anomaly detection.'
+          title: 'System Recovery & Governance Control',
+          badge: 'RECOVERY ADMINISTRATOR',
+          desc: 'Global control across autonomous recovery policies, batch runners, telemetry, and guardrails.'
         };
-      case 'FINANCE_ANALYST':
+      case 'RECOVERY_MANAGER':
         return {
-          title: 'Daily Settlement Operations Command',
-          badge: 'OPERATIONAL SCOPE',
-          desc: 'Manage authorized settlement queues, review conservative abstains, and investigate exceptions.'
+          title: 'Revenue Exposure & Approvals Command Center',
+          badge: 'RECOVERY MANAGER',
+          desc: 'Revenue-at-risk exposure metrics, high-value queues, approval decisions, and policy simulations.'
         };
-      case 'FINANCE_MANAGER':
+      case 'RECOVERY_OPERATOR':
+      default:
         return {
-          title: 'Treasury & Financial Exposure Dashboard',
-          badge: 'MANAGEMENT & APPROVALS',
-          desc: 'Aggregated exposure metrics, high-value settlement queues, and sandbox policy simulation.'
-        };
-      case 'RISK_COMPLIANCE_OFFICER':
-        return {
-          title: 'Risk & ML Anomaly Intelligence Center',
-          badge: 'HIGH-RISK & COMPLIANCE',
-          desc: 'Focused monitoring of ML anomaly clusters, critical severity discrepancies, and fraud signals.'
-        };
-      case 'AUDITOR':
-        return {
-          title: 'Statutory Audit & Evidence Verification',
-          badge: 'READ-ONLY STATUTORY AUDIT',
-          desc: 'Immutable decision history, policy change logs, and forensic AI grounding with masked sensitive data.'
+          title: 'Operational Recovery Queue & Interventions',
+          badge: 'RECOVERY OPERATOR',
+          desc: 'Investigate assigned failure records, review AI diagnosis, and trigger bounded interventions.'
         };
     }
   };
@@ -129,13 +118,13 @@ export default function Dashboard() {
       {/* Role Banner */}
       <div className="p-4 bg-slate-900 border border-slate-800 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 font-sans shadow-lg">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400 font-bold text-sm shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-emerald-600/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-bold text-sm shrink-0">
             {currentUser.name.charAt(0)}
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-sm font-bold text-slate-100">{currentUser.name}</h3>
-              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-950 text-blue-400 border border-blue-800">
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">
                 {roleInfo.badge}
               </span>
             </div>
@@ -154,7 +143,7 @@ export default function Dashboard() {
               onClick={() => setTimeframe(t)}
               className={`px-2.5 py-1 rounded text-xs font-mono font-semibold transition-colors ${
                 timeframe === t
-                  ? 'bg-blue-600 text-white shadow-sm'
+                  ? 'bg-emerald-600 text-white shadow-sm'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
               }`}
             >
@@ -185,157 +174,117 @@ export default function Dashboard() {
 
         <div className="flex items-center gap-2">
           <button
-            onClick={() => navigate('/recovery')}
+            onClick={() => navigate(currentUser.role === 'RECOVERY_OPERATOR' ? '/operator-queue' : '/recovery')}
             className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 shadow-md shadow-emerald-950/50 transition-all cursor-pointer"
           >
-            <span>Open Command Center</span>
+            <span>{currentUser.role === 'RECOVERY_OPERATOR' ? 'Open Operator Queue' : 'Open Command Center'}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
 
-      {/* Masking Alert for Auditor */}
-      {isRole('AUDITOR') && (
-        <div className="p-3 bg-emerald-950/60 border border-emerald-800/80 rounded-xl flex items-center gap-2.5 text-xs text-emerald-300 font-mono">
-          <Lock className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span>Compliance Mode Active: Sensitive identifiers (Customer IDs, Bank UTRs) are masked by backend policy.</span>
-        </div>
-      )}
-
       {/* METRIC CARDS GRID */}
-      {isRole('FINANCE_MANAGER') ? (
-        // MANAGER: Exposure & Management Focused Metrics
+      {isRole('RECOVERY_MANAGER') ? (
+        // MANAGER: Exposure & Approvals Focused Metrics
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <MetricCard
-            title="Total Volume Processed"
-            value={summary.total_settlements}
-            subtext="Authorized batches"
-            icon={Layers}
-            trendType="neutral"
-          />
-          <MetricCard
-            title="Financial Amount At Risk"
+            title="Total Revenue Exposure"
             value={formatter.format(summary.financial_amount_at_risk)}
-            subtext="Awaiting manager review"
+            subtext="Awaiting recovery intervention"
             icon={DollarSign}
             trendType="negative"
             isProminent={true}
           />
           <MetricCard
-            title="Manual Review Queue"
+            title="High-Value Approvals"
             value={summary.exception_count}
-            subtext="Exceptions requiring review"
-            icon={AlertTriangle}
-            trendType="negative"
+            subtext="Cases requiring sign-off"
+            icon={ShieldAlert}
+            trendType="neutral"
           />
           <MetricCard
             title="Auto-Resolution Rate"
             value={`${(summary.auto_resolution_rate * 100).toFixed(1)}%`}
-            subtext="Low-risk auto resolved"
+            subtext="Policy-bounded recoveries"
             icon={CheckCircle}
             trendType="positive"
           />
-        </div>
-      ) : isRole('RISK_COMPLIANCE_OFFICER') ? (
-        // RISK OFFICER: Anomaly & Severity Focused Metrics
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <MetricCard
-            title="High-Risk Exposure"
-            value={formatter.format(summary.financial_amount_at_risk)}
-            subtext="High & Critical items"
-            icon={ShieldAlert}
-            trendType="negative"
-            isProminent={true}
-          />
-          <MetricCard
-            title="Active Discrepancies"
-            value={summary.exception_count}
-            subtext="Risk monitored exceptions"
-            icon={AlertTriangle}
-            trendType="negative"
-          />
-          <MetricCard
-            title="Safety Gate Abstains"
+            title="Safety Gate Holds"
             value={summary.abstained_count}
-            subtext="Conservative holds"
+            subtext="Conservative hold rate"
             icon={HelpCircle}
             trendType="neutral"
           />
-          <MetricCard
-            title="False Match Rate"
-            value={fmRate}
-            subtext="Target: 0.00% Zero-Loss"
-            icon={Percent}
-            trendType="positive"
-          />
         </div>
-      ) : isRole('AUDITOR') ? (
-        // AUDITOR: Verification & Historical Accuracy Metrics
+      ) : isRole('RECOVERY_OPERATOR') ? (
+        // OPERATOR: Actionable Operational Metrics
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <MetricCard
-            title="Verified Settlements"
-            value={summary.total_settlements}
-            subtext="Statutory audited batches"
-            icon={Layers}
-            trendType="neutral"
+            title="My Queue Exposure"
+            value={formatter.format(summary.financial_amount_at_risk)}
+            subtext="Actionable cases"
+            icon={DollarSign}
+            trendType="negative"
+            isProminent={true}
           />
           <MetricCard
-            title="Historical Matched"
-            value={summary.matched_count}
-            subtext={`Match Rate: ${(summary.match_rate * 100).toFixed(1)}%`}
-            icon={CheckCircle}
-            trendType="positive"
-          />
-          <MetricCard
-            title="Audited Exceptions"
+            title="Cases Awaiting Action"
             value={summary.exception_count}
-            subtext="Verified discrepancies"
+            subtext="Pending intervention"
             icon={AlertTriangle}
             trendType="negative"
           />
           <MetricCard
-            title="Ledger Traceability"
-            value="100.0%"
-            subtext="Immutable audit trail"
-            icon={ShieldCheck}
+            title="Recovered Cases"
+            value={summary.matched_count}
+            subtext="Successfully resolved"
+            icon={CheckCircle}
             trendType="positive"
-            isProminent={true}
+          />
+          <MetricCard
+            title="Safety Holds"
+            value={summary.abstained_count}
+            subtext="Under review"
+            icon={HelpCircle}
+            trendType="neutral"
           />
         </div>
       ) : (
-        // ADMIN & FINANCE ANALYST: Full Operational Suite
+        // RECOVERY_ADMIN: System-Wide Control Suite
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <MetricCard
-            title="Total Settlements"
+            title="Total Processed Volume"
             value={summary.total_settlements}
             subtext={`Coverage: ${coverageText}`}
             icon={Layers}
             trendType="neutral"
           />
           <MetricCard
-            title="Matched Settlements"
-            value={summary.matched_count}
-            subtext={`Match Rate: ${(summary.match_rate * 100).toFixed(1)}%`}
-            icon={CheckCircle}
-            trendType="positive"
-          />
-          <MetricCard
-            title="Safety Gate Abstains"
-            value={summary.abstained_count}
-            subtext="Conservative safety hold"
-            icon={HelpCircle}
-            trendType="neutral"
-          />
-          <MetricCard
-            title="Financial Amount At Risk"
+            title="System Revenue at Risk"
             value={formatter.format(summary.financial_amount_at_risk)}
-            subtext={`${summary.exception_count} exceptions recorded`}
+            subtext={`${summary.exception_count} exception cases`}
             icon={AlertTriangle}
             trendType="negative"
             isProminent={true}
           />
+          <MetricCard
+            title="Recovered Settlements"
+            value={summary.matched_count}
+            subtext={`Capture Rate: ${(summary.match_rate * 100).toFixed(1)}%`}
+            icon={CheckCircle}
+            trendType="positive"
+          />
+          <MetricCard
+            title="Zero-Loss Guardrail"
+            value={fmRate}
+            subtext="Target: 0.00% False Match"
+            icon={Percent}
+            trendType="positive"
+          />
         </div>
       )}
+
 
       {/* SECONDARY ROW: CHARTS & FINANCIAL EXPOSURE */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-sans">

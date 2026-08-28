@@ -37,7 +37,7 @@ def list_exceptions(
     # -------------------------------------------------------------
     # Record-Level Filtering per Role
     # -------------------------------------------------------------
-    if user.role == Role.FINANCE_MANAGER:
+    if user.role == Role.RECOVERY_MANAGER:
         policy = get_active_policy()
         high_val_thresh = policy.get("high_value_transaction_threshold", 50000.0)
         query = query.filter(
@@ -45,35 +45,11 @@ def list_exceptions(
             (ExceptionRecord.status.in_(["MANUAL_REVIEW", "UNRESOLVED"])) |
             (ExceptionRecord.severity.in_(["HIGH", "CRITICAL"]))
         )
-    elif user.role == Role.RISK_COMPLIANCE_OFFICER:
-        query = query.filter(
-            (ExceptionRecord.severity.in_(["HIGH", "CRITICAL"])) |
-            (ExceptionRecord.anomaly_score >= 0.50) |
-            (ExceptionRecord.exception_type.in_(["DUPLICATE_CREDIT", "FEE_MISMATCH", "MISSING_BANK_REFERENCE"]))
-        )
-    # ADMIN, FINANCE_ANALYST, and AUDITOR can access broad operational exceptions
+    # RECOVERY_OPERATOR and RECOVERY_ADMIN see relevant operational exceptions
 
     exceptions = query.all()
-
-    # -------------------------------------------------------------
-    # Field-Level Privacy & Masking for AUDITOR role
-    # -------------------------------------------------------------
-    if user.role == Role.AUDITOR:
-        result_list = []
-        for exc in exceptions:
-            exc_data = ExceptionRecordSchema.model_validate(exc).model_dump()
-            if exc_data.get("settlement_batch") and exc_data["settlement_batch"].get("utr"):
-                exc_data["settlement_batch"]["utr"] = mask_sensitive_value(
-                    exc_data["settlement_batch"]["utr"], user.role
-                )
-            if exc_data.get("bank_transaction") and exc_data["bank_transaction"].get("reference"):
-                exc_data["bank_transaction"]["reference"] = mask_sensitive_value(
-                    exc_data["bank_transaction"]["reference"], user.role
-                )
-            result_list.append(ExceptionRecordSchema(**exc_data))
-        return result_list
-
     return exceptions
+
 
 @router.get("/{exception_id}")
 def get_exception_detail(
@@ -108,17 +84,12 @@ def get_exception_detail(
             risk_dec = log.decision
             risk_score = log.metadata_json.get("risk_score", 0.0)
 
-    # Apply sensitive masking for AUDITOR
     utr_val = exc.settlement_batch.utr if exc.settlement_batch else None
     ref_val = exc.bank_transaction.reference if exc.bank_transaction else None
     merchant_val = exc.settlement_batch.merchant_id if exc.settlement_batch else None
 
-    if user.role == Role.AUDITOR:
-        utr_val = mask_sensitive_value(utr_val, user.role)
-        ref_val = mask_sensitive_value(ref_val, user.role)
-        merchant_val = mask_sensitive_value(merchant_val, user.role)
-
     return {
+
         "exception_id": exc.exception_id,
         "exception_type": exc.exception_type,
         "severity": exc.severity,

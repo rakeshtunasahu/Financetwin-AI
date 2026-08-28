@@ -43,20 +43,16 @@ export default function Header({ title, onRefresh, onOpenMobileMenu }: HeaderPro
 
   const getRoleBadgeColor = (role: UserRole) => {
     switch (role) {
-      case 'ADMIN':
-        return 'bg-purple-950/80 text-purple-300 border-purple-800';
-      case 'FINANCE_ANALYST':
-        return 'bg-blue-950/80 text-blue-300 border-blue-800';
-      case 'FINANCE_MANAGER':
-        return 'bg-amber-950/80 text-amber-300 border-amber-800';
-      case 'RISK_COMPLIANCE_OFFICER':
-        return 'bg-rose-950/80 text-rose-300 border-rose-800';
-      case 'AUDITOR':
+      case 'RECOVERY_ADMIN':
         return 'bg-emerald-950/80 text-emerald-300 border-emerald-800';
+      case 'RECOVERY_MANAGER':
+        return 'bg-amber-950/80 text-amber-300 border-amber-800';
+      case 'RECOVERY_OPERATOR':
       default:
-        return 'bg-slate-800 text-slate-300 border-slate-700';
+        return 'bg-blue-950/80 text-blue-300 border-blue-800';
     }
   };
+
 
   return (
     <header className="h-16 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 flex items-center justify-between px-4 sm:px-6 z-20 shrink-0 relative">

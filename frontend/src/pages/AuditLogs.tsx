@@ -126,12 +126,13 @@ export default function AuditLogs() {
               </span>
             </div>
             <p className="text-xs text-slate-400 mt-0.5">
-              {isRole('AUDITOR')
-                ? 'Immutable statutory verification log. Sensitive customer IDs and UTRs are automatically masked.'
-                : isRole('ADMIN')
-                ? 'Full system-wide immutable audit ledger across all operations, policies, and authorization checks.'
-                : 'Role-scoped operational audit trail for authorized reconciliation actions.'}
+              {isRole('RECOVERY_ADMIN')
+                ? 'Full system-wide immutable audit ledger across all recovery operations, guardrail checks, policies, and authorization events.'
+                : isRole('RECOVERY_MANAGER')
+                ? 'Management audit trail covering high-value approvals, policy simulations, and recovery outcomes.'
+                : 'Operational recovery audit log tracking case diagnoses and bounded interventions.'}
             </p>
+
           </div>
         </div>
         <div className="flex items-center gap-2 text-xs font-mono text-slate-400 bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800 self-start sm:self-auto">

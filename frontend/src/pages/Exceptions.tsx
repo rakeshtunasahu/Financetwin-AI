@@ -49,14 +49,13 @@ export default function Exceptions() {
               </span>
             </div>
             <p className="text-xs text-slate-400 mt-0.5">
-              {isRole('AUDITOR')
-                ? 'Statutory historical exception ledger with masked PII & bank references.'
-                : isRole('FINANCE_MANAGER')
-                ? 'Manager queue: High-value anomalies, fee mismatches, and manual review required.'
-                : isRole('RISK_COMPLIANCE_OFFICER')
-                ? 'Risk & compliance queue: Critical severity, anomaly scores >= 0.50, and duplicate credits.'
-                : 'Full operational exception management and AI investigation queue.'}
+              {isRole('RECOVERY_ADMIN')
+                ? 'System-wide exception investigations across all recovery and reconciliation streams.'
+                : isRole('RECOVERY_MANAGER')
+                ? 'Manager review queue: High-value exposure anomalies and manual review escalations.'
+                : 'Operational exception investigations and AI-assisted root-cause diagnosis.'}
             </p>
+
           </div>
         </div>
 

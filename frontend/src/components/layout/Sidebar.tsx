@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -15,9 +15,12 @@ import {
   FileText,
   Zap,
   RotateCw,
-  FolderKanban
+  FolderKanban,
+  CheckCircle2,
+  ChevronDown,
+  RefreshCw
 } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth, DEMO_PERSONAS } from '../../context/AuthContext';
 import { UserRole } from '../../types';
 
 interface SidebarProps {
@@ -26,8 +29,9 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
-  const { currentUser, logout } = useAuth();
+  const { currentUser, logout, switchUser } = useAuth();
   const navigate = useNavigate();
+  const [showRoleSwitcher, setShowRoleSwitcher] = useState(false);
 
   const handleSignOut = () => {
     logout();
@@ -35,73 +39,41 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
     navigate('/');
   };
 
-  // Role-specific navigation items configuration (Recovery-First)
+  // Role-specific navigation items configuration (3 Recovery-First Roles)
   const getMenuItems = (role: UserRole) => {
-    const recoveryItems = [
-      { name: 'Recovery Command Center', path: '/recovery', icon: Zap },
-      { name: 'Autonomous Batch Runner', path: '/recovery/batch', icon: RotateCw },
-      { name: 'Recovery Cases Queue', path: '/recovery/cases', icon: FolderKanban },
-    ];
-
     switch (role) {
-      case 'FINANCE_ANALYST':
+      case 'RECOVERY_OPERATOR':
         return [
-          { name: 'Home Landing Page', path: '/', icon: BookOpen },
-          ...recoveryItems,
-          { name: 'Reconciliation Queue', path: '/reconciliation', icon: GitCompare },
-          { name: 'Exception Operations', path: '/exceptions', icon: ShieldAlert },
-          { name: 'Operational Dashboard', path: '/dashboard', icon: LayoutDashboard },
+          { name: 'My Recovery Queue', path: '/operator-queue', icon: Zap },
+          { name: 'Recovery Cases', path: '/recovery/cases', icon: FolderKanban },
+          { name: 'Investigations', path: '/exceptions', icon: ShieldAlert },
+          { name: 'Escalations', path: '/recovery/cases?status=ESCALATED', icon: Activity },
+          { name: 'Recovery History', path: '/audit', icon: FileText },
           { name: 'Settlement Calculator', path: '/calculator', icon: Calculator }
         ];
 
-      case 'FINANCE_MANAGER':
+      case 'RECOVERY_MANAGER':
         return [
-          { name: 'Home Landing Page', path: '/', icon: BookOpen },
-          ...recoveryItems,
-          { name: 'Management Dashboard', path: '/dashboard', icon: LayoutDashboard },
-          { name: 'Approvals & Exceptions', path: '/exceptions', icon: ShieldAlert },
-          { name: 'High-Value Reconciliations', path: '/reconciliation', icon: GitCompare },
+          { name: 'Recovery Command Center', path: '/recovery', icon: Zap },
+          { name: 'High-Value Cases', path: '/recovery/cases?high_value=true', icon: FolderKanban },
+          { name: 'Approval Queue', path: '/recovery/cases?status=ESCALATED', icon: ShieldAlert },
+          { name: 'Recovery Analytics', path: '/dashboard', icon: LayoutDashboard },
           { name: 'Policy Simulation Lab', path: '/governance', icon: Sliders },
           { name: 'Approval Audit Trail', path: '/audit', icon: FileText },
           { name: 'Settlement Calculator', path: '/calculator', icon: Calculator }
         ];
 
-      case 'RISK_COMPLIANCE_OFFICER':
-        return [
-          { name: 'Home Landing Page', path: '/', icon: BookOpen },
-          ...recoveryItems,
-          { name: 'Risk & Anomaly Dashboard', path: '/dashboard', icon: LayoutDashboard },
-          { name: 'High-Risk Exceptions', path: '/exceptions', icon: ShieldAlert },
-          { name: 'ML Anomaly Clusters', path: '/anomalies', icon: Activity },
-          { name: 'Governance Policy View', path: '/governance', icon: Sliders },
-          { name: 'Forensic Audit Logs', path: '/audit', icon: FileText },
-          { name: 'Settlement Calculator', path: '/calculator', icon: Calculator }
-        ];
-
-      case 'AUDITOR':
-        return [
-          { name: 'Home Landing Page', path: '/', icon: BookOpen },
-          { name: 'Recovery Command Center', path: '/recovery', icon: Zap },
-          { name: 'Recovery Cases Queue', path: '/recovery/cases', icon: FolderKanban },
-          { name: 'Statutory Audit Dashboard', path: '/dashboard', icon: LayoutDashboard },
-          { name: 'Reconciliation History', path: '/reconciliation', icon: GitCompare },
-          { name: 'Historical Exceptions', path: '/exceptions', icon: ShieldAlert },
-          { name: 'Immutable Audit Trail', path: '/audit', icon: FileText },
-          { name: 'Governance Policy Audit', path: '/governance', icon: Sliders },
-          { name: 'Settlement Calculator', path: '/calculator', icon: Calculator }
-        ];
-
-      case 'ADMIN':
+      case 'RECOVERY_ADMIN':
       default:
         return [
-          { name: 'Home Landing Page', path: '/', icon: BookOpen },
-          ...recoveryItems,
-          { name: 'Reconciliation Engine', path: '/reconciliation', icon: GitCompare },
-          { name: 'Exceptions & Audits', path: '/exceptions', icon: ShieldAlert },
+          { name: 'System Recovery Control', path: '/recovery', icon: Zap },
+          { name: 'All Recovery Cases', path: '/recovery/cases', icon: FolderKanban },
+          { name: 'Autonomous Batch Runner', path: '/recovery/batch', icon: RotateCw },
+          { name: 'Policy Guardrails', path: '/governance', icon: Sliders },
+          { name: 'Recovery Analytics', path: '/dashboard', icon: LayoutDashboard },
+          { name: 'Forensic Audit Trail', path: '/audit', icon: FileText },
           { name: 'Anomaly Patterns', path: '/anomalies', icon: Activity },
-          { name: 'Governance Lab', path: '/governance', icon: Sliders },
-          { name: 'Audit Trail & Logs', path: '/audit', icon: FileText },
-          { name: 'Executive Dashboard', path: '/dashboard', icon: LayoutDashboard },
+          { name: 'Reconciliation Engine', path: '/reconciliation', icon: GitCompare },
           { name: 'Settlement Calculator', path: '/calculator', icon: Calculator }
         ];
     }
@@ -111,18 +83,13 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
 
   const getRoleTheme = (role: UserRole) => {
     switch (role) {
-      case 'ADMIN':
-        return { bg: 'bg-purple-950/80', border: 'border-purple-800', text: 'text-purple-400', badge: 'ADMIN' };
-      case 'FINANCE_ANALYST':
-        return { bg: 'bg-blue-950/80', border: 'border-blue-800', text: 'text-blue-400', badge: 'ANALYST' };
-      case 'FINANCE_MANAGER':
+      case 'RECOVERY_ADMIN':
+        return { bg: 'bg-emerald-950/80', border: 'border-emerald-800', text: 'text-emerald-400', badge: 'ADMIN' };
+      case 'RECOVERY_MANAGER':
         return { bg: 'bg-amber-950/80', border: 'border-amber-800', text: 'text-amber-400', badge: 'MANAGER' };
-      case 'RISK_COMPLIANCE_OFFICER':
-        return { bg: 'bg-rose-950/80', border: 'border-rose-800', text: 'text-rose-400', badge: 'RISK' };
-      case 'AUDITOR':
-        return { bg: 'bg-emerald-950/80', border: 'border-emerald-800', text: 'text-emerald-400', badge: 'AUDITOR' };
+      case 'RECOVERY_OPERATOR':
       default:
-        return { bg: 'bg-slate-950', border: 'border-slate-800', text: 'text-slate-400', badge: 'USER' };
+        return { bg: 'bg-blue-950/80', border: 'border-blue-800', text: 'text-blue-400', badge: 'OPERATOR' };
     }
   };
 
@@ -146,14 +113,14 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
       >
         {/* Header Branding */}
         <div className="p-5 border-b border-slate-800 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center font-extrabold text-white text-xs tracking-wider shadow-md shadow-emerald-500/20">
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/recovery')}>
+            <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center font-black text-white text-xs tracking-wider shadow-md shadow-emerald-500/20">
               RR
             </div>
             <div>
               <h1 className="font-bold text-sm text-slate-100 leading-none tracking-tight">RevenueRescue AI</h1>
               <span className="text-[10px] text-emerald-400 font-mono uppercase tracking-wider block mt-1 font-semibold">
-                Autonomous Recovery Agent
+                Autonomous Recovery
               </span>
             </div>
           </div>
@@ -178,7 +145,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-md text-xs font-semibold transition-all duration-150 ${
                   isActive
-                    ? 'bg-slate-800/90 text-blue-400 border-l-2 border-blue-500 pl-2.5 shadow-sm'
+                    ? 'bg-slate-800/90 text-emerald-400 border-l-2 border-emerald-500 pl-2.5 shadow-sm'
                     : 'text-slate-400 hover:bg-slate-800/40 hover:text-slate-200'
                 }`
               }
@@ -189,7 +156,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
           ))}
         </nav>
         
-        {/* Bottom Safety, Active Persona & Sign Out Action */}
+        {/* Bottom Safety, Active Persona & Switch Demo Role Action */}
         <div className="p-4 border-t border-slate-800 space-y-2.5 bg-slate-900/60">
           <div className="p-2.5 bg-slate-950/70 rounded-lg border border-slate-800/80 space-y-2">
             <div className="flex items-center gap-2.5">
@@ -207,12 +174,56 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
               </div>
             </div>
 
+            {/* Switch Demo Role Button & Dropdown */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowRoleSwitcher(!showRoleSwitcher)}
+                className="w-full flex items-center justify-between px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-md text-[11px] font-semibold transition-all cursor-pointer"
+              >
+                <div className="flex items-center gap-1.5">
+                  <RefreshCw className="w-3 h-3 text-emerald-400" />
+                  <span>Switch Demo Role</span>
+                </div>
+                <ChevronDown className={`w-3 h-3 transition-transform ${showRoleSwitcher ? 'rotate-180' : ''}`} />
+              </button>
+
+              {showRoleSwitcher && (
+                <div className="absolute bottom-full left-0 right-0 mb-1.5 bg-slate-950 border border-slate-800 rounded-lg shadow-xl overflow-hidden z-50 divide-y divide-slate-800/60">
+                  {DEMO_PERSONAS.map((p) => (
+                    <button
+                      key={p.role}
+                      type="button"
+                      onClick={() => {
+                        switchUser(p.role);
+                        setShowRoleSwitcher(false);
+                        if (p.role === 'RECOVERY_OPERATOR') {
+                          navigate('/operator-queue');
+                        } else {
+                          navigate('/recovery');
+                        }
+                      }}
+                      className={`w-full p-2 text-left text-xs transition-colors flex items-center justify-between cursor-pointer ${
+                        currentUser.role === p.role ? 'bg-slate-900 text-emerald-400 font-bold' : 'hover:bg-slate-900 text-slate-300'
+                      }`}
+                    >
+                      <div>
+                        <div className="text-[11px] font-semibold">{p.name}</div>
+                        <div className="text-[9px] text-slate-500 font-mono">{p.title}</div>
+                      </div>
+                      {currentUser.role === p.role && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {/* Dedicated Sign Out Button */}
             <button
               onClick={handleSignOut}
-              className="w-full flex items-center justify-center gap-2 px-2.5 py-1.5 bg-slate-900 hover:bg-rose-950/40 hover:border-rose-800/60 text-slate-400 hover:text-rose-300 border border-slate-800 rounded-md text-[11px] font-semibold transition-all cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 px-2.5 py-1 bg-slate-900 hover:bg-rose-950/40 hover:border-rose-800/60 text-slate-400 hover:text-rose-300 border border-slate-800 rounded-md text-[10px] font-semibold transition-all cursor-pointer"
             >
-              <LogOut className="w-3.5 h-3.5" />
+              <LogOut className="w-3 h-3" />
               <span>Sign Out</span>
             </button>
           </div>
@@ -220,10 +231,10 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
           <div className="px-2.5 py-2 bg-slate-950/50 rounded-lg border border-slate-800/60 flex items-center justify-between">
             <div className="flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Safety Status</span>
+              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Guardrail Engine</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="text-[10px] font-mono text-emerald-400 font-medium">PROTECTED</span>
+              <span className="text-[10px] font-mono text-emerald-400 font-medium">BOUNDED</span>
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
             </div>
           </div>

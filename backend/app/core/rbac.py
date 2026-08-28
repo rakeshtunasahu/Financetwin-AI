@@ -3,12 +3,15 @@ from typing import Dict, Any, List, Optional
 from fastapi import Request, HTTPException, status, Depends
 from sqlalchemy.orm import Session
 
+# =========================================================================
+# RevenueRescue AI — Three-Role RBAC Model
+# =========================================================================
+
 class Role(str, Enum):
-    ADMIN = "ADMIN"
-    FINANCE_ANALYST = "FINANCE_ANALYST"
-    FINANCE_MANAGER = "FINANCE_MANAGER"
-    RISK_COMPLIANCE_OFFICER = "RISK_COMPLIANCE_OFFICER"
-    AUDITOR = "AUDITOR"
+    RECOVERY_OPERATOR = "RECOVERY_OPERATOR"
+    RECOVERY_MANAGER = "RECOVERY_MANAGER"
+    RECOVERY_ADMIN = "RECOVERY_ADMIN"
+
 
 class DemoUser:
     def __init__(
@@ -40,47 +43,56 @@ class DemoUser:
             "permissions": PERMISSIONS.get(self.role, [])
         }
 
-# 5 distinct enterprise personas with role-related emails (RevenueRescue AI)
+
+# 3 distinct recovery-focused enterprise personas (RevenueRescue AI)
 DEMO_USERS: List[DemoUser] = [
     DemoUser(
-        email="admin@revenuerescue.ai",
-        name="Admin User",
-        role=Role.ADMIN,
-        title="Chief Systems Architect & Controller",
-        department="Autonomous Recovery Leadership",
-        aliases=["admin.root@revenuerescue.ai", "admin@financetwin.ai", "admin.root@financetwin.ai"]
-    ),
-    DemoUser(
-        email="analyst.priya@revenuerescue.ai",
-        name="Priya Sharma",
-        role=Role.FINANCE_ANALYST,
-        title="Senior Revenue Recovery Analyst",
+        email="operator.aarav@revenuerescue.ai",
+        name="Aarav Mehta",
+        role=Role.RECOVERY_OPERATOR,
+        title="Senior Recovery Specialist",
         department="Daily Recovery Operations",
-        aliases=["priya.sharma@revenuerescue.ai", "analyst.priya@financetwin.ai", "priya.sharma@financetwin.ai"]
+        aliases=[
+            "aarav.mehta@revenuerescue.ai",
+            "operator@revenuerescue.ai",
+            "operator.aarav@revenuerescue.ai",
+            "analyst.priya@revenuerescue.ai",
+            "priya.sharma@revenuerescue.ai",
+            "ops@financetwin.ai"
+        ]
     ),
     DemoUser(
-        email="manager.rahul@revenuerescue.ai",
-        name="Rahul Verma",
-        role=Role.FINANCE_MANAGER,
-        title="Finance & Recovery Operations Manager",
-        department="Treasury & Revenue Exposure Control",
-        aliases=["rahul.verma@revenuerescue.ai", "manager.rahul@financetwin.ai", "rahul.verma@financetwin.ai"]
+        email="manager.priya@revenuerescue.ai",
+        name="Priya Sharma",
+        role=Role.RECOVERY_MANAGER,
+        title="Revenue Exposure & Recovery Manager",
+        department="Recovery Operations & Approvals",
+        aliases=[
+            "priya.sharma@revenuerescue.ai",
+            "manager@revenuerescue.ai",
+            "manager.priya@revenuerescue.ai",
+            "manager.rahul@revenuerescue.ai",
+            "rahul.verma@revenuerescue.ai",
+            "manager@financetwin.ai"
+        ]
     ),
     DemoUser(
-        email="risk.ananya@revenuerescue.ai",
-        name="Ananya Singh",
-        role=Role.RISK_COMPLIANCE_OFFICER,
-        title="Risk & Recovery Compliance Officer",
-        department="Safety Governance & Anomaly Control",
-        aliases=["ananya.singh@revenuerescue.ai", "risk.ananya@financetwin.ai", "ananya.singh@financetwin.ai"]
-    ),
-    DemoUser(
-        email="auditor.vikram@revenuerescue.ai",
-        name="Vikram Mehta",
-        role=Role.AUDITOR,
-        title="External Financial & Recovery Auditor",
-        department="Statutory Audit & Verification",
-        aliases=["vikram.mehta@revenuerescue.ai", "auditor@revenuerescue.ai", "auditor.vikram@financetwin.ai", "auditor@financetwin.ai"]
+        email="admin.arjun@revenuerescue.ai",
+        name="Arjun Rao",
+        role=Role.RECOVERY_ADMIN,
+        title="Principal Recovery Architect & Controller",
+        department="Autonomous Recovery Leadership",
+        aliases=[
+            "arjun.rao@revenuerescue.ai",
+            "admin@revenuerescue.ai",
+            "admin.arjun@revenuerescue.ai",
+            "admin.root@revenuerescue.ai",
+            "admin@financetwin.ai",
+            "admin.root@financetwin.ai",
+            "auditor@financetwin.ai",
+            "auditor.vikram@revenuerescue.ai",
+            "risk.ananya@revenuerescue.ai"
+        ]
     )
 ]
 
@@ -93,76 +105,63 @@ for u in DEMO_USERS:
 
 # Centralized Capabilities & Permissions Matrix
 PERMISSIONS: Dict[Role, List[str]] = {
-    Role.ADMIN: [
+    Role.RECOVERY_OPERATOR: [
         "can_view_dashboard",
-        "can_run_reconciliation",
-        "can_view_full_reconciliation",
+        "can_view_recovery_cases",
+        "can_run_recovery_detection",
+        "can_diagnose_recovery_case",
+        "can_execute_recovery_action",
+        "can_escalate_case",
         "can_investigate_exception",
         "can_trigger_ai_investigation",
+        "can_view_audit_logs",
+        "can_view_calculator"
+    ],
+    Role.RECOVERY_MANAGER: [
+        "can_view_dashboard",
+        "can_view_recovery_cases",
+        "can_view_all_cases",
+        "can_diagnose_recovery_case",
+        "can_investigate_exception",
+        "can_trigger_ai_investigation",
+        "can_approve_high_value_action",
+        "can_approve_recovery",
+        "can_view_recovery_analytics",
+        "can_simulate_policy",
+        "can_view_policy_violations",
+        "can_view_audit_logs",
+        "can_view_risk_cases",
+        "can_view_calculator"
+    ],
+    Role.RECOVERY_ADMIN: [
+        "can_view_dashboard",
+        "can_view_recovery_cases",
+        "can_view_all_cases",
+        "can_run_recovery_detection",
+        "can_diagnose_recovery_case",
+        "can_execute_recovery_action",
+        "can_escalate_case",
+        "can_investigate_exception",
+        "can_trigger_ai_investigation",
+        "can_approve_high_value_action",
+        "can_approve_recovery",
+        "can_view_recovery_analytics",
+        "can_run_recovery_batch",
+        "can_configure_guardrails",
         "can_simulate_policy",
         "can_apply_policy",
-        "can_view_audit_logs",
         "can_manage_users",
-        "can_view_risk_cases",
-        "can_approve_high_risk_case",
+        "can_view_system_audit",
+        "can_view_audit_logs",
         "can_view_anomalies",
+        "can_view_risk_cases",
+        "can_view_policy_violations",
         "can_view_calculator",
-        # RevenueRescue AI Permissions
-        "can_view_recovery_cases",
-        "can_run_recovery_batch",
-        "can_execute_recovery_action",
-        "can_approve_recovery",
-        "can_view_policy_violations"
-    ],
-    Role.FINANCE_ANALYST: [
-        "can_view_dashboard",
         "can_run_reconciliation",
-        "can_view_full_reconciliation",
-        "can_investigate_exception",
-        "can_trigger_ai_investigation",
-        "can_view_audit_logs",
-        "can_view_calculator",
-        # RevenueRescue AI Permissions
-        "can_view_recovery_cases",
-        "can_execute_recovery_action"
-    ],
-    Role.FINANCE_MANAGER: [
-        "can_view_dashboard",
-        "can_view_full_reconciliation",
-        "can_investigate_exception",
-        "can_simulate_policy",
-        "can_view_audit_logs",
-        "can_view_risk_cases",
-        "can_approve_high_risk_case",
-        "can_view_calculator",
-        # RevenueRescue AI Permissions
-        "can_view_recovery_cases",
-        "can_approve_recovery",
-        "can_view_policy_violations"
-    ],
-    Role.RISK_COMPLIANCE_OFFICER: [
-        "can_view_dashboard",
-        "can_investigate_exception",
-        "can_trigger_ai_investigation",
-        "can_simulate_policy",
-        "can_view_audit_logs",
-        "can_view_risk_cases",
-        "can_view_anomalies",
-        "can_view_calculator",
-        # RevenueRescue AI Permissions
-        "can_view_recovery_cases",
-        "can_view_policy_violations"
-    ],
-    Role.AUDITOR: [
-        "can_view_dashboard",
-        "can_view_audit_logs",
-        "can_view_full_reconciliation",
-        "can_view_historical_records",
-        "can_view_calculator",
-        # RevenueRescue AI Permissions (read-only)
-        "can_view_recovery_cases"
-    ],
+        "can_view_full_reconciliation"
+    ]
 }
+
 
 def has_permission(role: Role, permission: str) -> bool:
     return permission in PERMISSIONS.get(role, [])
@@ -170,7 +169,7 @@ def has_permission(role: Role, permission: str) -> bool:
 def get_current_user(request: Request) -> DemoUser:
     """
     Extract authenticated demo user context from incoming request headers.
-    Supports X-User-Email header or X-User-Role header with fallback to ADMIN.
+    Supports X-User-Email header or X-User-Role header with fallback to RECOVERY_ADMIN.
     """
     user_email = request.headers.get("X-User-Email")
     user_role_str = request.headers.get("X-User-Role")
@@ -179,12 +178,20 @@ def get_current_user(request: Request) -> DemoUser:
         return DEMO_USER_BY_EMAIL[user_email.lower()]
 
     if user_role_str:
+        role_str = user_role_str.upper()
+        # Direct match or role mapping
         for u in DEMO_USERS:
-            if u.role.value == user_role_str.upper():
+            if u.role.value == role_str:
                 return u
+        if "OPERATOR" in role_str or "ANALYST" in role_str:
+            return DEMO_USERS[0]
+        elif "MANAGER" in role_str:
+            return DEMO_USERS[1]
+        elif "ADMIN" in role_str or "RISK" in role_str or "AUDIT" in role_str:
+            return DEMO_USERS[2]
 
-    # Default fallback for unauthenticated calls or backwards compatibility
-    return DEMO_USERS[0]
+    # Default fallback to Administrator
+    return DEMO_USERS[2]
 
 def require_permission(permission: str):
     """
@@ -233,39 +240,34 @@ def enforce_permission(permission: str, request: Request) -> DemoUser:
     return user
 
 # =========================================================================
-# Field-Level Privacy & Data Masking Utilities
+# Security & Confidentiality: Zero Secret Exposure
 # =========================================================================
 
-def mask_sensitive_value(value: Optional[str], role: Role, prefix_len: int = 3, suffix_len: int = 4) -> Optional[str]:
+def sanitize_system_config(config_dict: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Masks sensitive values (such as Customer ID, Bank UTR reference) for AUDITOR role.
-    Example: UTR123456789 -> UTR*****6789, CUS-987654321 -> CUS*****4321
+    Ensures that raw API keys, passwords, database credentials, or LLM secrets
+    are NEVER exposed in API responses. Replaces them with safe status indicators.
+    """
+    sanitized = {}
+    secret_keywords = {"key", "secret", "password", "token", "credential", "auth", "pwd"}
+    
+    for k, v in config_dict.items():
+        lower_k = k.lower()
+        if any(keyword in lower_k for keyword in secret_keywords):
+            sanitized[k] = "Configured" if v else "Not Configured"
+        elif isinstance(v, dict):
+            sanitized[k] = sanitize_system_config(v)
+        else:
+            sanitized[k] = v
+    return sanitized
+
+def mask_sensitive_value(value: Optional[str], role: Optional[Role] = None, prefix_len: int = 3, suffix_len: int = 4) -> Optional[str]:
+    """
+    Helper for masking sensitive identifiers where requested.
     """
     if not value:
-        return value
-    if role != Role.AUDITOR:
         return value
     str_val = str(value)
     if len(str_val) <= prefix_len + suffix_len:
         return "*****"
     return f"{str_val[:prefix_len]}*****{str_val[-suffix_len:]}"
-
-def mask_dict_fields(data: Dict[str, Any], role: Role) -> Dict[str, Any]:
-    """
-    Recursively applies field masking on dictionary structures for AUDITOR role.
-    """
-    if role != Role.AUDITOR or not isinstance(data, dict):
-        return data
-
-    masked = dict(data)
-    sensitive_keys = {"utr", "customer_id", "reference", "bank_reference", "account_number"}
-    
-    for key, val in masked.items():
-        if key in sensitive_keys and isinstance(val, str):
-            masked[key] = mask_sensitive_value(val, role)
-        elif isinstance(val, dict):
-            masked[key] = mask_dict_fields(val, role)
-        elif isinstance(val, list):
-            masked[key] = [mask_dict_fields(item, role) if isinstance(item, dict) else item for item in val]
-            
-    return masked

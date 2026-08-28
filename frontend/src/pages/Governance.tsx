@@ -89,12 +89,13 @@ export default function Governance() {
               </span>
             </div>
             <p className="text-xs text-slate-400 mt-0.5">
-              {isRole('ADMIN')
-                ? 'Authorized to simulate parameters and apply live thresholds directly to the matching engine.'
-                : isRole('FINANCE_MANAGER') || isRole('RISK_COMPLIANCE_OFFICER')
+              {isRole('RECOVERY_ADMIN')
+                ? 'Authorized to simulate parameters and apply live thresholds directly to the recovery & matching engine.'
+                : isRole('RECOVERY_MANAGER')
                 ? 'Authorized for policy parameter simulation and financial exposure stress testing (Apply disabled).'
-                : 'Read-only view of active governance safety limits and thresholds.'}
+                : 'Read-only view of active governance safety limits and guardrail thresholds.'}
             </p>
+
           </div>
         </div>
       </div>

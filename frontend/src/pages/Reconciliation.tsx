@@ -49,14 +49,13 @@ export default function Reconciliation() {
               </span>
             </div>
             <p className="text-xs text-slate-400 mt-0.5">
-              {isRole('AUDITOR')
-                ? 'Read-only historical reconciliation view with masked sensitive customer and UTR references.'
-                : isRole('FINANCE_MANAGER')
+              {isRole('RECOVERY_ADMIN')
+                ? 'Full system-wide reconciliation workspace with multi-pass matching telemetry and audit trails.'
+                : isRole('RECOVERY_MANAGER')
                 ? 'Management filter active: Prioritizing high-value batches (₹50k+) and exceptions/abstains.'
-                : isRole('RISK_COMPLIANCE_OFFICER')
-                ? 'Risk filter active: Showing ambiguous matches, abstains, and non-exact candidates.'
-                : 'Full operational ledger scope with explainability JSON breakdown.'}
+                : 'Operational reconciliation scope with explainability JSON breakdown.'}
             </p>
+
           </div>
         </div>
 

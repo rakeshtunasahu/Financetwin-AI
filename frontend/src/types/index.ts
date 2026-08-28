@@ -1,9 +1,8 @@
 export type UserRole =
-  | 'ADMIN'
-  | 'FINANCE_ANALYST'
-  | 'FINANCE_MANAGER'
-  | 'RISK_COMPLIANCE_OFFICER'
-  | 'AUDITOR';
+  | 'RECOVERY_OPERATOR'
+  | 'RECOVERY_MANAGER'
+  | 'RECOVERY_ADMIN';
+
 
 export interface DemoUser {
   email: string;

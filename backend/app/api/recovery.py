@@ -63,43 +63,36 @@ def list_recovery_cases(
         query = query.filter(RecoveryCase.severity == severity)
 
     # ── Role-Specific Record Filtering ─────────────────────────────────────
-    if user.role == Role.FINANCE_MANAGER:
+    if user.role == Role.RECOVERY_MANAGER:
         policy = get_active_policy()
         high_val_thresh = float(policy.get("high_value_escalation_threshold", 50000.0))
-        # Manager focuses on high-value cases, escalations, or high severity
+        # Manager focuses on high-value cases, escalations/approvals, and high severity exposures
         query = query.filter(
             (RecoveryCase.amount_at_risk >= high_val_thresh) |
             (RecoveryCase.current_status.in_([RecoveryCaseStatus.ESCALATED, RecoveryCaseStatus.STOPPED])) |
             (RecoveryCase.severity.in_(["HIGH", "CRITICAL"]))
         )
-    elif user.role == Role.RISK_COMPLIANCE_OFFICER:
-        # Risk officer focuses on high risk, anomalies, disputes, or escalations
+    elif user.role == Role.RECOVERY_OPERATOR:
+        # Operator focuses on actionable operational cases (detected, in-progress, retry, action-needed)
         query = query.filter(
-            (RecoveryCase.severity.in_(["HIGH", "CRITICAL"])) |
-            (RecoveryCase.has_dispute == True) |
-            (RecoveryCase.anomaly_score >= 0.30) |
-            (RecoveryCase.current_status == RecoveryCaseStatus.ESCALATED)
+            RecoveryCase.current_status.in_([
+                RecoveryCaseStatus.DETECTED,
+                RecoveryCaseStatus.DIAGNOSED,
+                RecoveryCaseStatus.ACTION_SELECTED,
+                RecoveryCaseStatus.ACTION_EXECUTED,
+                RecoveryCaseStatus.WAITING_FOR_OUTCOME,
+                RecoveryCaseStatus.RETRY,
+                RecoveryCaseStatus.RECOVERED
+            ])
         )
+    # RECOVERY_ADMIN sees all system-wide cases without restriction
 
     # Order by priority score descending
     query = query.order_by(desc(RecoveryCase.priority_score), desc(RecoveryCase.created_at))
     cases = query.limit(limit).all()
 
-    # ── Field Masking for AUDITOR ──────────────────────────────────────────
-    if user.role == Role.AUDITOR:
-        masked_list = []
-        for c in cases:
-            data = RecoveryCaseSchema.model_validate(c).model_dump()
-            if data.get("customer_id"):
-                data["customer_id"] = mask_sensitive_value(data["customer_id"], user.role)
-            if data.get("merchant_id"):
-                data["merchant_id"] = mask_sensitive_value(data["merchant_id"], user.role)
-            if data.get("source_transaction_id"):
-                data["source_transaction_id"] = mask_sensitive_value(data["source_transaction_id"], user.role)
-            masked_list.append(RecoveryCaseSchema(**data))
-        return masked_list
-
     return cases
+
 
 
 # ──────────────────────────────────────────────────────────────────────────────

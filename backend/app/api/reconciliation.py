@@ -94,7 +94,7 @@ def list_matches(
     # -------------------------------------------------------------
     # Record-Level Filtering per Role
     # -------------------------------------------------------------
-    if user.role == Role.FINANCE_MANAGER:
+    if user.role == Role.RECOVERY_MANAGER:
         # Managers prioritize high-value settlements and exception/abstain cases
         policy = get_active_policy()
         high_val_thresh = policy.get("high_value_transaction_threshold", 50000.0)
@@ -102,33 +102,8 @@ def list_matches(
             (SettlementBatch.net_amount >= high_val_thresh) |
             (ReconciliationMatch.decision.in_(["ABSTAIN", "EXCEPTION", "NO_MATCH"]))
         )
-    elif user.role == Role.RISK_COMPLIANCE_OFFICER:
-        # Risk Officers prioritize anomalies, abstains, and non-exact matches
-        query = query.filter(
-            (ReconciliationMatch.decision.in_(["ABSTAIN", "EXCEPTION", "NO_MATCH"])) |
-            (ReconciliationMatch.confidence < 0.90)
-        )
-    # ADMIN, FINANCE_ANALYST, and AUDITOR can see full range of operational matches
+    # RECOVERY_OPERATOR and RECOVERY_ADMIN see relevant matching records
 
     matches = query.all()
-
-    # -------------------------------------------------------------
-    # Field-Level Privacy & Masking for AUDITOR role
-    # -------------------------------------------------------------
-    if user.role == Role.AUDITOR:
-        result_list = []
-        for m in matches:
-            # Create a clone representation with masked fields
-            match_data = ReconciliationMatchSchema.model_validate(m).model_dump()
-            if match_data.get("settlement_batch") and match_data["settlement_batch"].get("utr"):
-                match_data["settlement_batch"]["utr"] = mask_sensitive_value(
-                    match_data["settlement_batch"]["utr"], user.role
-                )
-            if match_data.get("bank_transaction") and match_data["bank_transaction"].get("reference"):
-                match_data["bank_transaction"]["reference"] = mask_sensitive_value(
-                    match_data["bank_transaction"]["reference"], user.role
-                )
-            result_list.append(ReconciliationMatchSchema(**match_data))
-        return result_list
-
     return matches
+

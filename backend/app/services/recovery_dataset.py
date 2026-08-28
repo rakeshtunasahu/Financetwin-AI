@@ -55,8 +55,12 @@ def _days_ago(n: int) -> datetime:
     return datetime.utcnow() - timedelta(days=n)
 
 
+import uuid
+
 def _case_id(idx: int) -> str:
-    return f"REC-{str(idx).zfill(4)}"
+    suffix = uuid.uuid4().hex[:4].upper()
+    return f"REC-{str(idx).zfill(4)}-{suffix}"
+
 
 
 def _action_id(case_idx: int, action_idx: int) -> str:

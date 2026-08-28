@@ -3,112 +3,78 @@ import { DemoUser, UserRole } from '../types';
 
 export const DEMO_PERSONAS: DemoUser[] = [
   {
-    email: 'admin@revenuerescue.ai',
-    name: 'Admin User',
-    role: 'ADMIN',
-    title: 'Chief Systems Architect & Recovery Controller',
-    department: 'Autonomous Recovery Leadership',
-    organization: 'RevenueRescue AI Org',
-    permissions: [
-      'can_view_dashboard',
-      'can_run_reconciliation',
-      'can_view_full_reconciliation',
-      'can_investigate_exception',
-      'can_trigger_ai_investigation',
-      'can_simulate_policy',
-      'can_apply_policy',
-      'can_view_audit_logs',
-      'can_manage_users',
-      'can_view_risk_cases',
-      'can_approve_high_risk_case',
-      'can_view_anomalies',
-      'can_view_calculator',
-      // Recovery Permissions
-      'can_view_recovery_cases',
-      'can_run_recovery_batch',
-      'can_execute_recovery_action',
-      'can_approve_recovery',
-      'can_view_policy_violations'
-    ]
-  },
-  {
-    email: 'analyst.priya@revenuerescue.ai',
-    name: 'Priya Sharma',
-    role: 'FINANCE_ANALYST',
-    title: 'Senior Revenue Recovery Analyst',
+    email: 'operator.aarav@revenuerescue.ai',
+    name: 'Aarav Mehta',
+    role: 'RECOVERY_OPERATOR',
+    title: 'Senior Recovery Specialist',
     department: 'Daily Recovery Operations',
     organization: 'RevenueRescue AI Org',
     permissions: [
       'can_view_dashboard',
-      'can_run_reconciliation',
-      'can_view_full_reconciliation',
+      'can_view_recovery_cases',
+      'can_run_recovery_detection',
+      'can_diagnose_recovery_case',
+      'can_execute_recovery_action',
+      'can_escalate_case',
       'can_investigate_exception',
       'can_trigger_ai_investigation',
       'can_view_audit_logs',
-      'can_view_calculator',
-      // Recovery Permissions
-      'can_view_recovery_cases',
-      'can_execute_recovery_action'
+      'can_view_calculator'
     ]
   },
   {
-    email: 'manager.rahul@revenuerescue.ai',
-    name: 'Rahul Verma',
-    role: 'FINANCE_MANAGER',
-    title: 'Finance & Recovery Operations Manager',
-    department: 'Treasury & Revenue Exposure Control',
+    email: 'manager.priya@revenuerescue.ai',
+    name: 'Priya Sharma',
+    role: 'RECOVERY_MANAGER',
+    title: 'Revenue Exposure & Recovery Manager',
+    department: 'Recovery Operations & Approvals',
     organization: 'RevenueRescue AI Org',
     permissions: [
       'can_view_dashboard',
-      'can_view_full_reconciliation',
-      'can_investigate_exception',
-      'can_simulate_policy',
-      'can_view_audit_logs',
-      'can_view_risk_cases',
-      'can_approve_high_risk_case',
-      'can_view_calculator',
-      // Recovery Permissions
       'can_view_recovery_cases',
+      'can_view_all_cases',
+      'can_diagnose_recovery_case',
+      'can_approve_high_value_action',
       'can_approve_recovery',
-      'can_view_policy_violations'
-    ]
-  },
-  {
-    email: 'risk.ananya@revenuerescue.ai',
-    name: 'Ananya Singh',
-    role: 'RISK_COMPLIANCE_OFFICER',
-    title: 'Risk & Recovery Compliance Officer',
-    department: 'Safety Governance & Anomaly Control',
-    organization: 'RevenueRescue AI Org',
-    permissions: [
-      'can_view_dashboard',
-      'can_investigate_exception',
-      'can_trigger_ai_investigation',
+      'can_view_recovery_analytics',
       'can_simulate_policy',
+      'can_view_policy_violations',
       'can_view_audit_logs',
       'can_view_risk_cases',
-      'can_view_anomalies',
-      'can_view_calculator',
-      // Recovery Permissions
-      'can_view_recovery_cases',
-      'can_view_policy_violations'
+      'can_view_calculator'
     ]
   },
   {
-    email: 'auditor.vikram@revenuerescue.ai',
-    name: 'Vikram Mehta',
-    role: 'AUDITOR',
-    title: 'External Financial & Recovery Auditor',
-    department: 'Statutory Audit & Verification',
+    email: 'admin.arjun@revenuerescue.ai',
+    name: 'Arjun Rao',
+    role: 'RECOVERY_ADMIN',
+    title: 'Principal Recovery Architect & Controller',
+    department: 'Autonomous Recovery Leadership',
     organization: 'RevenueRescue AI Org',
     permissions: [
       'can_view_dashboard',
+      'can_view_recovery_cases',
+      'can_view_all_cases',
+      'can_run_recovery_detection',
+      'can_diagnose_recovery_case',
+      'can_execute_recovery_action',
+      'can_escalate_case',
+      'can_approve_high_value_action',
+      'can_approve_recovery',
+      'can_view_recovery_analytics',
+      'can_run_recovery_batch',
+      'can_configure_guardrails',
+      'can_simulate_policy',
+      'can_apply_policy',
+      'can_manage_users',
+      'can_view_system_audit',
       'can_view_audit_logs',
-      'can_view_full_reconciliation',
-      'can_view_historical_records',
+      'can_view_anomalies',
+      'can_view_risk_cases',
+      'can_view_policy_violations',
       'can_view_calculator',
-      // Recovery Permissions (read-only)
-      'can_view_recovery_cases'
+      'can_run_reconciliation',
+      'can_view_full_reconciliation'
     ]
   }
 ];
@@ -118,14 +84,14 @@ interface AuthContextType {
   availableUsers: DemoUser[];
   login: (email: string) => Promise<boolean>;
   logout: () => void;
-  switchUser: (email: string) => void;
+  switchUser: (emailOrRole: string) => void;
   hasPermission: (permission: string) => boolean;
   isRole: (role: UserRole) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const STORAGE_KEY = 'financetwin_active_user';
+const STORAGE_KEY = 'revenuerescue_active_user';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<DemoUser>(() => {
@@ -141,7 +107,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (e) {
       console.error('Failed to load session from localStorage', e);
     }
-    return DEMO_PERSONAS[0]; // Default to Admin
+    // Default to Administrator
+    return DEMO_PERSONAS[2];
   });
 
   useEffect(() => {
@@ -155,11 +122,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const match = DEMO_PERSONAS.find(
       (u) =>
         u.email.toLowerCase() === cleanEmail ||
-        (cleanEmail.includes('priya') && u.role === 'FINANCE_ANALYST') ||
-        (cleanEmail.includes('rahul') && u.role === 'FINANCE_MANAGER') ||
-        (cleanEmail.includes('ananya') && u.role === 'RISK_COMPLIANCE_OFFICER') ||
-        (cleanEmail.includes('auditor') && u.role === 'AUDITOR') ||
-        (cleanEmail.includes('admin') && u.role === 'ADMIN')
+        (cleanEmail.includes('aarav') && u.role === 'RECOVERY_OPERATOR') ||
+        (cleanEmail.includes('priya') && u.role === 'RECOVERY_MANAGER') ||
+        (cleanEmail.includes('arjun') && u.role === 'RECOVERY_ADMIN') ||
+        (cleanEmail.includes('operator') && u.role === 'RECOVERY_OPERATOR') ||
+        (cleanEmail.includes('manager') && u.role === 'RECOVERY_MANAGER') ||
+        (cleanEmail.includes('admin') && u.role === 'RECOVERY_ADMIN')
     );
 
     if (match) {
@@ -169,11 +137,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const customUser: DemoUser = {
         email: cleanEmail,
         name: cleanEmail.split('@')[0].replace(/[\._]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
-        role: 'ADMIN',
-        title: 'Enterprise Finance Specialist',
-        department: 'Operations & Settlement',
-        organization: 'Enterprise FinOps Unit',
-        permissions: DEMO_PERSONAS[0].permissions
+        role: 'RECOVERY_ADMIN',
+        title: 'Recovery Systems Specialist',
+        department: 'Autonomous Recovery',
+        organization: 'RevenueRescue AI Org',
+        permissions: DEMO_PERSONAS[2].permissions
       };
       setCurrentUser(customUser);
       return true;
@@ -181,11 +149,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
-    setCurrentUser(DEMO_PERSONAS[0]);
+    setCurrentUser(DEMO_PERSONAS[2]);
   };
 
-  const switchUser = (email: string) => {
-    const match = DEMO_PERSONAS.find((u) => u.email.toLowerCase() === email.toLowerCase());
+  const switchUser = (emailOrRole: string) => {
+    const query = emailOrRole.toLowerCase();
+    const match = DEMO_PERSONAS.find(
+      (u) =>
+        u.email.toLowerCase() === query ||
+        u.role.toLowerCase() === query ||
+        u.name.toLowerCase().includes(query)
+    );
     if (match) {
       setCurrentUser(match);
     }
