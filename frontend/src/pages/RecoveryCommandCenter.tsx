@@ -98,257 +98,266 @@ export default function RecoveryCommandCenter() {
     }
   };
 
+  const atRisk = Number(metrics?.total_revenue_at_risk ?? metrics?.total_at_risk ?? 0);
+  const recovered = Number(metrics?.total_amount_recovered ?? metrics?.total_recovered ?? 0);
+  const recoveryRate = Number(metrics?.recovery_rate_pct ?? 0);
+  const totalCases = Number(metrics?.active_recovery_cases ?? metrics?.total_cases ?? (recentCases.length || 0));
+  const recoveredCases = Number(metrics?.cases_recovered ?? metrics?.recovered_cases ?? 0);
+  const inProgressCases = Number(metrics?.cases_in_progress ?? metrics?.in_progress_cases ?? 0);
+  const escalatedCases = Number(metrics?.cases_escalated ?? metrics?.escalated_cases ?? (attentionCases.length || 0));
+  const avgTime = Number(metrics?.avg_recovery_time_hours ?? metrics?.avg_time_to_recovery_hours ?? 1.8);
+
   return (
     <PageContainer title="Recovery Command Center" onRefresh={fetchData}>
       <div className="space-y-6">
         {/* Top Banner Header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900 to-emerald-950/40 border border-slate-800 p-6 shadow-xl">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20"></div>
-        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                AUTONOMOUS RECOVERY AGENT
-              </span>
-              <span className="text-xs text-slate-400 font-mono">v2.0 • Real-time Intervention Engine</span>
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900 to-emerald-950/40 border border-slate-800 p-6 shadow-xl">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20"></div>
+          <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                  AUTONOMOUS RECOVERY AGENT
+                </span>
+                <span className="text-xs text-slate-400 font-mono">v2.0 • Real-time Intervention Engine</span>
+              </div>
+              <h1 className="text-2xl lg:text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
+                Recovery Command Center
+                <Zap className="w-6 h-6 text-emerald-400 fill-emerald-400/20 animate-pulse" />
+              </h1>
+              <p className="text-sm text-slate-400 mt-1 max-w-2xl">
+                Autonomous, policy-bounded revenue recovery across payment failures, checkout drop-offs, and overdue invoices.
+                <strong className="text-slate-200 ml-1">Detect. Decide. Recover.</strong>
+              </p>
             </div>
-            <h1 className="text-2xl lg:text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
-              Recovery Command Center
-              <Zap className="w-6 h-6 text-emerald-400 fill-emerald-400/20 animate-pulse" />
-            </h1>
-            <p className="text-sm text-slate-400 mt-1 max-w-2xl">
-              Autonomous, policy-bounded revenue recovery across payment failures, checkout drop-offs, and overdue invoices.
-              <strong className="text-slate-200 ml-1">Detect. Decide. Recover.</strong>
-            </p>
-          </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={handleDetectRisks}
-              disabled={detecting}
-              className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-sm hover:border-slate-600 transition-all disabled:opacity-50 cursor-pointer"
-            >
-              <Sparkles className={`w-4 h-4 text-cyan-400 ${detecting ? 'animate-spin' : ''}`} />
-              <span>{detecting ? 'Detecting Risks...' : 'Detect Revenue Risks'}</span>
-            </button>
-
-            {hasPermission('can_run_recovery_batch') && (
+            <div className="flex flex-wrap items-center gap-3">
               <button
-                onClick={() => navigate('/recovery/batch')}
-                className="px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-emerald-900/30 hover:shadow-emerald-900/50 transition-all cursor-pointer"
+                onClick={handleDetectRisks}
+                disabled={detecting}
+                className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-sm hover:border-slate-600 transition-all disabled:opacity-50 cursor-pointer"
               >
-                <RotateCw className="w-4 h-4" />
-                <span>Run Autonomous Batch</span>
+                <Sparkles className={`w-4 h-4 text-cyan-400 ${detecting ? 'animate-spin' : ''}`} />
+                <span>{detecting ? 'Detecting Risks...' : 'Detect Revenue Risks'}</span>
               </button>
-            )}
+
+              {hasPermission('can_run_recovery_batch') && (
+                <button
+                  onClick={() => navigate('/recovery/batch')}
+                  className="px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-emerald-900/30 hover:shadow-emerald-900/50 transition-all cursor-pointer"
+                >
+                  <RotateCw className="w-4 h-4" />
+                  <span>Run Autonomous Batch</span>
+                </button>
+              )}
+            </div>
           </div>
+
+          {detectMsg && (
+            <div className="mt-4 p-3 bg-emerald-950/70 border border-emerald-800 rounded-xl text-xs text-emerald-300 flex items-center justify-between">
+              <span>{detectMsg}</span>
+              <button onClick={() => setDetectMsg(null)} className="text-emerald-400 hover:text-emerald-200 ml-2">✕</button>
+            </div>
+          )}
         </div>
 
-        {detectMsg && (
-          <div className="mt-4 p-3 bg-emerald-950/70 border border-emerald-800 rounded-xl text-xs text-emerald-300 flex items-center justify-between">
-            <span>{detectMsg}</span>
-            <button onClick={() => setDetectMsg(null)} className="text-emerald-400 hover:text-emerald-200 ml-2">✕</button>
+        {loading && !metrics ? (
+          <div className="p-12 flex flex-col items-center justify-center bg-slate-900 rounded-2xl border border-slate-800">
+            <div className="w-10 h-10 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin"></div>
+            <p className="text-slate-400 text-sm mt-4">Loading recovery analytics and queue...</p>
           </div>
-        )}
-      </div>
-
-      {loading && !metrics ? (
-        <div className="p-12 flex flex-col items-center justify-center bg-slate-900 rounded-2xl border border-slate-800">
-          <div className="w-10 h-10 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin"></div>
-          <p className="text-slate-400 text-sm mt-4">Loading recovery analytics and queue...</p>
-        </div>
-      ) : error ? (
-        <div className="p-6 bg-rose-950/40 border border-rose-800 rounded-2xl text-rose-300 text-sm flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <AlertTriangle className="w-5 h-5 text-rose-400" />
-            <span>{error}</span>
+        ) : error ? (
+          <div className="p-6 bg-rose-950/40 border border-rose-800 rounded-2xl text-rose-300 text-sm flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="w-5 h-5 text-rose-400" />
+              <span>{error}</span>
+            </div>
+            <button
+              onClick={fetchData}
+              className="px-3 py-1.5 bg-rose-900/50 hover:bg-rose-800 text-rose-200 rounded-lg text-xs font-semibold"
+            >
+              Retry
+            </button>
           </div>
-          <button
-            onClick={fetchData}
-            className="px-3 py-1.5 bg-rose-900/50 hover:bg-rose-800 text-rose-200 rounded-lg text-xs font-semibold"
-          >
-            Retry
-          </button>
-        </div>
-      ) : (
-        <>
-          {/* Top 6 KPI Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-            {/* 1. Revenue At Risk */}
-            <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition-all">
-              <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
-                <span>Revenue at Risk</span>
-                <AlertTriangle className="w-4 h-4 text-amber-400" />
-              </div>
-              <div className="my-2">
-                <div className="text-xl font-bold text-slate-100 font-mono">
-                  ₹{metrics ? metrics.total_at_risk.toLocaleString('en-IN') : '0'}
+        ) : (
+          <>
+            {/* Top 6 KPI Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+              {/* 1. Revenue At Risk */}
+              <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition-all">
+                <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
+                  <span>Revenue at Risk</span>
+                  <AlertTriangle className="w-4 h-4 text-amber-400" />
                 </div>
-                <div className="text-[11px] text-amber-400/90 font-mono mt-0.5">
-                  {metrics?.total_cases || 0} total cases detected
-                </div>
-              </div>
-              <div className="text-[10px] text-slate-500">Total pipeline exposure</div>
-            </div>
-
-            {/* 2. Revenue Recovered */}
-            <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-col justify-between hover:border-emerald-800/60 transition-all">
-              <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
-                <span>Revenue Recovered</span>
-                <DollarSign className="w-4 h-4 text-emerald-400" />
-              </div>
-              <div className="my-2">
-                <div className="text-xl font-bold text-emerald-400 font-mono">
-                  ₹{metrics ? metrics.total_recovered.toLocaleString('en-IN') : '0'}
-                </div>
-                <div className="text-[11px] text-emerald-400/90 font-mono mt-0.5">
-                  {metrics?.recovered_cases || 0} cases rescued
-                </div>
-              </div>
-              <div className="text-[10px] text-slate-500">Autonomous & assisted</div>
-            </div>
-
-            {/* 3. Recovery Rate */}
-            <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-col justify-between hover:border-teal-800/60 transition-all">
-              <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
-                <span>Recovery Rate</span>
-                <TrendingUp className="w-4 h-4 text-teal-400" />
-              </div>
-              <div className="my-2">
-                <div className="text-xl font-bold text-teal-400 font-mono">
-                  {metrics?.recovery_rate_pct || 0}%
-                </div>
-                <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden mt-1.5">
-                  <div
-                    className="bg-teal-400 h-full rounded-full transition-all duration-500"
-                    style={{ width: `${Math.min(100, metrics?.recovery_rate_pct || 0)}%` }}
-                  ></div>
-                </div>
-              </div>
-              <div className="text-[10px] text-slate-500">Target benchmark &gt; 45%</div>
-            </div>
-
-            {/* 4. Active In-Progress */}
-            <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-col justify-between hover:border-cyan-800/60 transition-all">
-              <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
-                <span>In-Progress / Retry</span>
-                <Clock className="w-4 h-4 text-cyan-400" />
-              </div>
-              <div className="my-2">
-                <div className="text-xl font-bold text-cyan-400 font-mono">
-                  {metrics?.in_progress_cases || 0}
-                </div>
-                <div className="text-[11px] text-slate-400 font-mono mt-0.5">
-                  Under autonomous retry
-                </div>
-              </div>
-              <div className="text-[10px] text-slate-500">Active cadences running</div>
-            </div>
-
-            {/* 5. Human Attention / Escalated */}
-            <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-col justify-between hover:border-rose-800/60 transition-all">
-              <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
-                <span>Escalated / Policy</span>
-                <ShieldAlert className="w-4 h-4 text-rose-400" />
-              </div>
-              <div className="my-2">
-                <div className="text-xl font-bold text-rose-400 font-mono">
-                  {metrics?.escalated_cases || 0}
-                </div>
-                <div className="text-[11px] text-rose-400/90 font-mono mt-0.5">
-                  Requires approval
-                </div>
-              </div>
-              <div className="text-[10px] text-slate-500">High-value / policy bounds</div>
-            </div>
-
-            {/* 6. Avg Time to Recovery */}
-            <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-col justify-between hover:border-purple-800/60 transition-all">
-              <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
-                <span>Avg Recovery Time</span>
-                <CheckCircle2 className="w-4 h-4 text-purple-400" />
-              </div>
-              <div className="my-2">
-                <div className="text-xl font-bold text-purple-400 font-mono">
-                  {metrics?.avg_time_to_recovery_hours || 4.2}h
-                </div>
-                <div className="text-[11px] text-slate-400 font-mono mt-0.5">
-                  Fastest &lt; 15 mins
-                </div>
-              </div>
-              <div className="text-[10px] text-slate-500">Detection to settlement</div>
-            </div>
-          </div>
-
-          {/* Recovery Funnel & Category Breakdown */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Funnel Visualization */}
-            <div className="lg:col-span-2 p-5 bg-slate-900 border border-slate-800 rounded-2xl">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="text-sm font-bold text-slate-100 flex items-center gap-2">
-                    <Layers className="w-4 h-4 text-emerald-400" />
-                    Autonomous Recovery Funnel
-                  </h2>
-                  <p className="text-xs text-slate-400 mt-0.5">Stage-by-stage progression from detection to revenue capture</p>
-                </div>
-                <span className="text-xs font-mono text-emerald-400 font-semibold">100% Policy-Bounded</span>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {/* Stage 1: Detected */}
-                <div className="p-3.5 bg-slate-950/60 border border-slate-800 rounded-xl relative overflow-hidden">
-                  <div className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">1. Detected</div>
-                  <div className="text-lg font-bold text-slate-100 font-mono mt-1">
-                    {metrics?.funnel?.detected || metrics?.total_cases || 0}
+                <div className="my-2">
+                  <div className="text-xl font-bold text-slate-100 font-mono">
+                    ₹{atRisk.toLocaleString('en-IN')}
                   </div>
-                  <div className="text-[11px] text-slate-400 mt-0.5">₹{metrics?.total_at_risk.toLocaleString('en-IN')}</div>
-                  <div className="mt-2 w-full bg-slate-800 h-1 rounded-full">
-                    <div className="bg-blue-500 h-full rounded-full" style={{ width: '100%' }}></div>
+                  <div className="text-[11px] text-amber-400/90 font-mono mt-0.5">
+                    {totalCases} total cases detected
                   </div>
                 </div>
+                <div className="text-[10px] text-slate-500">Total pipeline exposure</div>
+              </div>
 
-                {/* Stage 2: Diagnosed */}
-                <div className="p-3.5 bg-slate-950/60 border border-slate-800 rounded-xl relative overflow-hidden">
-                  <div className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">2. Diagnosed</div>
-                  <div className="text-lg font-bold text-blue-400 font-mono mt-1">
-                    {metrics?.funnel?.diagnosed || Math.round((metrics?.total_cases || 0) * 0.95)}
+              {/* 2. Revenue Recovered */}
+              <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-col justify-between hover:border-emerald-800/60 transition-all">
+                <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
+                  <span>Revenue Recovered</span>
+                  <DollarSign className="w-4 h-4 text-emerald-400" />
+                </div>
+                <div className="my-2">
+                  <div className="text-xl font-bold text-emerald-400 font-mono">
+                    ₹{recovered.toLocaleString('en-IN')}
                   </div>
-                  <div className="text-[11px] text-slate-400 mt-0.5">Root cause classified</div>
-                  <div className="mt-2 w-full bg-slate-800 h-1 rounded-full">
-                    <div className="bg-blue-400 h-full rounded-full" style={{ width: '95%' }}></div>
+                  <div className="text-[11px] text-emerald-400/90 font-mono mt-0.5">
+                    {recoveredCases} cases rescued
                   </div>
                 </div>
+                <div className="text-[10px] text-slate-500">Autonomous & assisted</div>
+              </div>
 
-                {/* Stage 3: Actioned */}
-                <div className="p-3.5 bg-slate-950/60 border border-slate-800 rounded-xl relative overflow-hidden">
-                  <div className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">3. Actioned</div>
-                  <div className="text-lg font-bold text-cyan-400 font-mono mt-1">
-                    {metrics?.funnel?.actioned || Math.round((metrics?.total_cases || 0) * 0.88)}
-                  </div>
-                  <div className="text-[11px] text-slate-400 mt-0.5">Interventions fired</div>
-                  <div className="mt-2 w-full bg-slate-800 h-1 rounded-full">
-                    <div className="bg-cyan-400 h-full rounded-full" style={{ width: '88%' }}></div>
-                  </div>
+              {/* 3. Recovery Rate */}
+              <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-col justify-between hover:border-teal-800/60 transition-all">
+                <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
+                  <span>Recovery Rate</span>
+                  <TrendingUp className="w-4 h-4 text-teal-400" />
                 </div>
-
-                {/* Stage 4: Recovered */}
-                <div className="p-3.5 bg-emerald-950/30 border border-emerald-900/50 rounded-xl relative overflow-hidden">
-                  <div className="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-wider">4. Recovered</div>
-                  <div className="text-lg font-bold text-emerald-400 font-mono mt-1">
-                    {metrics?.funnel?.recovered || metrics?.recovered_cases || 0}
+                <div className="my-2">
+                  <div className="text-xl font-bold text-teal-400 font-mono">
+                    {recoveryRate}%
                   </div>
-                  <div className="text-[11px] text-emerald-300/80 mt-0.5">₹{metrics?.total_recovered.toLocaleString('en-IN')}</div>
-                  <div className="mt-2 w-full bg-slate-800 h-1 rounded-full">
+                  <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden mt-1.5">
                     <div
-                      className="bg-emerald-400 h-full rounded-full"
-                      style={{ width: `${Math.min(100, metrics?.recovery_rate_pct || 0)}%` }}
+                      className="bg-teal-400 h-full rounded-full transition-all duration-500"
+                      style={{ width: `${Math.min(100, recoveryRate)}%` }}
                     ></div>
                   </div>
                 </div>
+                <div className="text-[10px] text-slate-500">Target benchmark &gt; 45%</div>
               </div>
 
-              {/* Recovery Types Breakdown */}
+              {/* 4. Active In-Progress */}
+              <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-col justify-between hover:border-cyan-800/60 transition-all">
+                <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
+                  <span>In-Progress / Retry</span>
+                  <Clock className="w-4 h-4 text-cyan-400" />
+                </div>
+                <div className="my-2">
+                  <div className="text-xl font-bold text-cyan-400 font-mono">
+                    {inProgressCases}
+                  </div>
+                  <div className="text-[11px] text-slate-400 font-mono mt-0.5">
+                    Under autonomous retry
+                  </div>
+                </div>
+                <div className="text-[10px] text-slate-500">Active cadences running</div>
+              </div>
+
+              {/* 5. Human Attention / Escalated */}
+              <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-col justify-between hover:border-rose-800/60 transition-all">
+                <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
+                  <span>Escalated / Policy</span>
+                  <ShieldAlert className="w-4 h-4 text-rose-400" />
+                </div>
+                <div className="my-2">
+                  <div className="text-xl font-bold text-rose-400 font-mono">
+                    {escalatedCases}
+                  </div>
+                  <div className="text-[11px] text-rose-400/90 font-mono mt-0.5">
+                    Requires approval
+                  </div>
+                </div>
+                <div className="text-[10px] text-slate-500">High-value / policy bounds</div>
+              </div>
+
+              {/* 6. Avg Time to Recovery */}
+              <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-col justify-between hover:border-purple-800/60 transition-all">
+                <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
+                  <span>Avg Recovery Time</span>
+                  <CheckCircle2 className="w-4 h-4 text-purple-400" />
+                </div>
+                <div className="my-2">
+                  <div className="text-xl font-bold text-purple-400 font-mono">
+                    {avgTime}h
+                  </div>
+                  <div className="text-[11px] text-slate-400 font-mono mt-0.5">
+                    Fastest &lt; 15 mins
+                  </div>
+                </div>
+                <div className="text-[10px] text-slate-500">Detection to settlement</div>
+              </div>
+            </div>
+
+            {/* Recovery Funnel & Category Breakdown */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Funnel Visualization */}
+              <div className="lg:col-span-2 p-5 bg-slate-900 border border-slate-800 rounded-2xl">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h2 className="text-sm font-bold text-slate-100 flex items-center gap-2">
+                      <Layers className="w-4 h-4 text-emerald-400" />
+                      Autonomous Recovery Funnel
+                    </h2>
+                    <p className="text-xs text-slate-400 mt-0.5">Stage-by-stage progression from detection to revenue capture</p>
+                  </div>
+                  <span className="text-xs font-mono text-emerald-400 font-semibold">100% Policy-Bounded</span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {/* Stage 1: Detected */}
+                  <div className="p-3.5 bg-slate-950/60 border border-slate-800 rounded-xl relative overflow-hidden">
+                    <div className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">1. Detected</div>
+                    <div className="text-lg font-bold text-slate-100 font-mono mt-1">
+                      {metrics?.funnel?.detected ?? totalCases}
+                    </div>
+                    <div className="text-[11px] text-slate-400 mt-0.5">₹{atRisk.toLocaleString('en-IN')}</div>
+                    <div className="mt-2 w-full bg-slate-800 h-1 rounded-full">
+                      <div className="bg-blue-500 h-full rounded-full" style={{ width: '100%' }}></div>
+                    </div>
+                  </div>
+
+                  {/* Stage 2: Diagnosed */}
+                  <div className="p-3.5 bg-slate-950/60 border border-slate-800 rounded-xl relative overflow-hidden">
+                    <div className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">2. Diagnosed</div>
+                    <div className="text-lg font-bold text-blue-400 font-mono mt-1">
+                      {metrics?.funnel?.diagnosed ?? Math.round(totalCases * 0.95)}
+                    </div>
+                    <div className="text-[11px] text-slate-400 mt-0.5">Root cause classified</div>
+                    <div className="mt-2 w-full bg-slate-800 h-1 rounded-full">
+                      <div className="bg-blue-400 h-full rounded-full" style={{ width: '95%' }}></div>
+                    </div>
+                  </div>
+
+                  {/* Stage 3: Actioned */}
+                  <div className="p-3.5 bg-slate-950/60 border border-slate-800 rounded-xl relative overflow-hidden">
+                    <div className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">3. Actioned</div>
+                    <div className="text-lg font-bold text-cyan-400 font-mono mt-1">
+                      {metrics?.funnel?.actioned ?? Math.round(totalCases * 0.88)}
+                    </div>
+                    <div className="text-[11px] text-slate-400 mt-0.5">Interventions fired</div>
+                    <div className="mt-2 w-full bg-slate-800 h-1 rounded-full">
+                      <div className="bg-cyan-400 h-full rounded-full" style={{ width: '88%' }}></div>
+                    </div>
+                  </div>
+
+                  {/* Stage 4: Recovered */}
+                  <div className="p-3.5 bg-emerald-950/30 border border-emerald-900/50 rounded-xl relative overflow-hidden">
+                    <div className="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-wider">4. Recovered</div>
+                    <div className="text-lg font-bold text-emerald-400 font-mono mt-1">
+                      {metrics?.funnel?.recovered ?? recoveredCases}
+                    </div>
+                    <div className="text-[11px] text-emerald-300/80 mt-0.5">₹{recovered.toLocaleString('en-IN')}</div>
+                    <div className="mt-2 w-full bg-slate-800 h-1 rounded-full">
+                      <div
+                        className="bg-emerald-400 h-full rounded-full"
+                        style={{ width: `${Math.min(100, recoveryRate)}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Recovery Types Breakdown */}
               <div className="mt-5 pt-4 border-t border-slate-800">
                 <div className="text-xs font-semibold text-slate-300 mb-3">Recovery Performance by Scenario</div>
                 <div className="space-y-2.5">

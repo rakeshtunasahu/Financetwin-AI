@@ -288,10 +288,10 @@ export default function RecoveryCases() {
                     </td>
                     <td className="p-4">
                       <span className="font-mono text-[11px] text-slate-300">
-                        {c.recovery_type.replace(/_/g, ' ')}
+                        {String(c.recovery_type || '').replace(/_/g, ' ')}
                       </span>
                       <div className="text-[10px] text-slate-500 truncate max-w-[140px]">
-                        {c.root_cause?.replace(/_/g, ' ') || 'Pending Diagnosis'}
+                        {String(c.root_cause || '').replace(/_/g, ' ') || 'Pending Diagnosis'}
                       </div>
                     </td>
                     <td className="p-4 text-right font-mono font-bold text-slate-200">

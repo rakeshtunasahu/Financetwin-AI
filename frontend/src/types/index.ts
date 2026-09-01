@@ -348,24 +348,36 @@ export interface RecoveryCase {
 }
 
 export interface RecoveryMetrics {
-  total_cases: number;
-  total_at_risk: number;
-  total_recovered: number;
-  recovery_rate_pct: number;
-  active_cases: number;
-  recovered_cases: number;
-  escalated_cases: number;
-  stopped_cases: number;
-  in_progress_cases: number;
-  avg_time_to_recovery_hours: number;
-  by_type: Record<string, { count: number; at_risk: number; recovered: number; recovery_rate_pct: number }>;
-  by_severity: Record<string, { count: number; at_risk: number; recovered: number }>;
-  funnel: {
+  total_revenue_at_risk?: number;
+  total_at_risk?: number;
+  total_amount_recovered?: number;
+  total_recovered?: number;
+  recovery_rate_pct?: number;
+  active_recovery_cases?: number;
+  active_cases?: number;
+  total_cases?: number;
+  cases_recovered?: number;
+  recovered_cases?: number;
+  cases_escalated?: number;
+  escalated_cases?: number;
+  cases_stopped?: number;
+  stopped_cases?: number;
+  cases_in_progress?: number;
+  in_progress_cases?: number;
+  avg_recovery_time_hours?: number;
+  avg_time_to_recovery_hours?: number;
+  by_type?: Record<string, { count: number; at_risk: number; recovered: number; recovery_rate_pct?: number }>;
+  by_intervention?: Record<string, any>;
+  by_severity?: Record<string, { count: number; at_risk: number; recovered: number }>;
+  funnel?: {
     detected: number;
     diagnosed: number;
     actioned: number;
     recovered: number;
+    detected_amt?: number;
+    recovered_amt?: number;
   };
+  human_attention_queue?: any[];
 }
 
 export interface BatchSummary {
