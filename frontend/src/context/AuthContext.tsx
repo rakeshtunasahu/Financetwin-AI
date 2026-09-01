@@ -6,7 +6,7 @@ export const DEMO_PERSONAS: DemoUser[] = [
     email: 'operator.aarav@revenuerescue.ai',
     name: 'Aarav Mehta',
     role: 'RECOVERY_OPERATOR',
-    title: 'Senior Recovery Specialist',
+    title: 'Senior Recovery Specialist & Analyst',
     department: 'Daily Recovery Operations',
     organization: 'RevenueRescue AI Org',
     permissions: [
@@ -76,6 +76,41 @@ export const DEMO_PERSONAS: DemoUser[] = [
       'can_run_reconciliation',
       'can_view_full_reconciliation'
     ]
+  },
+  {
+    email: 'risk.ananya@revenuerescue.ai',
+    name: 'Ananya Desai',
+    role: 'RISK_OFFICER',
+    title: 'Head of Risk & Policy Compliance',
+    department: 'Risk, Policy & Fraud Prevention',
+    organization: 'RevenueRescue AI Org',
+    permissions: [
+      'can_view_dashboard',
+      'can_view_recovery_cases',
+      'can_view_all_cases',
+      'can_view_risk_cases',
+      'can_view_anomalies',
+      'can_view_policy_violations',
+      'can_simulate_policy',
+      'can_view_audit_logs',
+      'can_view_calculator'
+    ]
+  },
+  {
+    email: 'auditor.vikram@revenuerescue.ai',
+    name: 'Vikram Malhotra',
+    role: 'AUDITOR',
+    title: 'Lead Financial Forensic Auditor',
+    department: 'Independent Audit & Compliance',
+    organization: 'RevenueRescue AI Org',
+    permissions: [
+      'can_view_dashboard',
+      'can_view_recovery_cases',
+      'can_view_all_cases',
+      'can_view_audit_logs',
+      'can_view_system_audit',
+      'can_view_calculator'
+    ]
   }
 ];
 
@@ -125,9 +160,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         (cleanEmail.includes('aarav') && u.role === 'RECOVERY_OPERATOR') ||
         (cleanEmail.includes('priya') && u.role === 'RECOVERY_MANAGER') ||
         (cleanEmail.includes('arjun') && u.role === 'RECOVERY_ADMIN') ||
+        (cleanEmail.includes('ananya') && u.role === 'RISK_OFFICER') ||
+        (cleanEmail.includes('vikram') && u.role === 'AUDITOR') ||
         (cleanEmail.includes('operator') && u.role === 'RECOVERY_OPERATOR') ||
+        (cleanEmail.includes('analyst') && u.role === 'RECOVERY_OPERATOR') ||
         (cleanEmail.includes('manager') && u.role === 'RECOVERY_MANAGER') ||
-        (cleanEmail.includes('admin') && u.role === 'RECOVERY_ADMIN')
+        (cleanEmail.includes('admin') && u.role === 'RECOVERY_ADMIN') ||
+        (cleanEmail.includes('risk') && u.role === 'RISK_OFFICER') ||
+        (cleanEmail.includes('auditor') && u.role === 'AUDITOR')
     );
 
     if (match) {
