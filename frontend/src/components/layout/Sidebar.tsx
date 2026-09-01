@@ -39,57 +39,59 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
     navigate('/');
   };
 
-  // Role-specific navigation items configuration (3 Recovery-First Roles)
-  const getMenuItems = (role: UserRole) => {
-    switch (role) {
-      case 'RECOVERY_OPERATOR':
-        return [
-          { name: 'My Recovery Queue', path: '/operator-queue', icon: Zap },
-          { name: 'Recovery Cases', path: '/recovery/cases', icon: FolderKanban },
-          { name: 'Investigations', path: '/exceptions', icon: ShieldAlert },
-          { name: 'Escalations', path: '/recovery/cases?status=ESCALATED', icon: Activity },
-          { name: 'Recovery History', path: '/audit', icon: FileText },
-          { name: 'Revenue Recovery Calculator', path: '/calculator', icon: Calculator }
-        ];
-
-      case 'RECOVERY_MANAGER':
-        return [
-          { name: 'Recovery Command Center', path: '/recovery', icon: Zap },
-          { name: 'High-Value Cases', path: '/recovery/cases?high_value=true', icon: FolderKanban },
-          { name: 'Approval Queue', path: '/recovery/cases?status=ESCALATED', icon: ShieldAlert },
-          { name: 'Recovery Analytics', path: '/dashboard', icon: LayoutDashboard },
-          { name: 'Policy Simulation Lab', path: '/governance', icon: Sliders },
-          { name: 'Approval Audit Trail', path: '/audit', icon: FileText },
-          { name: 'Revenue Recovery Calculator', path: '/calculator', icon: Calculator }
-        ];
-
-      case 'RECOVERY_ADMIN':
-      default:
-        return [
-          { name: 'System Recovery Control', path: '/recovery', icon: Zap },
-          { name: 'All Recovery Cases', path: '/recovery/cases', icon: FolderKanban },
-          { name: 'Autonomous Batch Runner', path: '/recovery/batch', icon: RotateCw },
-          { name: 'Policy Guardrails', path: '/governance', icon: Sliders },
-          { name: 'Recovery Analytics', path: '/dashboard', icon: LayoutDashboard },
-          { name: 'Forensic Audit Trail', path: '/audit', icon: FileText },
-          { name: 'Anomaly Patterns', path: '/anomalies', icon: Activity },
-          { name: 'Revenue Leakage Engine', path: '/reconciliation', icon: GitCompare },
-          { name: 'Revenue Recovery Calculator', path: '/calculator', icon: Calculator }
-        ];
+  // Grouped Navigation per Master Prompt Section 29
+  const navigationSections = [
+    {
+      group: 'OVERVIEW',
+      items: [
+        { name: 'Recovery Command Center', path: '/recovery', icon: Zap }
+      ]
+    },
+    {
+      group: 'RECOVERY',
+      items: [
+        { name: 'Recovery Cases', path: '/recovery/cases', icon: FolderKanban },
+        { name: 'Autonomous Recovery', path: '/recovery/batch', icon: RotateCw }
+      ]
+    },
+    {
+      group: 'INTELLIGENCE',
+      items: [
+        { name: 'Revenue Leakage', path: '/leakage', icon: GitCompare },
+        { name: 'Recovery Intelligence', path: '/intelligence', icon: Activity },
+        { name: 'Anomaly Patterns', path: '/anomalies', icon: ShieldAlert }
+      ]
+    },
+    {
+      group: 'CONTROL',
+      items: [
+        { name: 'Policy Guardrails', path: '/governance', icon: Sliders },
+        { name: 'Recovery Simulator', path: '/simulator', icon: Calculator }
+      ]
+    },
+    {
+      group: 'GOVERNANCE',
+      items: [
+        { name: 'Audit Trail', path: '/audit', icon: FileText }
+      ]
     }
-  };
-
-  const menuItems = getMenuItems(currentUser.role);
+  ];
 
   const getRoleTheme = (role: UserRole) => {
     switch (role) {
       case 'RECOVERY_ADMIN':
         return { bg: 'bg-emerald-950/80', border: 'border-emerald-800', text: 'text-emerald-400', badge: 'ADMIN' };
       case 'RECOVERY_MANAGER':
+      case 'FINANCE_MANAGER':
         return { bg: 'bg-amber-950/80', border: 'border-amber-800', text: 'text-amber-400', badge: 'MANAGER' };
+      case 'RISK_OFFICER':
+        return { bg: 'bg-rose-950/80', border: 'border-rose-800', text: 'text-rose-400', badge: 'RISK' };
+      case 'AUDITOR':
+        return { bg: 'bg-purple-950/80', border: 'border-purple-800', text: 'text-purple-400', badge: 'AUDITOR' };
       case 'RECOVERY_OPERATOR':
+      case 'FINANCE_ANALYST':
       default:
-        return { bg: 'bg-blue-950/80', border: 'border-blue-800', text: 'text-blue-400', badge: 'OPERATOR' };
+        return { bg: 'bg-blue-950/80', border: 'border-blue-800', text: 'text-blue-400', badge: 'ANALYST' };
     }
   };
 
@@ -135,24 +137,33 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
           )}
         </div>
         
-        {/* Navigation links */}
-        <nav className="flex-1 px-3.5 py-4 space-y-1.5 overflow-y-auto">
-          {menuItems.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              onClick={onClose}
-              className={({ isActive }) =>
-                `flex items-center gap-3.5 px-3.5 py-3 rounded-lg text-sm font-semibold transition-all duration-150 ${
-                  isActive
-                    ? 'bg-slate-800/90 text-emerald-400 border-l-3 border-emerald-500 pl-3 shadow-sm font-bold'
-                    : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-100'
-                }`
-              }
-            >
-              <item.icon className="w-4.5 h-4.5 shrink-0" />
-              <span className="truncate">{item.name}</span>
-            </NavLink>
+        {/* Categorized Navigation links */}
+        <nav className="flex-1 px-3.5 py-4 space-y-4 overflow-y-auto">
+          {navigationSections.map((sec) => (
+            <div key={sec.group} className="space-y-1">
+              <div className="px-3 text-[10px] font-mono font-bold text-slate-500 uppercase tracking-wider">
+                {sec.group}
+              </div>
+              <div className="space-y-0.5">
+                {sec.items.map((item) => (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    onClick={onClose}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-150 ${
+                        isActive
+                          ? 'bg-slate-800/90 text-emerald-400 border-l-2 border-emerald-500 pl-2.5 shadow-sm font-bold'
+                          : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-100'
+                      }`
+                    }
+                  >
+                    <item.icon className="w-4 h-4 shrink-0" />
+                    <span className="truncate">{item.name}</span>
+                  </NavLink>
+                ))}
+              </div>
+            </div>
           ))}
         </nav>
         
