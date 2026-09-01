@@ -21,6 +21,7 @@ import {
 import { recoveryApi } from '../api/client';
 import { BatchSummary } from '../types';
 import { useAuth } from '../context/AuthContext';
+import PageContainer from '../components/layout/PageContainer';
 
 const RECOVERY_STEPS = [
   { id: 1, name: 'Risk Detection', desc: 'Scan reconciliation exceptions & checkout drop-offs' },
@@ -110,8 +111,9 @@ export default function BatchRecovery() {
   }) || [];
 
   return (
-    <div className="space-y-6">
-      {/* Top Banner */}
+    <PageContainer title="Autonomous Recovery Batch">
+      <div className="space-y-6">
+        {/* Top Banner */}
       <div className="rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900 to-teal-950/40 border border-slate-800 p-6 shadow-xl relative overflow-hidden">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div>
@@ -383,6 +385,7 @@ export default function BatchRecovery() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </PageContainer>
   );
 }

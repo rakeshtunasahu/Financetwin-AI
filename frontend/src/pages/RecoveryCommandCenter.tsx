@@ -21,6 +21,7 @@ import {
 import { recoveryApi } from '../api/client';
 import { RecoveryMetrics, RecoveryCase } from '../types';
 import { useAuth } from '../context/AuthContext';
+import PageContainer from '../components/layout/PageContainer';
 
 export default function RecoveryCommandCenter() {
   const navigate = useNavigate();
@@ -98,8 +99,9 @@ export default function RecoveryCommandCenter() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Top Banner Header */}
+    <PageContainer title="Recovery Command Center" onRefresh={fetchData}>
+      <div className="space-y-6">
+        {/* Top Banner Header */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900 to-emerald-950/40 border border-slate-800 p-6 shadow-xl">
         <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20"></div>
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -593,6 +595,7 @@ export default function RecoveryCommandCenter() {
           </div>
         </>
       )}
-    </div>
+      </div>
+    </PageContainer>
   );
 }

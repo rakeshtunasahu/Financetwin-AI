@@ -19,6 +19,7 @@ import {
 import { recoveryApi } from '../api/client';
 import { RecoveryCase } from '../types';
 import { useAuth } from '../context/AuthContext';
+import PageContainer from '../components/layout/PageContainer';
 
 export default function RecoveryCases() {
   const navigate = useNavigate();
@@ -104,8 +105,9 @@ export default function RecoveryCases() {
   });
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <PageContainer title="Autonomous Recovery Cases" onRefresh={fetchCases}>
+      <div className="space-y-6">
+        {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl lg:text-2xl font-bold text-slate-100 flex items-center gap-2.5">
@@ -336,6 +338,7 @@ export default function RecoveryCases() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </PageContainer>
   );
 }

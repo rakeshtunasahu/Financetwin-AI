@@ -14,7 +14,7 @@ export default function PageContainer({ title, children, onRefresh }: PageContai
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-slate-950 text-slate-100 relative font-sans">
       {/* Background Subtle Gradient Overlay */}
-      <div className="fixed top-0 left-0 lg:left-64 right-0 h-80 bg-gradient-to-b from-slate-900/60 via-slate-950/20 to-transparent pointer-events-none z-0" />
+      <div className="fixed top-0 left-0 lg:left-72 right-0 h-80 bg-gradient-to-b from-slate-900/60 via-slate-950/20 to-transparent pointer-events-none z-0" />
 
       <Sidebar isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
 

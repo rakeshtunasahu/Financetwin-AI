@@ -24,6 +24,7 @@ import {
 import { recoveryApi } from '../api/client';
 import { RecoveryCase, RecoveryAction } from '../types';
 import { useAuth } from '../context/AuthContext';
+import PageContainer from '../components/layout/PageContainer';
 
 const STATE_FLOW = [
   'DETECTED',
@@ -154,33 +155,38 @@ export default function RecoveryCaseDetail() {
 
   if (loading && !caseData) {
     return (
-      <div className="p-16 flex flex-col items-center justify-center bg-slate-900 rounded-2xl border border-slate-800">
-        <div className="w-10 h-10 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin"></div>
-        <p className="text-slate-400 text-sm mt-4 font-mono">Loading case lifecycle & telemetry...</p>
-      </div>
+      <PageContainer title={`Recovery Case: ${id || 'Detail'}`}>
+        <div className="p-16 flex flex-col items-center justify-center bg-slate-900 rounded-2xl border border-slate-800">
+          <div className="w-10 h-10 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin"></div>
+          <p className="text-slate-400 text-sm mt-4 font-mono">Loading case lifecycle & telemetry...</p>
+        </div>
+      </PageContainer>
     );
   }
 
   if (error || !caseData) {
     return (
-      <div className="p-8 bg-slate-900 border border-slate-800 rounded-2xl space-y-4">
-        <div className="flex items-center gap-3 text-rose-400">
-          <AlertTriangle className="w-6 h-6" />
-          <span className="text-base font-semibold">{error || 'Case not found'}</span>
+      <PageContainer title={`Recovery Case: ${id || 'Detail'}`}>
+        <div className="p-8 bg-slate-900 border border-slate-800 rounded-2xl space-y-4">
+          <div className="flex items-center gap-3 text-rose-400">
+            <AlertTriangle className="w-6 h-6" />
+            <span className="text-base font-semibold">{error || 'Case not found'}</span>
+          </div>
+          <button
+            onClick={() => navigate('/recovery/cases')}
+            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold"
+          >
+            Back to Cases
+          </button>
         </div>
-        <button
-          onClick={() => navigate('/recovery/cases')}
-          className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold"
-        >
-          Back to Cases
-        </button>
-      </div>
+      </PageContainer>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Top Breadcrumb & Navigation */}
+    <PageContainer title={`Recovery Case: ${caseData.case_id}`} onRefresh={fetchCaseDetail}>
+      <div className="space-y-6">
+        {/* Top Breadcrumb & Navigation */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <Link
@@ -552,6 +558,7 @@ export default function RecoveryCaseDetail() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </PageContainer>
   );
 }

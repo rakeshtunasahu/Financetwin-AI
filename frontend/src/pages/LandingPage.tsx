@@ -211,7 +211,7 @@ export default function LandingPage({ initialLoginOpen = false }: LandingPagePro
                   <div className="w-3 h-3 rounded-full bg-rose-500/80" />
                   <div className="w-3 h-3 rounded-full bg-amber-500/80" />
                   <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
-                  <span className="text-[10px] font-mono text-slate-400 ml-2">financetwin.ai/executive-console</span>
+                  <span className="text-[10px] font-mono text-slate-400 ml-2">revenuerescue.ai/recovery-console</span>
                 </div>
                 <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">
                   LIVE ENGINE
@@ -222,11 +222,11 @@ export default function LandingPage({ initialLoginOpen = false }: LandingPagePro
               <div className="space-y-4 pt-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="p-3 bg-slate-950/80 border border-slate-800 rounded-xl">
-                    <span className="text-[10px] text-slate-400 uppercase font-mono block">False Match Rate</span>
+                    <span className="text-[10px] text-slate-400 uppercase font-mono block">False Recovery Rate</span>
                     <span className="text-lg font-bold font-mono text-emerald-400 block mt-0.5">0.00%</span>
                   </div>
                   <div className="p-3 bg-slate-950/80 border border-slate-800 rounded-xl">
-                    <span className="text-[10px] text-slate-400 uppercase font-mono block">Amount at Risk</span>
+                    <span className="text-[10px] text-slate-400 uppercase font-mono block">Recoverable Leakage</span>
                     <span className="text-lg font-bold font-mono text-slate-100 block mt-0.5">₹6,85,713</span>
                   </div>
                 </div>
@@ -244,7 +244,7 @@ export default function LandingPage({ initialLoginOpen = false }: LandingPagePro
                 <div className="p-3 bg-slate-950/80 border border-slate-800 rounded-xl flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Database className="w-4 h-4 text-blue-400" />
-                    <span className="text-xs text-slate-300 font-medium">Reconciliation Coverage</span>
+                    <span className="text-xs text-slate-300 font-medium">Recovery Pipeline Coverage</span>
                   </div>
                   <span className="text-xs font-mono font-bold text-blue-400">92.3% PPV</span>
                 </div>
@@ -262,10 +262,10 @@ export default function LandingPage({ initialLoginOpen = false }: LandingPagePro
               Core Platform Capabilities
             </span>
             <h2 className="text-2xl sm:text-3xl font-bold text-slate-100">
-              Start Exploring Financial Operations
+              Start Exploring Revenue Recovery Operations
             </h2>
             <p className="text-xs sm:text-sm text-slate-400 font-sans">
-              Designed for finance teams, auditors, and treasury managers who demand zero tolerance for false matches.
+              Designed for revenue operations, risk leaders, and merchant growth teams who demand zero revenue leakage.
             </p>
           </div>
 
@@ -441,7 +441,7 @@ export default function LandingPage({ initialLoginOpen = false }: LandingPagePro
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="admin@financetwin.ai"
+                    placeholder="admin@revenuerescue.ai"
                     required
                     className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-blue-500 transition-colors font-sans"
                   />

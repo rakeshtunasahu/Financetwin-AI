@@ -21,6 +21,7 @@ import {
 import { recoveryApi } from '../api/client';
 import { RecoveryCase } from '../types';
 import { useAuth } from '../context/AuthContext';
+import PageContainer from '../components/layout/PageContainer';
 
 export default function OperatorQueue() {
   const navigate = useNavigate();
@@ -145,8 +146,9 @@ export default function OperatorQueue() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Top Banner Header — Operator Focus */}
+    <PageContainer title="My Recovery Queue" onRefresh={fetchQueue}>
+      <div className="space-y-6">
+        {/* Top Banner Header — Operator Focus */}
       <div className="rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900 to-blue-950/40 border border-slate-800 p-6 shadow-xl relative overflow-hidden">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
@@ -489,6 +491,7 @@ export default function OperatorQueue() {
           </table>
         </div>
       </div>
-    </div>
+      </div>
+    </PageContainer>
   );
 }

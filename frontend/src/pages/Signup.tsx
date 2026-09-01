@@ -22,7 +22,7 @@ export default function Signup() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [company, setCompany] = useState('');
-  const [role, setRole] = useState('Finance Director');
+  const [role, setRole] = useState('Revenue Operations Director');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [agreedToPolicy, setAgreedToPolicy] = useState(true);
@@ -225,10 +225,10 @@ export default function Signup() {
                   onChange={(e) => setRole(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-blue-500 transition-colors"
                 >
-                  <option value="Finance Director">Finance Director</option>
-                  <option value="Treasury Operations">Treasury Operations</option>
-                  <option value="Senior Reconciliation Analyst">Reconciliation Analyst</option>
-                  <option value="Compliance & Auditor">Compliance & Auditor</option>
+                  <option value="Revenue Operations Director">Revenue Operations Director</option>
+                  <option value="Revenue Recovery Manager">Revenue Recovery Manager</option>
+                  <option value="Revenue Recovery Operator">Revenue Recovery Operator</option>
+                  <option value="Revenue Risk & Audit Analyst">Revenue Risk & Audit Analyst</option>
                 </select>
               </div>
             </div>

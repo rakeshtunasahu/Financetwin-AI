@@ -25,14 +25,14 @@ export default function FinancialExposure({
         <div>
           <div className="flex items-center gap-2">
             <Wallet className="w-4 h-4 text-blue-400 shrink-0" />
-            <h3 className="text-sm font-bold text-slate-100 tracking-tight">Financial Exposure & Capital Safety</h3>
+            <h3 className="text-sm font-bold text-slate-100 tracking-tight">Revenue Exposure & Recovery Safety</h3>
           </div>
-          <p className="text-[11px] text-slate-400 mt-0.5">Real-time gateway payout variance & risk exposure</p>
+          <p className="text-[11px] text-slate-400 mt-0.5">Real-time gateway revenue leakage & recoverable pipeline</p>
         </div>
 
         <div className="shrink-0 flex items-center gap-1.5 px-2.5 py-1 bg-emerald-950/80 border border-emerald-800/80 text-emerald-400 text-[10px] font-mono font-bold rounded uppercase tracking-wider">
           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-          <span>SAFETY ACTIVE</span>
+          <span>RECOVERY ACTIVE</span>
         </div>
       </div>
 
@@ -45,12 +45,12 @@ export default function FinancialExposure({
               <TrendingUp className="w-4 h-4" />
             </div>
             <div className="min-w-0">
-              <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold block truncate">Total Net Payout</span>
+              <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold block truncate">Total Recoverable Pipeline</span>
               <h4 className="text-sm sm:text-base font-bold text-slate-100 font-mono truncate">{formatter.format(totalSettlementsAmount)}</h4>
             </div>
           </div>
           <span className="shrink-0 px-2 py-0.5 text-[9px] font-mono font-bold text-blue-400 bg-blue-950/80 rounded border border-blue-800/60">
-            Authorized
+            Captured
           </span>
         </div>
 
@@ -61,7 +61,7 @@ export default function FinancialExposure({
               <AlertCircle className="w-4 h-4 animate-pulse" />
             </div>
             <div className="min-w-0">
-              <span className="text-[10px] text-rose-400 uppercase tracking-wider font-semibold block truncate">Capital at Risk</span>
+              <span className="text-[10px] text-rose-400 uppercase tracking-wider font-semibold block truncate">Revenue at Risk (Leakage)</span>
               <h4 className="text-sm sm:text-base font-bold text-rose-300 font-mono truncate">{formatter.format(amountAtRisk)}</h4>
             </div>
           </div>
@@ -77,12 +77,12 @@ export default function FinancialExposure({
               <Shield className="w-4 h-4" />
             </div>
             <div className="min-w-0">
-              <span className="text-[10px] text-amber-400 uppercase tracking-wider font-semibold block truncate">Unresolved Variance</span>
+              <span className="text-[10px] text-amber-400 uppercase tracking-wider font-semibold block truncate">Unrecovered Revenue Variance</span>
               <h4 className="text-sm sm:text-base font-bold text-amber-300 font-mono truncate">{formatter.format(unresolvedVariance)}</h4>
             </div>
           </div>
           <span className="shrink-0 px-2 py-0.5 text-[9px] font-mono font-bold text-amber-300 bg-amber-950 rounded border border-amber-700">
-            {unresolvedVariance !== 0 ? 'Discrepancy' : 'Balanced'}
+            {unresolvedVariance !== 0 ? 'Discrepancy' : 'Protected'}
           </span>
         </div>
       </div>

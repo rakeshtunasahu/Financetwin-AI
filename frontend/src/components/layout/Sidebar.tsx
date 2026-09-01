@@ -49,7 +49,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
           { name: 'Investigations', path: '/exceptions', icon: ShieldAlert },
           { name: 'Escalations', path: '/recovery/cases?status=ESCALATED', icon: Activity },
           { name: 'Recovery History', path: '/audit', icon: FileText },
-          { name: 'Settlement Calculator', path: '/calculator', icon: Calculator }
+          { name: 'Revenue Recovery Calculator', path: '/calculator', icon: Calculator }
         ];
 
       case 'RECOVERY_MANAGER':
@@ -60,7 +60,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
           { name: 'Recovery Analytics', path: '/dashboard', icon: LayoutDashboard },
           { name: 'Policy Simulation Lab', path: '/governance', icon: Sliders },
           { name: 'Approval Audit Trail', path: '/audit', icon: FileText },
-          { name: 'Settlement Calculator', path: '/calculator', icon: Calculator }
+          { name: 'Revenue Recovery Calculator', path: '/calculator', icon: Calculator }
         ];
 
       case 'RECOVERY_ADMIN':
@@ -73,8 +73,8 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
           { name: 'Recovery Analytics', path: '/dashboard', icon: LayoutDashboard },
           { name: 'Forensic Audit Trail', path: '/audit', icon: FileText },
           { name: 'Anomaly Patterns', path: '/anomalies', icon: Activity },
-          { name: 'Reconciliation Engine', path: '/reconciliation', icon: GitCompare },
-          { name: 'Settlement Calculator', path: '/calculator', icon: Calculator }
+          { name: 'Revenue Leakage Engine', path: '/reconciliation', icon: GitCompare },
+          { name: 'Revenue Recovery Calculator', path: '/calculator', icon: Calculator }
         ];
     }
   };
@@ -107,19 +107,19 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
       )}
 
       <aside
-        className={`fixed lg:static top-0 left-0 bottom-0 z-50 w-64 bg-slate-900 border-r border-slate-800 flex flex-col h-full shrink-0 transition-transform duration-300 ${
+        className={`fixed lg:static top-0 left-0 bottom-0 z-50 w-72 bg-slate-900 border-r border-slate-800 flex flex-col h-full shrink-0 transition-transform duration-300 ${
           isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
         {/* Header Branding */}
         <div className="p-5 border-b border-slate-800 flex items-center justify-between">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/recovery')}>
-            <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center font-black text-white text-xs tracking-wider shadow-md shadow-emerald-500/20">
+          <div className="flex items-center gap-3.5 cursor-pointer" onClick={() => navigate('/recovery')}>
+            <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center font-black text-white text-sm tracking-wider shadow-md shadow-emerald-500/20">
               RR
             </div>
             <div>
-              <h1 className="font-bold text-sm text-slate-100 leading-none tracking-tight">RevenueRescue AI</h1>
-              <span className="text-[10px] text-emerald-400 font-mono uppercase tracking-wider block mt-1 font-semibold">
+              <h1 className="font-bold text-base text-slate-100 leading-none tracking-tight">RevenueRescue AI</h1>
+              <span className="text-xs text-emerald-400 font-mono uppercase tracking-wider block mt-1 font-semibold">
                 Autonomous Recovery
               </span>
             </div>
@@ -136,41 +136,41 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
         </div>
         
         {/* Navigation links */}
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-3.5 py-4 space-y-1.5 overflow-y-auto">
           {menuItems.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
               onClick={onClose}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-md text-xs font-semibold transition-all duration-150 ${
+                `flex items-center gap-3.5 px-3.5 py-3 rounded-lg text-sm font-semibold transition-all duration-150 ${
                   isActive
-                    ? 'bg-slate-800/90 text-emerald-400 border-l-2 border-emerald-500 pl-2.5 shadow-sm'
-                    : 'text-slate-400 hover:bg-slate-800/40 hover:text-slate-200'
+                    ? 'bg-slate-800/90 text-emerald-400 border-l-3 border-emerald-500 pl-3 shadow-sm font-bold'
+                    : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-100'
                 }`
               }
             >
-              <item.icon className="w-4 h-4 shrink-0" />
+              <item.icon className="w-4.5 h-4.5 shrink-0" />
               <span className="truncate">{item.name}</span>
             </NavLink>
           ))}
         </nav>
         
         {/* Bottom Safety, Active Persona & Switch Demo Role Action */}
-        <div className="p-4 border-t border-slate-800 space-y-2.5 bg-slate-900/60">
-          <div className="p-2.5 bg-slate-950/70 rounded-lg border border-slate-800/80 space-y-2">
-            <div className="flex items-center gap-2.5">
-              <div className={`w-7 h-7 rounded-md ${theme.bg} ${theme.text} flex items-center justify-center font-bold text-xs border ${theme.border}`}>
-                <UserCheck className="w-3.5 h-3.5" />
+        <div className="p-4 border-t border-slate-800 space-y-3 bg-slate-900/60">
+          <div className="p-3 bg-slate-950/70 rounded-xl border border-slate-800/80 space-y-2.5">
+            <div className="flex items-center gap-3">
+              <div className={`w-8 h-8 rounded-lg ${theme.bg} ${theme.text} flex items-center justify-center font-bold text-sm border ${theme.border}`}>
+                <UserCheck className="w-4 h-4" />
               </div>
               <div className="overflow-hidden flex-1">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-semibold text-slate-200 block truncate">{currentUser.name}</span>
-                  <span className={`text-[8px] font-mono px-1 py-0.2 rounded border font-bold uppercase ${theme.bg} ${theme.text} ${theme.border}`}>
+                  <span className="text-sm font-bold text-slate-200 block truncate">{currentUser.name}</span>
+                  <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded border font-bold uppercase ${theme.bg} ${theme.text} ${theme.border}`}>
                     {theme.badge}
                   </span>
                 </div>
-                <span className="text-[10px] text-slate-400 font-mono block truncate">{currentUser.email}</span>
+                <span className="text-xs text-slate-400 font-mono block truncate mt-0.5">{currentUser.email}</span>
               </div>
             </div>
 
@@ -179,17 +179,17 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
               <button
                 type="button"
                 onClick={() => setShowRoleSwitcher(!showRoleSwitcher)}
-                className="w-full flex items-center justify-between px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-md text-[11px] font-semibold transition-all cursor-pointer"
+                className="w-full flex items-center justify-between px-3 py-2 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 rounded-lg text-xs font-semibold transition-all cursor-pointer"
               >
-                <div className="flex items-center gap-1.5">
-                  <RefreshCw className="w-3 h-3 text-emerald-400" />
+                <div className="flex items-center gap-2">
+                  <RefreshCw className="w-3.5 h-3.5 text-emerald-400" />
                   <span>Switch Demo Role</span>
                 </div>
-                <ChevronDown className={`w-3 h-3 transition-transform ${showRoleSwitcher ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showRoleSwitcher ? 'rotate-180' : ''}`} />
               </button>
 
               {showRoleSwitcher && (
-                <div className="absolute bottom-full left-0 right-0 mb-1.5 bg-slate-950 border border-slate-800 rounded-lg shadow-xl overflow-hidden z-50 divide-y divide-slate-800/60">
+                <div className="absolute bottom-full left-0 right-0 mb-1.5 bg-slate-950 border border-slate-800 rounded-xl shadow-2xl overflow-hidden z-50 divide-y divide-slate-800/60">
                   {DEMO_PERSONAS.map((p) => (
                     <button
                       key={p.role}
@@ -203,15 +203,15 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                           navigate('/recovery');
                         }
                       }}
-                      className={`w-full p-2 text-left text-xs transition-colors flex items-center justify-between cursor-pointer ${
+                      className={`w-full p-2.5 text-left text-xs transition-colors flex items-center justify-between cursor-pointer ${
                         currentUser.role === p.role ? 'bg-slate-900 text-emerald-400 font-bold' : 'hover:bg-slate-900 text-slate-300'
                       }`}
                     >
                       <div>
-                        <div className="text-[11px] font-semibold">{p.name}</div>
-                        <div className="text-[9px] text-slate-500 font-mono">{p.title}</div>
+                        <div className="text-xs font-semibold">{p.name}</div>
+                        <div className="text-[10px] text-slate-500 font-mono">{p.title}</div>
                       </div>
-                      {currentUser.role === p.role && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
+                      {currentUser.role === p.role && <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />}
                     </button>
                   ))}
                 </div>
@@ -221,21 +221,21 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
             {/* Dedicated Sign Out Button */}
             <button
               onClick={handleSignOut}
-              className="w-full flex items-center justify-center gap-2 px-2.5 py-1 bg-slate-900 hover:bg-rose-950/40 hover:border-rose-800/60 text-slate-400 hover:text-rose-300 border border-slate-800 rounded-md text-[10px] font-semibold transition-all cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 px-3 py-1.5 bg-slate-900 hover:bg-rose-950/40 hover:border-rose-800/60 text-slate-400 hover:text-rose-300 border border-slate-800 rounded-lg text-xs font-semibold transition-all cursor-pointer"
             >
-              <LogOut className="w-3 h-3" />
+              <LogOut className="w-3.5 h-3.5" />
               <span>Sign Out</span>
             </button>
           </div>
 
-          <div className="px-2.5 py-2 bg-slate-950/50 rounded-lg border border-slate-800/60 flex items-center justify-between">
-            <div className="flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Guardrail Engine</span>
+          <div className="px-3 py-2 bg-slate-950/50 rounded-xl border border-slate-800/60 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Guardrail Engine</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="text-[10px] font-mono text-emerald-400 font-medium">BOUNDED</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className="text-xs font-mono text-emerald-400 font-bold">BOUNDED</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
             </div>
           </div>
         </div>

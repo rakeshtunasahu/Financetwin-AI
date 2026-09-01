@@ -33,23 +33,23 @@ export default function Calculator() {
   }
 
   return (
-    <PageContainer title="Interactive Settlement Calculator">
+    <PageContainer title="Revenue Recovery & Leakage Calculator">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 font-sans">
         {/* Input Parameters Form */}
         <div className="p-5 sm:p-6 bg-slate-900/80 border border-slate-800 rounded-xl space-y-6">
           <div className="flex items-center gap-2 pb-3 border-b border-slate-800">
-            <CalcIcon className="w-4 h-4 text-blue-400" />
-            <h3 className="text-xs font-semibold text-slate-200 uppercase tracking-wider">Transaction Parameters</h3>
+            <CalcIcon className="w-4 h-4 text-emerald-400" />
+            <h3 className="text-xs font-semibold text-slate-200 uppercase tracking-wider">Revenue Transaction Parameters</h3>
           </div>
 
           <div className="space-y-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs text-slate-300 font-semibold uppercase tracking-wider">Gross Settlement Payout (₹)</label>
+              <label className="text-xs text-slate-300 font-semibold uppercase tracking-wider">Gross Revenue Transaction Volume (₹)</label>
               <input
                 type="number"
                 value={grossAmount}
                 onChange={(e) => setGrossAmount(parseFloat(e.target.value) || 0)}
-                className="px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-lg text-sm text-slate-100 focus:outline-none focus:border-blue-500 font-mono"
+                className="px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-lg text-sm text-slate-100 focus:outline-none focus:border-emerald-500 font-mono"
               />
             </div>
 
@@ -61,7 +61,7 @@ export default function Calculator() {
                   step="0.1"
                   value={feeRate}
                   onChange={(e) => setFeeRate(parseFloat(e.target.value) || 0)}
-                  className="px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-lg text-sm text-slate-100 focus:outline-none focus:border-blue-500 font-mono"
+                  className="px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-lg text-sm text-slate-100 focus:outline-none focus:border-emerald-500 font-mono"
                 />
               </div>
 
@@ -72,29 +72,29 @@ export default function Calculator() {
                   step="0.1"
                   value={taxRate}
                   onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)}
-                  className="px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-lg text-sm text-slate-100 focus:outline-none focus:border-blue-500 font-mono"
+                  className="px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-lg text-sm text-slate-100 focus:outline-none focus:border-emerald-500 font-mono"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-slate-300 font-semibold uppercase tracking-wider">Credit Delay (Days)</label>
+                <label className="text-xs text-slate-300 font-semibold uppercase tracking-wider">Gateway Delay Window (Days)</label>
                 <input
                   type="number"
                   value={delayDays}
                   onChange={(e) => setDelayDays(parseInt(e.target.value) || 0)}
-                  className="px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-lg text-sm text-slate-100 focus:outline-none focus:border-blue-500 font-mono"
+                  className="px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-lg text-sm text-slate-100 focus:outline-none focus:border-emerald-500 font-mono"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-slate-300 font-semibold uppercase tracking-wider">UTR Ref Similarity (%)</label>
+                <label className="text-xs text-slate-300 font-semibold uppercase tracking-wider">Reference Signature Quality (%)</label>
                 <input
                   type="number"
                   value={refMatchQuality}
                   onChange={(e) => setRefMatchQuality(parseInt(e.target.value) || 0)}
-                  className="px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-lg text-sm text-slate-100 focus:outline-none focus:border-blue-500 font-mono"
+                  className="px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-lg text-sm text-slate-100 focus:outline-none focus:border-emerald-500 font-mono"
                 />
               </div>
             </div>
@@ -105,29 +105,29 @@ export default function Calculator() {
         <div className="p-5 sm:p-6 bg-slate-900/80 border border-slate-800 rounded-xl space-y-6 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <h3 className="text-xs font-semibold text-slate-200 uppercase tracking-wider">Calculated Breakdown Results</h3>
+              <h3 className="text-xs font-semibold text-slate-200 uppercase tracking-wider">Recoverable Revenue Breakdown</h3>
               <span className="text-[10px] text-emerald-400 font-mono font-semibold bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800/80 uppercase">
-                Instant Model
+                Recovery Model
               </span>
             </div>
 
             <div className="space-y-4 mt-6">
               <div className="p-4 bg-slate-950/60 rounded-xl border border-slate-800 flex justify-between items-center">
-                <span className="text-xs text-slate-400 font-semibold uppercase">Net Payout Expected</span>
-                <span className="text-xl font-bold text-slate-100 font-mono">{formatter.format(netPayout)}</span>
+                <span className="text-xs text-slate-400 font-semibold uppercase">Net Recoverable Revenue</span>
+                <span className="text-xl font-bold text-emerald-400 font-mono">{formatter.format(netPayout)}</span>
               </div>
 
               <div className="space-y-2 text-xs">
                 <div className="flex justify-between py-1.5 border-b border-slate-800 text-slate-400">
-                  <span>Gross Payout Base</span>
+                  <span>Gross Revenue Volume</span>
                   <span className="font-mono text-slate-200">{formatter.format(grossAmount)}</span>
                 </div>
                 <div className="flex justify-between py-1.5 border-b border-slate-800 text-slate-400">
-                  <span>Deducted Gateway Fee ({feeRate}%)</span>
+                  <span>Gateway Fee Leakage ({feeRate}%)</span>
                   <span className="font-mono text-rose-400">-{formatter.format(calculatedFee)}</span>
                 </div>
                 <div className="flex justify-between py-1.5 border-b border-slate-800 text-slate-400">
-                  <span>GST Tax on Fee ({taxRate}%)</span>
+                  <span>GST Tax Impact ({taxRate}%)</span>
                   <span className="font-mono text-rose-400">-{formatter.format(calculatedTax)}</span>
                 </div>
               </div>
@@ -136,11 +136,11 @@ export default function Calculator() {
 
           <div className="p-4 bg-slate-950/80 rounded-xl border border-slate-800 space-y-3 mt-6">
             <div className="flex justify-between items-center">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Match Safety Score</span>
-              <span className="text-sm font-bold font-mono text-blue-400">{confidencePct}%</span>
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Recovery Confidence Score</span>
+              <span className="text-sm font-bold font-mono text-emerald-400">{confidencePct}%</span>
             </div>
             <div className="flex justify-between items-center pt-2 border-t border-slate-800">
-              <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Engine Action Recommendation</span>
+              <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Autonomous Recovery Action</span>
               <DecisionBadge decision={recommendedAction} />
             </div>
           </div>
