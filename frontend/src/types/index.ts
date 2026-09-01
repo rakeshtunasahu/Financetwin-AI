@@ -328,6 +328,8 @@ export interface RecoveryCase {
     [key: string]: any;
   };
   recovery_probability: number;
+  recommended_action?: string | null;
+  action_reason?: string | null;
   priority_score: number;
   current_status: RecoveryCaseStatus | string;
   retry_count: number;
