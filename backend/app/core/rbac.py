@@ -11,6 +11,10 @@ class Role(str, Enum):
     RECOVERY_OPERATOR = "RECOVERY_OPERATOR"
     RECOVERY_MANAGER = "RECOVERY_MANAGER"
     RECOVERY_ADMIN = "RECOVERY_ADMIN"
+    FINANCE_ANALYST = "FINANCE_ANALYST"
+    FINANCE_MANAGER = "FINANCE_MANAGER"
+    RISK_OFFICER = "RISK_OFFICER"
+    AUDITOR = "AUDITOR"
 
 
 class DemoUser:
@@ -44,7 +48,7 @@ class DemoUser:
         }
 
 
-# 3 distinct recovery-focused enterprise personas (RevenueRescue AI)
+# 5 distinct recovery-focused enterprise personas (RevenueRescue AI)
 DEMO_USERS: List[DemoUser] = [
     DemoUser(
         email="operator.aarav@revenuerescue.ai",
@@ -57,6 +61,7 @@ DEMO_USERS: List[DemoUser] = [
             "operator@revenuerescue.ai",
             "operator.aarav@revenuerescue.ai",
             "analyst.priya@revenuerescue.ai",
+            "analyst@revenuerescue.ai",
             "priya.sharma@revenuerescue.ai",
             "ops@financetwin.ai"
         ]
@@ -88,10 +93,32 @@ DEMO_USERS: List[DemoUser] = [
             "admin.arjun@revenuerescue.ai",
             "admin.root@revenuerescue.ai",
             "admin@financetwin.ai",
-            "admin.root@financetwin.ai",
-            "auditor@financetwin.ai",
-            "auditor.vikram@revenuerescue.ai",
+            "admin.root@financetwin.ai"
+        ]
+    ),
+    DemoUser(
+        email="risk.ananya@revenuerescue.ai",
+        name="Ananya Desai",
+        role=Role.RISK_OFFICER,
+        title="Head of Risk & Policy Compliance",
+        department="Risk, Policy & Fraud Prevention",
+        aliases=[
+            "ananya.desai@revenuerescue.ai",
+            "risk@revenuerescue.ai",
             "risk.ananya@revenuerescue.ai"
+        ]
+    ),
+    DemoUser(
+        email="auditor.vikram@revenuerescue.ai",
+        name="Vikram Malhotra",
+        role=Role.AUDITOR,
+        title="Lead Financial Forensic Auditor",
+        department="Independent Audit & Compliance",
+        aliases=[
+            "vikram.malhotra@revenuerescue.ai",
+            "auditor@revenuerescue.ai",
+            "auditor.vikram@revenuerescue.ai",
+            "auditor@financetwin.ai"
         ]
     )
 ]
@@ -117,7 +144,35 @@ PERMISSIONS: Dict[Role, List[str]] = {
         "can_view_audit_logs",
         "can_view_calculator"
     ],
+    Role.FINANCE_ANALYST: [
+        "can_view_dashboard",
+        "can_view_recovery_cases",
+        "can_run_recovery_detection",
+        "can_diagnose_recovery_case",
+        "can_execute_recovery_action",
+        "can_escalate_case",
+        "can_investigate_exception",
+        "can_trigger_ai_investigation",
+        "can_view_audit_logs",
+        "can_view_calculator"
+    ],
     Role.RECOVERY_MANAGER: [
+        "can_view_dashboard",
+        "can_view_recovery_cases",
+        "can_view_all_cases",
+        "can_diagnose_recovery_case",
+        "can_investigate_exception",
+        "can_trigger_ai_investigation",
+        "can_approve_high_value_action",
+        "can_approve_recovery",
+        "can_view_recovery_analytics",
+        "can_simulate_policy",
+        "can_view_policy_violations",
+        "can_view_audit_logs",
+        "can_view_risk_cases",
+        "can_view_calculator"
+    ],
+    Role.FINANCE_MANAGER: [
         "can_view_dashboard",
         "can_view_recovery_cases",
         "can_view_all_cases",
@@ -159,6 +214,25 @@ PERMISSIONS: Dict[Role, List[str]] = {
         "can_view_calculator",
         "can_run_reconciliation",
         "can_view_full_reconciliation"
+    ],
+    Role.RISK_OFFICER: [
+        "can_view_dashboard",
+        "can_view_recovery_cases",
+        "can_view_all_cases",
+        "can_view_risk_cases",
+        "can_view_anomalies",
+        "can_view_policy_violations",
+        "can_simulate_policy",
+        "can_view_audit_logs",
+        "can_view_calculator"
+    ],
+    Role.AUDITOR: [
+        "can_view_dashboard",
+        "can_view_recovery_cases",
+        "can_view_all_cases",
+        "can_view_audit_logs",
+        "can_view_system_audit",
+        "can_view_calculator"
     ]
 }
 

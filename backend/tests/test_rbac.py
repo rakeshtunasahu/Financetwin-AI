@@ -9,11 +9,13 @@ def test_demo_users_list():
     response = client.get("/api/auth/demo-users")
     assert response.status_code == 200
     data = response.json()
-    assert len(data) == 3
+    assert len(data) == 5
     roles = [u["role"] for u in data]
     assert "RECOVERY_OPERATOR" in roles
     assert "RECOVERY_MANAGER" in roles
     assert "RECOVERY_ADMIN" in roles
+    assert "RISK_OFFICER" in roles
+    assert "AUDITOR" in roles
 
 def test_login_and_me_endpoints():
     # Login as Recovery Operator

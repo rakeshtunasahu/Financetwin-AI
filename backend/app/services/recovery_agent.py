@@ -727,3 +727,97 @@ def detect_recovery_cases_from_exceptions(
 
     db.commit()
     return created_case_ids
+
+
+def compare_case_actions(case: RecoveryCase, policy: Optional[dict] = None) -> List[Dict[str, Any]]:
+    """
+    Evaluates available candidate actions for a case, computing expected recovery
+    (Amount × Recovery Probability × Action Success Probability), policy status,
+    and ranking the best supported action.
+    """
+    p = _get_recovery_policy(policy)
+    amount = float(case.amount_at_risk or 0.0)
+    base_prob = float(case.recovery_probability or 0.5)
+
+    candidates = [
+        {
+            "action_type": ActionType.SEND_PAYMENT_LINK,
+            "label": "Direct Payment Link",
+            "action_success_probability": 0.88 if amount < 50000 else 0.72,
+            "cost": 0.0,
+            "risk_level": "LOW",
+            "description": "Send dynamic one-click payment link via SMS & WhatsApp"
+        },
+        {
+            "action_type": ActionType.SMART_RETRY,
+            "label": "Autonomous Smart Retry",
+            "action_success_probability": 0.76 if case.attempt_count == 0 else (0.52 if case.attempt_count == 1 else 0.30),
+            "cost": 0.0,
+            "risk_level": "LOW",
+            "description": "Intelligent routing retry through optimal gateway during off-peak window"
+        },
+        {
+            "action_type": ActionType.REQUEST_PAYMENT_METHOD_UPDATE,
+            "label": "Alternate Payment Method",
+            "action_success_probability": 0.68,
+            "cost": 0.0,
+            "risk_level": "LOW",
+            "description": "Request customer to switch from failing mandate to UPI or NetBanking"
+        },
+        {
+            "action_type": ActionType.SEND_PAYMENT_REMINDER,
+            "label": "Automated Chaser / Reminder",
+            "action_success_probability": 0.54 if case.reminder_count == 0 else 0.38,
+            "cost": 0.0,
+            "risk_level": "LOW",
+            "description": "Polite payment chaser email & notification"
+        },
+        {
+            "action_type": ActionType.PERSONALIZED_FOLLOW_UP,
+            "label": "Personalized Outreach",
+            "action_success_probability": 0.62,
+            "cost": 50.0,
+            "risk_level": "MEDIUM",
+            "description": "Agent-assisted customized communication with flexible settlement options"
+        },
+        {
+            "action_type": ActionType.ESCALATE_TO_HUMAN,
+            "label": "Manual Review & Escalation",
+            "action_success_probability": 0.82,
+            "cost": 200.0,
+            "risk_level": "HIGH" if amount >= 50000 else "MEDIUM",
+            "description": "Transfer case to senior finance specialist for direct intervention"
+        }
+    ]
+
+    results = []
+    rec_action, _, _ = select_intervention(case, policy)
+
+    for cand in candidates:
+        atype = cand["action_type"]
+        pol_status, pol_reason = check_policy(case, atype, policy)
+        
+        # Policy denial sets recovery probability to 0 for autonomous action
+        effective_action_prob = cand["action_success_probability"] if pol_status == "APPROVED" else 0.05
+        combined_prob = round(base_prob * effective_action_prob, 4)
+        expected_rec = round(amount * combined_prob, 2)
+
+        results.append({
+            "action_type": atype,
+            "label": cand["label"],
+            "description": cand["description"],
+            "recovery_probability": round(base_prob, 2),
+            "action_success_probability": round(effective_action_prob, 2),
+            "combined_probability": combined_prob,
+            "amount_at_risk": amount,
+            "expected_recovery": expected_rec,
+            "policy_status": pol_status,
+            "policy_reason": pol_reason,
+            "is_recommended": (atype == rec_action) and (pol_status == "APPROVED"),
+            "risk_level": cand["risk_level"]
+        })
+
+    # Sort so recommended and highest expected recovery appear first
+    results.sort(key=lambda x: (x["is_recommended"], x["expected_recovery"]), reverse=True)
+    return results
+
