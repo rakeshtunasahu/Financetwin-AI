@@ -19,6 +19,8 @@ import BatchRecovery from './pages/BatchRecovery';
 import RecoveryCases from './pages/RecoveryCases';
 import RecoveryCaseDetail from './pages/RecoveryCaseDetail';
 import OperatorQueue from './pages/OperatorQueue';
+import RevenueLeakage from './pages/RevenueLeakage';
+import RecoveryIntelligence from './pages/RecoveryIntelligence';
 
 const queryClient = new QueryClient();
 
@@ -36,6 +38,10 @@ export default function App() {
             <Route path="/recovery/batch" element={<BatchRecovery />} />
             <Route path="/recovery/cases" element={<RecoveryCases />} />
             <Route path="/recovery/cases/:id" element={<RecoveryCaseDetail />} />
+
+            <Route path="/leakage" element={<RevenueLeakage />} />
+            <Route path="/intelligence" element={<RecoveryIntelligence />} />
+            <Route path="/simulator" element={<Calculator />} />
 
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/reconciliation" element={<Reconciliation />} />
