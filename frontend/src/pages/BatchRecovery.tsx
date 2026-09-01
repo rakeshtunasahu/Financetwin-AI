@@ -23,17 +23,19 @@ import { BatchSummary } from '../types';
 import { useAuth } from '../context/AuthContext';
 import PageContainer from '../components/layout/PageContainer';
 
+import RecoveryCaseDrawer from '../components/recovery/RecoveryCaseDrawer';
+
 const RECOVERY_STEPS = [
-  { id: 1, name: 'Risk Detection', desc: 'Scan reconciliation exceptions & checkout drop-offs' },
-  { id: 2, name: 'Case Ingestion', desc: 'Normalize metadata, amounts, and customer history' },
-  { id: 3, name: 'AI Root Cause Diagnosis', desc: 'Classify failure reasons & evaluate confidence' },
-  { id: 4, name: 'Priority Scoring', desc: 'Compute Impact × Recovery Probability × Urgency' },
-  { id: 5, name: 'Intervention Selection', desc: 'Choose Smart Retry, Link, Reminder, or Escalation' },
-  { id: 6, name: 'Guardrail Verification', desc: 'Validate retries <= 3, cooldowns, and limit checks' },
-  { id: 7, name: 'Action Execution', desc: 'Dispatch simulated bounded recovery interventions' },
-  { id: 8, name: 'Channel Response', desc: 'Process gateway feedbacks, click-throughs, and webhook signals' },
-  { id: 9, name: 'Ledger Settlement', desc: 'Reconcile recovered revenue into ledger' },
-  { id: 10, name: 'Forensic Audit', desc: 'Generate SHA-256 tamper-evident log records' }
+  { id: 1, name: '1. DETECT', desc: 'Continuous scan of failed payments, checkout drops & unpaid invoices' },
+  { id: 2, name: '2. INGEST', desc: 'Normalize metadata, transaction history & merchant customer profile' },
+  { id: 3, name: '3. DIAGNOSE', desc: 'AI root cause diagnosis pinpointing failure reason with confidence' },
+  { id: 4, name: '4. PREDICT', desc: 'Compute recovery probability (0.0 to 1.0) using historical ML features' },
+  { id: 5, name: '5. PRIORITIZE', desc: 'Rank queue by Expected Recovery = Amount × Recovery Prob × Action Prob' },
+  { id: 6, name: '6. DECIDE', desc: 'Evaluate candidate interventions & select best expected return' },
+  { id: 7, name: '7. GUARDRAIL', desc: 'Enforce policy bounds: max retries, cooldowns & high-value limits' },
+  { id: 8, name: '8. EXECUTE', desc: 'Dispatch simulated bounded recovery intervention or escalate' },
+  { id: 9, name: '9. VERIFY', desc: 'Process gateway feedback signals & verify settled revenue' },
+  { id: 10, name: '10. LEARN', desc: 'Feed outcome into recovery intelligence learning loop' }
 ];
 
 export default function BatchRecovery() {
@@ -46,6 +48,7 @@ export default function BatchRecovery() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [activeDrawerCaseId, setActiveDrawerCaseId] = useState<string | null>(null);
 
   const runBatch = async () => {
     try {
@@ -333,11 +336,13 @@ export default function BatchRecovery() {
                 </thead>
                 <tbody className="divide-y divide-slate-800/60">
                   {filteredResults.map((r: any, idx: number) => (
-                    <tr key={idx} className="hover:bg-slate-800/30 transition-colors">
-                      <td className="py-2.5 font-mono font-bold text-slate-200">
-                        <Link to={`/recovery/cases/${r.case_id}`} className="hover:text-teal-400">
-                          {r.case_id}
-                        </Link>
+                    <tr
+                      key={idx}
+                      onClick={() => setActiveDrawerCaseId(r.case_id)}
+                      className="hover:bg-slate-800/40 transition-colors cursor-pointer"
+                    >
+                      <td className="py-2.5 font-mono font-bold text-teal-400">
+                        {r.case_id}
                       </td>
                       <td className="py-2.5 text-slate-300 font-mono text-[11px]">
                         {r.recovery_type ? r.recovery_type.replace(/_/g, ' ') : 'GENERAL'}
@@ -355,11 +360,11 @@ export default function BatchRecovery() {
                       </td>
                       <td className="py-2.5 text-center">
                         {r.policy_passed ? (
-                          <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-800 px-1.5 py-0.5 rounded">
+                          <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-800 px-1.5 py-0.5 rounded font-bold">
                             PASSED
                           </span>
                         ) : (
-                          <span className="text-[10px] font-mono text-rose-400 bg-rose-950/60 border border-rose-800 px-1.5 py-0.5 rounded">
+                          <span className="text-[10px] font-mono text-rose-400 bg-rose-950/60 border border-rose-800 px-1.5 py-0.5 rounded font-bold">
                             DENIED
                           </span>
                         )}
@@ -370,12 +375,16 @@ export default function BatchRecovery() {
                         </span>
                       </td>
                       <td className="py-2.5 text-right">
-                        <Link
-                          to={`/recovery/cases/${r.case_id}`}
-                          className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded text-[11px] font-medium transition-all"
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveDrawerCaseId(r.case_id);
+                          }}
+                          className="px-2.5 py-1 bg-teal-950/80 hover:bg-teal-900 text-teal-300 rounded text-[11px] font-semibold border border-teal-800 transition-all cursor-pointer"
                         >
-                          Details
-                        </Link>
+                          Inspect
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -384,6 +393,14 @@ export default function BatchRecovery() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Slide-over Drawer */}
+      {activeDrawerCaseId && (
+        <RecoveryCaseDrawer
+          caseId={activeDrawerCaseId}
+          onClose={() => setActiveDrawerCaseId(null)}
+        />
       )}
       </div>
     </PageContainer>
