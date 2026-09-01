@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Play, RotateCw, Activity, ShieldCheck, Menu, ChevronDown, User, Check, ShieldAlert } from 'lucide-react';
-import { apiFetch } from '../../api/client';
+import { Play, RotateCw, Zap, ShieldCheck, Menu, ChevronDown, User, Check, ShieldAlert } from 'lucide-react';
+import { recoveryApi } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
 import { UserRole } from '../../types';
 
@@ -16,11 +16,13 @@ export default function Header({ title, onRefresh, onOpenMobileMenu }: HeaderPro
   const [message, setMessage] = useState<string | null>(null);
   const [showRoleMenu, setShowRoleMenu] = useState(false);
 
-  const canRunRecon = hasPermission('can_run_reconciliation');
+  const canRunBatch = hasPermission('can_run_recovery_batch');
+  const canDetect = hasPermission('can_run_recovery_detection');
+  const canRunEngine = canRunBatch || canDetect;
 
-  const handleRunReconciliation = async () => {
-    if (!canRunRecon) {
-      setMessage(`Action Denied: Your role (${currentUser.role}) does not have reconciliation execution privileges.`);
+  const handleRunRecoveryEngine = async () => {
+    if (!canRunEngine) {
+      setMessage(`Action Denied: Your role (${currentUser.role}) does not have recovery engine privileges.`);
       setTimeout(() => setMessage(null), 5000);
       return;
     }
@@ -28,16 +30,21 @@ export default function Header({ title, onRefresh, onOpenMobileMenu }: HeaderPro
     setRunning(true);
     setMessage(null);
     try {
-      const res = await apiFetch<any>('/api/reconciliation/run', {
-        method: 'POST',
-      });
-      setMessage(`Reconciliation Complete! Matched: ${res.matched_count}, Abstained: ${res.abstained_count}, Exceptions: ${res.exception_count}`);
+      if (canRunBatch) {
+        const res = await recoveryApi.runBatch();
+        setMessage(
+          `⚡ Recovery Engine Ran! Recovered: ₹${Number(res.total_recovered).toLocaleString('en-IN')} (${res.cases_recovered}/${res.batch_size} cases rescued • ${res.recovery_rate_pct}% recovery rate)`
+        );
+      } else {
+        const res = await recoveryApi.detectCases();
+        setMessage(`⚡ Risk Detection Active! Successfully detected ${res.count} new cases from failure pipelines.`);
+      }
       if (onRefresh) onRefresh();
     } catch (err: any) {
-      setMessage(`Reconciliation Failed: ${err.message}`);
+      setMessage(`Recovery Execution Failed: ${err.message}`);
     } finally {
       setRunning(false);
-      setTimeout(() => setMessage(null), 7000);
+      setTimeout(() => setMessage(null), 8000);
     }
   };
 
@@ -71,8 +78,8 @@ export default function Header({ title, onRefresh, onOpenMobileMenu }: HeaderPro
         </h2>
         
         {message && (
-          <div className="hidden md:flex bg-slate-950 border border-blue-500/40 text-xs px-3 py-1.5 rounded-md text-blue-400 font-medium items-center gap-2 shadow-lg">
-            <Activity className="w-4 h-4 animate-pulse text-blue-400" />
+          <div className="hidden md:flex bg-emerald-950/90 border border-emerald-500/50 text-xs px-3.5 py-1.5 rounded-xl text-emerald-300 font-semibold items-center gap-2 shadow-xl shadow-emerald-950/50 animate-in fade-in">
+            <Zap className="w-4 h-4 animate-pulse text-emerald-400 shrink-0 fill-emerald-400/20" />
             <span className="truncate">{message}</span>
           </div>
         )}
@@ -165,11 +172,11 @@ export default function Header({ title, onRefresh, onOpenMobileMenu }: HeaderPro
 
         {/* Run Recovery Action Button */}
         <button
-          onClick={handleRunReconciliation}
-          disabled={running || !canRunRecon}
-          title={canRunRecon ? "Execute Revenue Recovery Engine" : `Run Disabled for ${currentUser.role}`}
+          onClick={handleRunRecoveryEngine}
+          disabled={running || !canRunEngine}
+          title={canRunEngine ? "Execute Revenue Recovery Engine" : `Run Disabled for ${currentUser.role}`}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm ${
-            canRunRecon
+            canRunEngine
               ? 'bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white shadow-emerald-950/40 cursor-pointer'
               : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
           } disabled:opacity-50`}
@@ -179,7 +186,7 @@ export default function Header({ title, onRefresh, onOpenMobileMenu }: HeaderPro
           ) : (
             <Play className="w-4 h-4 fill-current" />
           )}
-          <span>{running ? 'Processing...' : 'Run Recovery Engine'}</span>
+          <span>{running ? 'Recovering...' : 'Run Recovery Engine'}</span>
         </button>
       </div>
     </header>
