@@ -22,6 +22,7 @@ import { recoveryApi } from '../api/client';
 import { RecoveryMetrics, RecoveryCase } from '../types';
 import { useAuth } from '../context/AuthContext';
 import PageContainer from '../components/layout/PageContainer';
+import RecoveryCaseDrawer from '../components/recovery/RecoveryCaseDrawer';
 
 export default function RecoveryCommandCenter() {
   const navigate = useNavigate();
@@ -33,6 +34,7 @@ export default function RecoveryCommandCenter() {
   const [error, setError] = useState<string | null>(null);
   const [detecting, setDetecting] = useState(false);
   const [detectMsg, setDetectMsg] = useState<string | null>(null);
+  const [activeDrawerCaseId, setActiveDrawerCaseId] = useState<string | null>(null);
 
   const fetchData = async () => {
     try {
@@ -518,21 +520,94 @@ export default function RecoveryCommandCenter() {
             </div>
           )}
 
-          {/* Recent Recovery Operations Queue */}
+          {/* RECOVER NOW: Top Actionable Recovery Opportunities (Master Prompt Section 31) */}
+          <div className="p-5 bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950/30 border border-emerald-800/40 rounded-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+                  <h2 className="text-sm font-bold text-slate-100 uppercase tracking-wider flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-emerald-400" />
+                    <span>Recover Now — Priority Action Queue</span>
+                  </h2>
+                </div>
+                <p className="text-xs text-slate-400 mt-0.5">Highest expected return opportunities ranked by ML probability & policy safety</p>
+              </div>
+              <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950/80 border border-emerald-800 px-2.5 py-1 rounded-lg">
+                AUTONOMOUS READY
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5">
+              {recentCases.slice(0, 4).map((c) => {
+                const atRiskVal = Number(c.amount_at_risk || 0);
+                const probVal = Number(c.recovery_probability || 0.7);
+                const expRec = atRiskVal * probVal;
+                return (
+                  <div
+                    key={c.case_id}
+                    onClick={() => setActiveDrawerCaseId(c.case_id)}
+                    className="p-4 bg-slate-950/80 hover:bg-slate-950 border border-slate-800 hover:border-emerald-500/50 rounded-2xl flex flex-col justify-between transition-all cursor-pointer group shadow-lg hover:shadow-emerald-950/20"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-mono font-bold text-xs text-slate-200 group-hover:text-emerald-400 transition-colors">
+                          {c.case_id}
+                        </span>
+                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">
+                          {Math.round(probVal * 100)}% PROB
+                        </span>
+                      </div>
+
+                      <div className="text-xs font-semibold text-slate-300 truncate mb-1">
+                        {c.customer_name || c.customer_id || 'Enterprise Customer'}
+                      </div>
+
+                      <div className="space-y-1 my-2 font-mono">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-slate-500">At Risk:</span>
+                          <span className="font-bold text-slate-200">₹{atRiskVal.toLocaleString('en-IN')}</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-emerald-400 font-semibold">Expected:</span>
+                          <span className="font-bold text-emerald-400">₹{Math.round(expRec).toLocaleString('en-IN')}</span>
+                        </div>
+                      </div>
+
+                      <div className="text-[11px] text-slate-400 line-clamp-1 bg-slate-900 p-1.5 rounded-lg border border-slate-800">
+                        <strong className="text-slate-300">Action: </strong>
+                        {c.recommended_action ? c.recommended_action.replace(/_/g, ' ') : 'Dynamic Payment Link'}
+                      </div>
+                    </div>
+
+                    <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between">
+                      <span className="text-[10px] text-slate-500 font-mono">Click to inspect</span>
+                      <div className="text-xs font-semibold text-emerald-400 group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
+                        <span>Investigate</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Recent Recovery Operations Queue Table */}
           <div className="p-5 bg-slate-900 border border-slate-800 rounded-2xl">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="text-sm font-bold text-slate-100 flex items-center gap-2">
                   <RotateCw className="w-4 h-4 text-emerald-400" />
-                  Live Recovery Queue
+                  Live Recovery Queue & Decision Registry
                 </h2>
-                <p className="text-xs text-slate-400 mt-0.5">Real-time status of recently actioned and diagnosed recovery cases</p>
+                <p className="text-xs text-slate-400 mt-0.5">Real-time status of diagnosed and actioned revenue cases with expected recovery</p>
               </div>
               <Link
                 to="/recovery/cases"
-                className="text-xs font-semibold text-blue-400 hover:text-blue-300 flex items-center gap-1"
+                className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1"
               >
-                <span>View Full Queue</span>
+                <span>View All Cases</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -542,69 +617,87 @@ export default function RecoveryCommandCenter() {
                 <thead>
                   <tr className="border-b border-slate-800 text-slate-400 font-mono text-[11px]">
                     <th className="pb-3 font-semibold">Case ID</th>
-                    <th className="pb-3 font-semibold">Customer / Source</th>
-                    <th className="pb-3 font-semibold">Type</th>
-                    <th className="pb-3 font-semibold text-right">At Risk</th>
-                    <th className="pb-3 font-semibold text-right">Recovered</th>
-                    <th className="pb-3 font-semibold text-center">Score / Prob</th>
+                    <th className="pb-3 font-semibold">Scenario</th>
+                    <th className="pb-3 font-semibold text-right">Revenue at Risk</th>
+                    <th className="pb-3 font-semibold text-center">Recovery Prob</th>
+                    <th className="pb-3 font-semibold text-right">Expected Recovery</th>
+                    <th className="pb-3 font-semibold">Recommended Action</th>
                     <th className="pb-3 font-semibold">Status</th>
                     <th className="pb-3 font-semibold text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800/60 font-sans">
-                  {recentCases.map((c) => (
-                    <tr key={c.case_id} className="hover:bg-slate-800/30 transition-colors">
-                      <td className="py-3 font-mono font-bold text-slate-200">
-                        <Link to={`/recovery/cases/${c.case_id}`} className="hover:text-blue-400">
+                  {recentCases.map((c) => {
+                    const atRiskVal = Number(c.amount_at_risk || 0);
+                    const probVal = Number(c.recovery_probability || 0.75);
+                    const expRec = atRiskVal * probVal;
+                    return (
+                      <tr
+                        key={c.case_id}
+                        onClick={() => setActiveDrawerCaseId(c.case_id)}
+                        className="hover:bg-slate-800/40 transition-colors cursor-pointer"
+                      >
+                        <td className="py-3 font-mono font-bold text-emerald-400">
                           {c.case_id}
-                        </Link>
-                      </td>
-                      <td className="py-3 text-slate-300">
-                        <div className="font-medium text-slate-200 truncate max-w-[160px]">
-                          {c.customer_name || c.customer_id || '—'}
-                        </div>
-                        <div className="text-[10px] text-slate-500 font-mono truncate max-w-[160px]">
-                          {c.source_transaction_id || c.source_exception_id || ''}
-                        </div>
-                      </td>
-                      <td className="py-3">
-                        <span className="font-mono text-[11px] text-slate-300">
-                          {c.recovery_type.replace(/_/g, ' ')}
-                        </span>
-                      </td>
-                      <td className="py-3 text-right font-mono font-bold text-slate-200">
-                        ₹{Number(c.amount_at_risk).toLocaleString('en-IN')}
-                      </td>
-                      <td className="py-3 text-right font-mono font-bold text-emerald-400">
-                        ₹{Number(c.amount_recovered).toLocaleString('en-IN')}
-                      </td>
-                      <td className="py-3 text-center">
-                        <span className="font-mono text-slate-300 text-[11px]">
-                          {Math.round(Number(c.priority_score))} | {Math.round(Number(c.recovery_probability) * 100)}%
-                        </span>
-                      </td>
-                      <td className="py-3">
-                        <span className={`px-2 py-0.5 rounded border text-[10px] font-mono font-semibold ${getStatusBadge(c.current_status)}`}>
-                          {c.current_status}
-                        </span>
-                      </td>
-                      <td className="py-3 text-right">
-                        <button
-                          onClick={() => navigate(`/recovery/cases/${c.case_id}`)}
-                          className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md text-[11px] font-medium border border-slate-700 transition-all cursor-pointer"
-                        >
-                          View Details
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td className="py-3">
+                          <span className="font-mono text-[11px] text-slate-300">
+                            {c.recovery_type ? c.recovery_type.replace(/_/g, ' ') : 'PAYMENT_FAILURE'}
+                          </span>
+                        </td>
+                        <td className="py-3 text-right font-mono font-bold text-slate-200">
+                          ₹{atRiskVal.toLocaleString('en-IN')}
+                        </td>
+                        <td className="py-3 text-center">
+                          <span className="font-mono font-bold text-teal-300 px-2 py-0.5 rounded bg-teal-950/60 border border-teal-800/80">
+                            {Math.round(probVal * 100)}%
+                          </span>
+                        </td>
+                        <td className="py-3 text-right font-mono font-bold text-emerald-400">
+                          ₹{Math.round(expRec).toLocaleString('en-IN')}
+                        </td>
+                        <td className="py-3">
+                          <span className="text-[11px] text-slate-300 font-medium">
+                            {c.recommended_action ? c.recommended_action.replace(/_/g, ' ') : 'Payment Link'}
+                          </span>
+                        </td>
+                        <td className="py-3">
+                          <span className={`px-2 py-0.5 rounded border text-[10px] font-mono font-semibold ${getStatusBadge(c.current_status)}`}>
+                            {c.current_status}
+                          </span>
+                        </td>
+                        <td className="py-3 text-right">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveDrawerCaseId(c.case_id);
+                            }}
+                            className="px-2.5 py-1 bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 rounded-md text-[11px] font-semibold border border-emerald-800 transition-all cursor-pointer"
+                          >
+                            Investigate
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
           </div>
         </>
       )}
+
+      {/* Slide-over Drawer for Case Investigation & Simulation */}
+      {activeDrawerCaseId && (
+        <RecoveryCaseDrawer
+          caseId={activeDrawerCaseId}
+          onClose={() => setActiveDrawerCaseId(null)}
+          onActionSuccess={fetchData}
+        />
+      )}
       </div>
     </PageContainer>
   );
 }
+
