@@ -55,7 +55,11 @@ import type {
   RecoveryAction,
   RecoveryMetrics,
   BatchSummary,
-  RecoveryPolicy
+  RecoveryPolicy,
+  CaseSimulationResult,
+  LeakageSummaryResponse,
+  RecoveryIntelligenceResponse,
+  RecoveryLearningResponse
 } from '../types';
 
 export const recoveryApi = {
@@ -118,6 +122,12 @@ export const recoveryApi = {
     });
   },
 
+  simulateCase: (caseId: string, actionType?: string) => {
+    return apiFetch<CaseSimulationResult>(`/api/recovery/cases/${caseId}/simulate${actionType ? `?action_type=${actionType}` : ''}`, {
+      method: 'POST'
+    });
+  },
+
   runBatch: (cases?: any[]) => {
     return apiFetch<BatchSummary>(`/api/recovery/batch/run`, {
       method: 'POST',
@@ -127,6 +137,18 @@ export const recoveryApi = {
 
   getMetrics: () => {
     return apiFetch<RecoveryMetrics>(`/api/recovery/metrics`);
+  },
+
+  getLeakage: () => {
+    return apiFetch<LeakageSummaryResponse>(`/api/recovery/leakage`);
+  },
+
+  getIntelligence: () => {
+    return apiFetch<RecoveryIntelligenceResponse>(`/api/recovery/intelligence`);
+  },
+
+  getLearning: () => {
+    return apiFetch<RecoveryLearningResponse>(`/api/recovery/learning`);
   },
 
   getAudit: (caseId: string) => {
@@ -151,4 +173,5 @@ export const recoveryApi = {
     });
   }
 };
+
 

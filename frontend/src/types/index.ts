@@ -1,7 +1,11 @@
 export type UserRole =
   | 'RECOVERY_OPERATOR'
   | 'RECOVERY_MANAGER'
-  | 'RECOVERY_ADMIN';
+  | 'RECOVERY_ADMIN'
+  | 'FINANCE_ANALYST'
+  | 'FINANCE_MANAGER'
+  | 'RISK_OFFICER'
+  | 'AUDITOR';
 
 
 export interface DemoUser {
@@ -405,4 +409,97 @@ export interface RecoveryPolicy {
   max_promise_to_pay_misses: number;
   retry_cooldown_hours: number;
 }
+
+export interface CandidateActionEvaluation {
+  action_type: string;
+  label: string;
+  description: string;
+  recovery_probability: number;
+  action_success_probability: number;
+  combined_probability: number;
+  amount_at_risk: number;
+  expected_recovery: number;
+  policy_status: 'APPROVED' | 'BLOCKED' | 'REQUIRES_APPROVAL';
+  policy_reason: string;
+  is_recommended: boolean;
+  risk_level: 'LOW' | 'MEDIUM' | 'HIGH';
+}
+
+export interface CaseSimulationResult {
+  case_id: string;
+  amount_at_risk: number;
+  root_cause: string;
+  selected_action: CandidateActionEvaluation;
+  candidate_actions: CandidateActionEvaluation[];
+  is_simulated: boolean;
+  timestamp: string;
+}
+
+export interface LeakageCategory {
+  category_key: string;
+  title: string;
+  description: string;
+  cases_count: number;
+  amount_at_risk: number;
+  amount_recovered: number;
+  recoverable_amount: number;
+  recovery_rate_pct: number;
+  benchmark_recovery_pct: number;
+  trend: string;
+  trend_direction: 'up' | 'down';
+}
+
+export interface LeakageSummaryResponse {
+  categories: LeakageCategory[];
+  total_at_risk: number;
+  total_recovered: number;
+  total_recoverable: number;
+  net_recovery_rate_pct: number;
+}
+
+export interface ActionBenchmark {
+  action_type: string;
+  name: string;
+  channel: string;
+  total_executed: number;
+  success_count: number;
+  success_rate_pct: number;
+  amount_recovered: number;
+  avg_recovery_time_hours: number;
+}
+
+export interface IntelligenceTrendPoint {
+  date: string;
+  revenue_at_risk: number;
+  expected_recovery: number;
+  actual_recovered: number;
+  recovery_rate_pct: number;
+}
+
+export interface RecoveryIntelligenceResponse {
+  action_benchmarks: ActionBenchmark[];
+  timeline_trends: IntelligenceTrendPoint[];
+  learning_loop_status: string;
+  model_confidence_index: number;
+  sample_size: number;
+}
+
+export interface LearningInsight {
+  insight_id: string;
+  title: string;
+  observation: string;
+  recommendation: string;
+}
+
+export interface RecoveryLearningResponse {
+  learning_engine: string;
+  total_cases_evaluated: number;
+  successful_recoveries_count: number;
+  total_revenue_rescued: number;
+  overall_learning_efficiency_pct: number;
+  observed_insights: LearningInsight[];
+  top_performing_intervention: string;
+  least_effective_intervention: string;
+}
+
 
