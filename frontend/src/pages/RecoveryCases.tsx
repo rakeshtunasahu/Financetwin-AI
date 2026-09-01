@@ -21,12 +21,15 @@ import { RecoveryCase } from '../types';
 import { useAuth } from '../context/AuthContext';
 import PageContainer from '../components/layout/PageContainer';
 
+import RecoveryCaseDrawer from '../components/recovery/RecoveryCaseDrawer';
+
 export default function RecoveryCases() {
   const navigate = useNavigate();
   const { hasPermission } = useAuth();
   const [cases, setCases] = useState<RecoveryCase[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeDrawerCaseId, setActiveDrawerCaseId] = useState<string | null>(null);
 
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
@@ -92,6 +95,12 @@ export default function RecoveryCases() {
     }
   };
 
+  const getPriorityLabel = (score: number) => {
+    if (score >= 80) return { label: 'HIGH', class: 'bg-rose-950 text-rose-400 border-rose-800' };
+    if (score >= 50) return { label: 'MEDIUM', class: 'bg-amber-950 text-amber-400 border-amber-800' };
+    return { label: 'LOW', class: 'bg-blue-950 text-blue-400 border-blue-800' };
+  };
+
   const filteredCases = cases.filter((c) => {
     if (!searchTerm) return true;
     const term = searchTerm.toLowerCase();
@@ -108,237 +117,251 @@ export default function RecoveryCases() {
     <PageContainer title="Autonomous Recovery Cases" onRefresh={fetchCases}>
       <div className="space-y-6">
         {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl lg:text-2xl font-bold text-slate-100 flex items-center gap-2.5">
-            <FolderKanban className="w-6 h-6 text-emerald-400" />
-            Autonomous Recovery Cases
-          </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Browse, inspect, and manually intervene in revenue recovery pipelines and state machines
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2.5">
-          <button
-            onClick={fetchCases}
-            disabled={loading}
-            className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl border border-slate-700 transition-all cursor-pointer"
-            title="Refresh Queue"
-          >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-          </button>
-
-          {hasPermission('can_run_recovery_batch') && (
-            <Link
-              to="/recovery/batch"
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold flex items-center gap-2 shadow-lg shadow-emerald-950/30 transition-all"
-            >
-              <RotateCw className="w-4 h-4" />
-              <span>Batch Runner</span>
-            </Link>
-          )}
-        </div>
-      </div>
-
-      {/* Filter Controls Bar */}
-      <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl space-y-3">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-          {/* Search */}
-          <div className="lg:col-span-2 relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search Case ID, Customer, Root Cause..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-            />
-          </div>
-
-          {/* Type Filter */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <select
-              value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-mono"
-            >
-              <option value="ALL">All Scenarios</option>
-              <option value="PAYMENT_FAILURE">Payment Failure</option>
-              <option value="CHECKOUT_ABANDONMENT">Checkout Drop-off</option>
-              <option value="OVERDUE_RECEIVABLE">Overdue Invoice (B2B)</option>
-              <option value="MANDATE_FAILURE">Mandate Failure</option>
-              <option value="SETTLEMENT_SHORTFALL">Settlement Shortfall</option>
-            </select>
+            <h1 className="text-xl lg:text-2xl font-bold text-slate-100 flex items-center gap-2.5">
+              <FolderKanban className="w-6 h-6 text-emerald-400" />
+              Autonomous Recovery Registry
+            </h1>
+            <p className="text-xs text-slate-400 mt-1">
+              Deterministic recovery case lifecycle, expected values, policy guardrails & bounded interventions
+            </p>
           </div>
 
-          {/* Status Filter */}
-          <div>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-mono"
+          <div className="flex items-center gap-2.5">
+            <button
+              onClick={fetchCases}
+              disabled={loading}
+              className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl border border-slate-700 transition-all cursor-pointer"
+              title="Refresh Queue"
             >
-              <option value="ALL">All Statuses</option>
-              <option value="DETECTED">Detected</option>
-              <option value="DIAGNOSED">Diagnosed</option>
-              <option value="ACTION_EXECUTED">Action Executed</option>
-              <option value="RECOVERED">Recovered</option>
-              <option value="RETRY">Retry</option>
-              <option value="ESCALATED">Escalated</option>
-              <option value="STOPPED">Stopped</option>
-            </select>
-          </div>
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            </button>
 
-          {/* Severity Filter */}
-          <div>
-            <select
-              value={severityFilter}
-              onChange={(e) => setSeverityFilter(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-mono"
-            >
-              <option value="ALL">All Severities</option>
-              <option value="CRITICAL">Critical</option>
-              <option value="HIGH">High</option>
-              <option value="MEDIUM">Medium</option>
-              <option value="LOW">Low</option>
-            </select>
+            {hasPermission('can_run_recovery_batch') && (
+              <Link
+                to="/recovery/batch"
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold flex items-center gap-2 shadow-lg shadow-emerald-950/30 transition-all"
+              >
+                <RotateCw className="w-4 h-4" />
+                <span>Batch Runner</span>
+              </Link>
+            )}
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-2 border-t border-slate-800/80 text-xs">
-          <label className="flex items-center gap-2 text-slate-300 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={highValueOnly}
-              onChange={(e) => setHighValueOnly(e.target.checked)}
-              className="rounded bg-slate-950 border-slate-700 text-emerald-500 focus:ring-0"
-            />
-            <span className="font-mono text-[11px]">Show High-Value Only (≥ ₹50,000)</span>
-          </label>
+        {/* Filter Controls Bar */}
+        <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            {/* Search */}
+            <div className="lg:col-span-2 relative">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search Case ID, Customer, Root Cause..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+              />
+            </div>
 
-          <span className="text-slate-400 font-mono text-[11px]">
-            Showing <strong className="text-slate-200">{filteredCases.length}</strong> cases
-          </span>
+            {/* Type Filter */}
+            <div>
+              <select
+                value={typeFilter}
+                onChange={(e) => setTypeFilter(e.target.value)}
+                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-mono"
+              >
+                <option value="ALL">All Scenarios</option>
+                <option value="PAYMENT_FAILURE">Payment Failure</option>
+                <option value="CHECKOUT_ABANDONMENT">Checkout Drop-off</option>
+                <option value="OVERDUE_RECEIVABLE">Overdue Invoice</option>
+                <option value="MANDATE_FAILURE">Mandate Failure</option>
+                <option value="SETTLEMENT_SHORTFALL">Settlement Shortfall</option>
+              </select>
+            </div>
+
+            {/* Status Filter */}
+            <div>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-mono"
+              >
+                <option value="ALL">All Statuses</option>
+                <option value="DETECTED">Detected</option>
+                <option value="DIAGNOSED">Diagnosed</option>
+                <option value="ACTION_EXECUTED">Action Executed</option>
+                <option value="RECOVERED">Recovered</option>
+                <option value="RETRY">Retry</option>
+                <option value="ESCALATED">Escalated</option>
+                <option value="STOPPED">Stopped</option>
+              </select>
+            </div>
+
+            {/* Severity Filter */}
+            <div>
+              <select
+                value={severityFilter}
+                onChange={(e) => setSeverityFilter(e.target.value)}
+                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-mono"
+              >
+                <option value="ALL">All Severities</option>
+                <option value="CRITICAL">Critical</option>
+                <option value="HIGH">High</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="LOW">Low</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between pt-2 border-t border-slate-800/80 text-xs">
+            <label className="flex items-center gap-2 text-slate-300 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={highValueOnly}
+                onChange={(e) => setHighValueOnly(e.target.checked)}
+                className="rounded bg-slate-950 border-slate-700 text-emerald-500 focus:ring-0"
+              />
+              <span className="font-mono text-[11px]">Show High-Value Exposure (≥ ₹50,000)</span>
+            </label>
+
+            <span className="text-slate-400 font-mono text-[11px]">
+              Showing <strong className="text-slate-200">{filteredCases.length}</strong> cases
+            </span>
+          </div>
         </div>
-      </div>
 
-      {/* Error state */}
-      {error && (
-        <div className="p-4 bg-rose-950/50 border border-rose-800 rounded-xl text-rose-300 text-xs flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-rose-400" />
-            <span>{error}</span>
-          </div>
-          <button onClick={fetchCases} className="text-xs font-semibold text-rose-200 hover:underline">
-            Retry
-          </button>
-        </div>
-      )}
-
-      {/* Cases Table */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-        {loading ? (
-          <div className="p-12 text-center text-slate-400">
-            <div className="w-8 h-8 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mx-auto mb-3"></div>
-            <span>Fetching recovery cases...</span>
-          </div>
-        ) : filteredCases.length === 0 ? (
-          <div className="p-12 text-center text-slate-400">
-            <FolderKanban className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-            <div className="text-sm font-semibold text-slate-300">No recovery cases found</div>
-            <p className="text-xs text-slate-500 mt-1">Try adjusting your search criteria or run a batch.</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-950 border-b border-slate-800 text-slate-400 font-mono text-[11px]">
-                <tr>
-                  <th className="p-4 font-semibold">Case ID</th>
-                  <th className="p-4 font-semibold">Customer / Entity</th>
-                  <th className="p-4 font-semibold">Scenario Type</th>
-                  <th className="p-4 font-semibold text-right">At Risk</th>
-                  <th className="p-4 font-semibold text-right">Recovered</th>
-                  <th className="p-4 font-semibold text-center">Score / Prob</th>
-                  <th className="p-4 font-semibold text-center">Severity</th>
-                  <th className="p-4 font-semibold">Status</th>
-                  <th className="p-4 font-semibold text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60 font-sans">
-                {filteredCases.map((c) => (
-                  <tr key={c.case_id} className="hover:bg-slate-800/40 transition-colors">
-                    <td className="p-4 font-mono font-bold text-slate-200">
-                      <Link to={`/recovery/cases/${c.case_id}`} className="hover:text-emerald-400">
-                        {c.case_id}
-                      </Link>
-                      {c.is_high_value && (
-                        <span className="ml-2 px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-950 text-amber-400 border border-amber-800 font-sans">
-                          HIGH
-                        </span>
-                      )}
-                    </td>
-                    <td className="p-4">
-                      <div className="font-semibold text-slate-200 truncate max-w-[170px]">
-                        {c.customer_name || c.customer_id || 'Enterprise Customer'}
-                      </div>
-                      <div className="text-[10px] text-slate-400 font-mono truncate max-w-[170px]">
-                        {c.customer_email || c.source_transaction_id || ''}
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <span className="font-mono text-[11px] text-slate-300">
-                        {String(c.recovery_type || '').replace(/_/g, ' ')}
-                      </span>
-                      <div className="text-[10px] text-slate-500 truncate max-w-[140px]">
-                        {String(c.root_cause || '').replace(/_/g, ' ') || 'Pending Diagnosis'}
-                      </div>
-                    </td>
-                    <td className="p-4 text-right font-mono font-bold text-slate-200">
-                      ₹{Number(c.amount_at_risk).toLocaleString('en-IN')}
-                    </td>
-                    <td className="p-4 text-right font-mono font-bold text-emerald-400">
-                      ₹{Number(c.amount_recovered).toLocaleString('en-IN')}
-                    </td>
-                    <td className="p-4 text-center">
-                      <div className="font-mono text-slate-200 text-xs font-bold">
-                        {Math.round(Number(c.priority_score))}
-                      </div>
-                      <div className="text-[10px] font-mono text-slate-400">
-                        {Math.round(Number(c.recovery_probability) * 100)}% prob
-                      </div>
-                    </td>
-                    <td className="p-4 text-center">
-                      <span className={`px-2 py-0.5 rounded border text-[10px] font-mono font-bold uppercase ${getSeverityBadge(c.severity)}`}>
-                        {c.severity}
-                      </span>
-                    </td>
-                    <td className="p-4">
-                      <span className={`px-2.5 py-1 rounded border text-[10px] font-mono font-bold uppercase ${getStatusBadge(c.current_status)}`}>
-                        {c.current_status}
-                      </span>
-                      {c.retry_count > 0 && (
-                        <div className="text-[10px] text-slate-500 font-mono mt-0.5">
-                          Retry: {c.retry_count}/{c.max_retries_allowed}
-                        </div>
-                      )}
-                    </td>
-                    <td className="p-4 text-right">
-                      <button
-                        onClick={() => navigate(`/recovery/cases/${c.case_id}`)}
-                        className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold border border-slate-700 transition-all cursor-pointer"
-                      >
-                        Inspect
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {/* Error state */}
+        {error && (
+          <div className="p-4 bg-rose-950/50 border border-rose-800 rounded-xl text-rose-300 text-xs flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-rose-400" />
+              <span>{error}</span>
+            </div>
+            <button onClick={fetchCases} className="text-xs font-semibold text-rose-200 hover:underline">
+              Retry
+            </button>
           </div>
         )}
-      </div>
+
+        {/* Cases Table */}
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+          {loading ? (
+            <div className="p-12 text-center text-slate-400">
+              <div className="w-8 h-8 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mx-auto mb-3"></div>
+              <span>Fetching recovery cases...</span>
+            </div>
+          ) : filteredCases.length === 0 ? (
+            <div className="p-12 text-center text-slate-400">
+              <FolderKanban className="w-10 h-10 text-slate-600 mx-auto mb-3" />
+              <div className="text-sm font-semibold text-slate-300">No recovery cases found</div>
+              <p className="text-xs text-slate-500 mt-1">Try adjusting your search criteria or run a batch.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-950 border-b border-slate-800 text-slate-400 font-mono text-[11px]">
+                  <tr>
+                    <th className="p-3.5 font-semibold">Case ID</th>
+                    <th className="p-3.5 font-semibold">Customer / Source</th>
+                    <th className="p-3.5 font-semibold">Scenario</th>
+                    <th className="p-3.5 font-semibold text-right">At Risk</th>
+                    <th className="p-3.5 font-semibold text-center">Prob</th>
+                    <th className="p-3.5 font-semibold text-right">Expected Recovery</th>
+                    <th className="p-3.5 font-semibold text-center">Priority</th>
+                    <th className="p-3.5 font-semibold">Status</th>
+                    <th className="p-3.5 font-semibold text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60 font-sans">
+                  {filteredCases.map((c) => {
+                    const atRiskVal = Number(c.amount_at_risk || 0);
+                    const probVal = Number(c.recovery_probability || 0.75);
+                    const expRec = atRiskVal * probVal;
+                    const priority = getPriorityLabel(Number(c.priority_score || 50));
+                    return (
+                      <tr
+                        key={c.case_id}
+                        onClick={() => setActiveDrawerCaseId(c.case_id)}
+                        className="hover:bg-slate-800/40 transition-colors cursor-pointer"
+                      >
+                        <td className="p-3.5 font-mono font-bold text-emerald-400">
+                          {c.case_id}
+                          {c.is_high_value && (
+                            <span className="ml-1.5 px-1.5 py-0.2 rounded text-[8px] font-bold bg-amber-950 text-amber-400 border border-amber-800 font-sans">
+                              HIGH
+                            </span>
+                          )}
+                        </td>
+                        <td className="p-3.5">
+                          <div className="font-semibold text-slate-200 truncate max-w-[160px]">
+                            {c.customer_name || c.customer_id || 'Enterprise Customer'}
+                          </div>
+                          <div className="text-[10px] text-slate-400 font-mono truncate max-w-[160px]">
+                            {c.source_transaction_id || c.source_exception_id || ''}
+                          </div>
+                        </td>
+                        <td className="p-3.5">
+                          <span className="font-mono text-[11px] text-slate-300">
+                            {String(c.recovery_type || '').replace(/_/g, ' ')}
+                          </span>
+                          <div className="text-[10px] text-slate-500 truncate max-w-[130px]">
+                            {String(c.root_cause || '').replace(/_/g, ' ') || 'Pending Diagnosis'}
+                          </div>
+                        </td>
+                        <td className="p-3.5 text-right font-mono font-bold text-slate-200">
+                          ₹{atRiskVal.toLocaleString('en-IN')}
+                        </td>
+                        <td className="p-3.5 text-center">
+                          <span className="font-mono font-bold text-teal-300 text-xs">
+                            {Math.round(probVal * 100)}%
+                          </span>
+                        </td>
+                        <td className="p-3.5 text-right font-mono font-bold text-emerald-400">
+                          ₹{Math.round(expRec).toLocaleString('en-IN')}
+                        </td>
+                        <td className="p-3.5 text-center">
+                          <span className={`px-2 py-0.5 rounded border text-[9px] font-mono font-bold uppercase ${priority.class}`}>
+                            {priority.label}
+                          </span>
+                        </td>
+                        <td className="p-3.5">
+                          <span className={`px-2 py-0.5 rounded border text-[10px] font-mono font-bold uppercase ${getStatusBadge(c.current_status)}`}>
+                            {c.current_status}
+                          </span>
+                        </td>
+                        <td className="p-3.5 text-right">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveDrawerCaseId(c.case_id);
+                            }}
+                            className="px-2.5 py-1 bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 rounded-md text-[11px] font-semibold border border-emerald-800 transition-all cursor-pointer"
+                          >
+                            Investigate
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* Slide-over Drawer for Case Investigation & Action Simulation */}
+        {activeDrawerCaseId && (
+          <RecoveryCaseDrawer
+            caseId={activeDrawerCaseId}
+            onClose={() => setActiveDrawerCaseId(null)}
+            onActionSuccess={fetchCases}
+          />
+        )}
       </div>
     </PageContainer>
   );
 }
+
