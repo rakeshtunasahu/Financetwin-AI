@@ -188,13 +188,22 @@ export default function LiveRecovery() {
   // Execution & Flow State Machine
   const [flowState, setFlowState] = useState<'IDLE' | 'RUNNING' | 'PAUSED' | 'COMPLETED' | 'ERROR'>('IDLE');
   const [activeStepIndex, setActiveStepIndex] = useState<number>(-1); // -1 = not started, 0..9
+  const [justCompletedStep, setJustCompletedStep] = useState<number | null>(null);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [pipelineData, setPipelineData] = useState<LivePipelineResponse | null>(null);
   const [activityEvents, setActivityEvents] = useState<LiveActivityEvent[]>([]);
   const [autoPlay, setAutoPlay] = useState<boolean>(true);
+  const [speedMode, setSpeedMode] = useState<'presentation' | 'normal' | 'fast'>('presentation');
 
   const timerRef = useRef<any>(null);
+  const finishTimerRef = useRef<any>(null);
   const activityEndRef = useRef<HTMLDivElement>(null);
+
+  const STEP_DURATIONS = {
+    presentation: 2400, // Ideal for judge demo & presentation
+    normal: 1700,
+    fast: 1000
+  };
 
   const formatter = new Intl.NumberFormat('en-IN', {
     style: 'currency',
@@ -219,8 +228,10 @@ export default function LiveRecovery() {
   // Reset entire flow
   const handleReset = () => {
     if (timerRef.current) clearTimeout(timerRef.current);
+    if (finishTimerRef.current) clearTimeout(finishTimerRef.current);
     setFlowState('IDLE');
     setActiveStepIndex(-1);
+    setJustCompletedStep(null);
     setCompletedSteps([]);
     setPipelineData(null);
     setActivityEvents([]);
@@ -262,7 +273,13 @@ export default function LiveRecovery() {
     }
 
     setInputError(null);
-    handleReset();
+    if (timerRef.current) clearTimeout(timerRef.current);
+    if (finishTimerRef.current) clearTimeout(finishTimerRef.current);
+    setActiveStepIndex(-1);
+    setJustCompletedStep(null);
+    setCompletedSteps([]);
+    setPipelineData(null);
+    setActivityEvents([]);
     setFlowState('RUNNING');
     setAutoPlay(true);
 
@@ -291,7 +308,7 @@ export default function LiveRecovery() {
     }
   };
 
-  // Step-by-Step Timer Machine
+  // Step-by-Step Timer Machine with Satisfaction Animation
   useEffect(() => {
     if (flowState !== 'RUNNING' || activeStepIndex < 0 || !pipelineData) return;
 
@@ -302,33 +319,41 @@ export default function LiveRecovery() {
     pushActivity(`Executing Step 0${activeStepIndex + 1}: ${stepObj.name}`, activeStepIndex + 1, 'info');
 
     if (autoPlay) {
-      // Advance step after 1100ms
+      const stepDuration = STEP_DURATIONS[speedMode];
+      const processingTime = Math.max(700, stepDuration - 600);
+
+      // Phase 1: Step is running & processing
       timerRef.current = setTimeout(() => {
-        // Complete current step
-        setCompletedSteps((prev) => [...prev, activeStepIndex]);
+        // Phase 2: Step finished! Trigger satisfying "DONE" animation
+        setJustCompletedStep(activeStepIndex);
+        setCompletedSteps((prev) => (prev.includes(activeStepIndex) ? prev : [...prev, activeStepIndex]));
 
-        // Push completion log
         const eventType = stepObj.status === 'COMPLETED' ? 'success' : stepObj.status === 'SKIPPED' ? 'warning' : 'error';
-        pushActivity(`Step 0${activeStepIndex + 1} Done: ${stepObj.summary}`, activeStepIndex + 1, eventType);
+        pushActivity(`✓ Step 0${activeStepIndex + 1} Done: ${stepObj.summary}`, activeStepIndex + 1, eventType);
 
-        if (activeStepIndex < 9) {
-          setActiveStepIndex((prev) => prev + 1);
-        } else {
-          // Finished all 10 steps!
-          setFlowState('COMPLETED');
-          pushActivity(
-            `10-Step Pipeline Finished! Final Status: ${pipelineData.final_status} (₹${pipelineData.recovered_amount.toLocaleString('en-IN')} rescued)`,
-            10,
-            pipelineData.is_recovered ? 'success' : 'warning'
-          );
-        }
-      }, 1100);
+        // Phase 3: Pause 600ms so judge can clearly see the finished step, then advance!
+        finishTimerRef.current = setTimeout(() => {
+          setJustCompletedStep(null);
+          if (activeStepIndex < 9) {
+            setActiveStepIndex((prev) => prev + 1);
+          } else {
+            // Finished all 10 steps!
+            setFlowState('COMPLETED');
+            pushActivity(
+              `🎉 10-Step Pipeline Finished! Final Status: ${pipelineData.final_status} (₹${pipelineData.recovered_amount.toLocaleString('en-IN')} rescued)`,
+              10,
+              pipelineData.is_recovered ? 'success' : 'warning'
+            );
+          }
+        }, 600);
+      }, processingTime);
     }
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
+      if (finishTimerRef.current) clearTimeout(finishTimerRef.current);
     };
-  }, [flowState, activeStepIndex, pipelineData, autoPlay]);
+  }, [flowState, activeStepIndex, pipelineData, autoPlay, speedMode]);
 
   // Step Through manually
   const handleStepThrough = () => {
@@ -339,17 +364,22 @@ export default function LiveRecovery() {
     }
 
     if (activeStepIndex < 9 && pipelineData) {
-      setCompletedSteps((prev) => [...prev, activeStepIndex]);
+      setJustCompletedStep(activeStepIndex);
+      setCompletedSteps((prev) => (prev.includes(activeStepIndex) ? prev : [...prev, activeStepIndex]));
       const nextIndex = activeStepIndex + 1;
-      setActiveStepIndex(nextIndex);
-      const stepObj = pipelineData.steps[nextIndex];
-      pushActivity(`Manual Step 0${nextIndex + 1}: ${stepObj.name} — ${stepObj.summary}`, nextIndex + 1, 'info');
 
-      if (nextIndex === 9) {
-        setCompletedSteps((prev) => [...prev, 9]);
-        setFlowState('COMPLETED');
-        pushActivity(`10-Step Pipeline Complete: ${pipelineData.final_status}`, 10, pipelineData.is_recovered ? 'success' : 'warning');
-      }
+      setTimeout(() => {
+        setJustCompletedStep(null);
+        setActiveStepIndex(nextIndex);
+        const stepObj = pipelineData.steps[nextIndex];
+        pushActivity(`Manual Step 0${nextIndex + 1}: ${stepObj.name} — ${stepObj.summary}`, nextIndex + 1, 'info');
+
+        if (nextIndex === 9) {
+          setCompletedSteps((prev) => (prev.includes(9) ? prev : [...prev, 9]));
+          setFlowState('COMPLETED');
+          pushActivity(`10-Step Pipeline Complete: ${pipelineData.final_status}`, 10, pipelineData.is_recovered ? 'success' : 'warning');
+        }
+      }, 300);
     }
   };
 
@@ -393,15 +423,33 @@ export default function LiveRecovery() {
           </div>
         </div>
 
-        {/* Global Controls */}
-        <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
-          {flowState === 'IDLE' ? (
+        {/* Global Controls & Speed Selector */}
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto shrink-0">
+          {/* Speed Mode Selector */}
+          <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-[10px] font-mono">
+            <span className="text-slate-500 px-1.5 hidden md:inline">Speed:</span>
+            {(['presentation', 'normal', 'fast'] as const).map((m) => (
+              <button
+                key={m}
+                onClick={() => setSpeedMode(m)}
+                className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
+                  speedMode === m
+                    ? 'bg-emerald-600 text-white font-bold'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                }`}
+              >
+                {m === 'presentation' ? '2.4s (Demo)' : m === 'normal' ? '1.7s' : '1.0s (Fast)'}
+              </button>
+            ))}
+          </div>
+
+          {flowState === 'IDLE' || flowState === 'ERROR' ? (
             <button
               onClick={handleStartRecovery}
               className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-950 transition-all cursor-pointer"
             >
               <Play className="w-3.5 h-3.5 fill-current" />
-              <span>START RECOVERY</span>
+              <span>{flowState === 'ERROR' ? 'RETRY RECOVERY' : 'START RECOVERY'}</span>
             </button>
           ) : flowState === 'COMPLETED' ? (
             <button
@@ -631,8 +679,9 @@ export default function LiveRecovery() {
           {/* Step Cards List */}
           <div className="space-y-2.5">
             {STEP_DEFINITIONS.map((def, idx) => {
-              const isCurrent = activeStepIndex === idx && flowState === 'RUNNING';
-              const isDone = completedSteps.includes(idx);
+              const isCurrent = activeStepIndex === idx && flowState === 'RUNNING' && justCompletedStep !== idx;
+              const isJustFinished = justCompletedStep === idx;
+              const isDone = completedSteps.includes(idx) || isJustFinished;
               const isLocked = activeStepIndex < idx && !isDone;
               const stepResult = pipelineData?.steps?.[idx];
 
@@ -640,8 +689,10 @@ export default function LiveRecovery() {
                 <div
                   key={def.num}
                   className={`p-3 rounded-xl border transition-all duration-300 ${
-                    isCurrent
-                      ? 'bg-slate-900 border-emerald-500/80 shadow-lg shadow-emerald-950/40 ring-1 ring-emerald-500/30'
+                    isJustFinished
+                      ? 'bg-emerald-950/60 border-emerald-400 shadow-xl shadow-emerald-950/70 ring-2 ring-emerald-400 scale-[1.015] duration-300'
+                      : isCurrent
+                      ? 'bg-slate-900 border-cyan-500/80 shadow-lg shadow-cyan-950/40 ring-1 ring-cyan-500/30'
                       : isDone
                       ? 'bg-slate-900/90 border-slate-800'
                       : 'bg-slate-950/40 border-slate-800/40 opacity-60'
@@ -651,19 +702,29 @@ export default function LiveRecovery() {
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2.5">
                       <div
-                        className={`w-6 h-6 rounded-lg flex items-center justify-center font-mono font-bold text-[10px] transition-colors ${
-                          isDone
+                        className={`w-6 h-6 rounded-lg flex items-center justify-center font-mono font-bold text-[10px] transition-all duration-300 ${
+                          isJustFinished
+                            ? 'bg-emerald-400 text-slate-950 font-bold scale-110 shadow-md shadow-emerald-400'
+                            : isDone
                             ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
                             : isCurrent
-                            ? 'bg-emerald-600 text-white animate-pulse'
+                            ? 'bg-cyan-600 text-white animate-pulse'
                             : 'bg-slate-950 text-slate-600 border border-slate-800'
                         }`}
                       >
-                        {isDone ? <Check className="w-3.5 h-3.5" /> : `0${def.num}`}
+                        {isDone ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : `0${def.num}`}
                       </div>
 
                       <div>
-                        <h4 className={`text-xs font-bold ${isCurrent ? 'text-emerald-300' : isDone ? 'text-slate-100' : 'text-slate-500'}`}>
+                        <h4 className={`text-xs font-bold transition-colors ${
+                          isJustFinished
+                            ? 'text-emerald-300 font-bold'
+                            : isCurrent
+                            ? 'text-cyan-300'
+                            : isDone
+                            ? 'text-slate-100'
+                            : 'text-slate-500'
+                        }`}>
                           {def.name}
                         </h4>
                         <p className="text-[10px] text-slate-400 line-clamp-1">{def.desc}</p>
@@ -672,7 +733,12 @@ export default function LiveRecovery() {
 
                     {/* Step Status Pill */}
                     <div className="shrink-0">
-                      {isDone ? (
+                      {isJustFinished ? (
+                        <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500 text-slate-950 flex items-center gap-1 shadow-md shadow-emerald-500/30 animate-pulse">
+                          <Check className="w-3 h-3 stroke-[3]" />
+                          <span>DONE</span>
+                        </span>
+                      ) : isDone ? (
                         <span
                           className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded border ${
                             stepResult?.status === 'SKIPPED'
@@ -685,9 +751,9 @@ export default function LiveRecovery() {
                           {stepResult?.status || 'COMPLETED'}
                         </span>
                       ) : isCurrent ? (
-                        <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-900/60 text-emerald-300 border border-emerald-700 animate-pulse flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-                          RUNNING
+                        <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded bg-cyan-950/80 text-cyan-300 border border-cyan-700 animate-pulse flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
+                          PROCESSING
                         </span>
                       ) : (
                         <span className="text-[9px] font-mono text-slate-600 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
@@ -696,6 +762,13 @@ export default function LiveRecovery() {
                       )}
                     </div>
                   </div>
+
+                  {/* Active Step Real-time Progress Bar */}
+                  {isCurrent && (
+                    <div className="w-full bg-slate-950 h-1 rounded-full overflow-hidden my-2 border border-slate-800/80">
+                      <div className="h-full bg-gradient-to-r from-cyan-500 via-emerald-400 to-cyan-400 animate-pulse w-full duration-1000" />
+                    </div>
+                  )}
 
                   {/* Render Detailed Live Result when Done or Running */}
                   {(isDone || isCurrent) && stepResult && (

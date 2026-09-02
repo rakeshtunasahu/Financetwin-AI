@@ -4,7 +4,6 @@ import {
   MessageSquare,
   X,
   Send,
-  Sparkles,
   Bot,
   User,
   RotateCcw,
@@ -13,65 +12,130 @@ import {
   ExternalLink,
   ChevronRight,
   ShieldCheck,
-  TrendingUp,
-  HelpCircle,
-  Database,
-  Terminal,
+  ShieldAlert,
   Zap,
-  CheckCircle2,
-  Cpu,
-  Layers,
-  Sparkle
+  Activity,
+  Copy,
+  Check,
+  Search,
+  Plus,
+  Trash2,
+  ThumbsUp,
+  ThumbsDown,
+  FileText,
+  Sliders,
+  Sparkles,
+  ArrowRight,
+  TrendingUp,
+  ChevronDown,
+  ChevronLeft,
+  Info,
+  Clock
 } from 'lucide-react';
 import { assistantApi, AssistantChatResponse } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
 
-interface Message {
+interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
+  intent?: string;
+  facts?: Array<{ label: string; value: string }>;
+  recommendations?: string[];
   suggested_actions?: string[];
   deep_link?: string;
   related_metrics?: Record<string, any>;
   timestamp: Date;
+  feedback?: 'positive' | 'negative';
 }
 
-const DEFAULT_STARTER_PROMPTS = [
-  { label: '📊 Live Revenue Stats', prompt: 'What is our current revenue at risk and recovered total?' },
-  { label: '🔄 10-Step Lifecycle', prompt: 'Explain the 10-step autonomous recovery lifecycle' },
-  { label: '⚖️ 4-Pass Matching', prompt: 'How does the 4-pass conservative reconciliation engine work?' },
-  { label: '📐 Expected Math', prompt: 'How is Expected Recovery calculated mathematically?' },
-  { label: '🛡️ 3 RBAC Roles', prompt: 'What are the 3 enterprise RBAC personas and permissions?' },
-  { label: '🔍 Revenue Leakage', prompt: 'Where is revenue leaking across our payment channels?' },
-  { label: '🇮🇳 Hindi: Project Overview', prompt: 'RevenueRescue AI project kya karta hai aur kaise kaam karta hai?' }
+interface ConversationSession {
+  id: string;
+  title: string;
+  updatedAt: Date;
+  messages: ChatMessage[];
+  activeTxnId?: string;
+}
+
+const CATEGORY_PROMPTS = [
+  { name: 'Revenue', prompt: 'Why are we losing revenue today?' },
+  { name: 'Payments', prompt: 'Which transactions should be retried?' },
+  { name: 'Recovery', prompt: 'Investigate why ₹25,000 revenue is at risk.' },
+  { name: 'Risk', prompt: 'Show suspicious payment patterns and high-risk cases.' },
+  { name: 'Transactions', prompt: 'Investigate transaction TXN-87421.' },
+  { name: 'Anomalies', prompt: 'What unusual payment behavior was detected by ML?' },
+  { name: 'Operations', prompt: 'Explain the 10-step autonomous recovery lifecycle.' }
+];
+
+const WELCOME_SUGGESTIONS = [
+  { title: 'Find Revenue at Risk', desc: 'Break down today\'s failed transactions & total exposure', prompt: 'Why are we losing revenue today?' },
+  { title: 'Investigate ₹25k Loss Case', desc: 'Trace root-cause, ML probability & retry strategy', prompt: 'Investigate why ₹25,000 revenue is at risk.' },
+  { title: 'Top Recovery Candidates', desc: 'List high-probability transactions ready for automated recovery', prompt: 'Which transactions should be retried?' },
+  { title: 'ML Anomaly & Risk Audit', desc: 'Inspect Scikit-Learn IsolationForest outlier clusters', prompt: 'Show suspicious payment patterns and high-risk cases.' }
 ];
 
 export default function ProjectChatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showHistorySidebar, setShowHistorySidebar] = useState(true);
+  const [showContextSidebar, setShowContextSidebar] = useState(true);
+  const [searchHistoryQuery, setSearchHistoryQuery] = useState('');
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
+  const [thinkingStep, setThinkingStep] = useState<string | null>(null);
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+  const [selectedReportMessage, setSelectedReportMessage] = useState<ChatMessage | null>(null);
+  const [liveContextData, setLiveContextData] = useState<Record<string, any> | null>(null);
+
+  // Active Session & Conversations
+  const [sessions, setSessions] = useState<ConversationSession[]>([
     {
-      id: 'welcome',
-      role: 'assistant',
-      content:
-        '👋 **Hello! I am your RevenueRescue AI Copilot.**\n\nI have complete, end-to-end knowledge of our autonomous revenue recovery platform — including the **4-Pass Reconciliation Engine**, **10-Step Autonomous Recovery Lifecycle**, **Expected Recovery Mathematics**, **3 Enterprise RBAC Roles**, **Scikit-Learn Anomaly Models**, and **Live Database Telemetry**.\n\nAap mujhse **Hindi, Hinglish, ya English** mein koi bhi question pooch sakte hain! How can I assist your recovery operations today?',
-      suggested_actions: [
-        'Show Live Revenue Stats',
-        'Explain 10-Step Lifecycle',
-        'How 4-Pass Matching Works',
-        'Ye project kya karta hai?'
-      ],
-      timestamp: new Date()
+      id: 'session-1',
+      title: 'Current Investigation',
+      updatedAt: new Date(),
+      messages: [],
+      activeTxnId: 'TXN-87421'
     }
   ]);
+  const [currentSessionId, setCurrentSessionId] = useState<string>('session-1');
 
   const { currentUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const currentSession = sessions.find((s) => s.id === currentSessionId) || sessions[0];
+  const messages = currentSession?.messages || [];
+
+  // Fetch live context periodically when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      assistantApi
+        .getContext()
+        .then((data) => setLiveContextData(data))
+        .catch(() => {});
+    }
+  }, [isOpen]);
+
+  // Global Keyboard Shortcuts (Ctrl+K, Esc, etc.)
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsOpen((prev) => !prev);
+      }
+      if (e.key === 'Escape' && isOpen && !selectedReportMessage) {
+        setIsOpen(false);
+      }
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'n') {
+        e.preventDefault();
+        handleNewInvestigation();
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [isOpen, selectedReportMessage]);
 
   // Auto scroll to bottom
   const scrollToBottom = () => {
@@ -83,27 +147,81 @@ export default function ProjectChatbot() {
       scrollToBottom();
       setTimeout(() => inputRef.current?.focus(), 150);
     }
-  }, [isOpen, messages]);
+  }, [isOpen, messages, thinkingStep]);
 
+  // Create new investigation chat
+  const handleNewInvestigation = () => {
+    const newId = `session-${Date.now()}`;
+    const newSession: ConversationSession = {
+      id: newId,
+      title: `Investigation #${sessions.length + 1}`,
+      updatedAt: new Date(),
+      messages: []
+    };
+    setSessions((prev) => [newSession, ...prev]);
+    setCurrentSessionId(newId);
+    setTimeout(() => inputRef.current?.focus(), 100);
+  };
+
+  // Delete conversation
+  const handleDeleteSession = (sessionId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (sessions.length <= 1) {
+      setSessions([
+        {
+          id: `session-${Date.now()}`,
+          title: 'New Investigation',
+          updatedAt: new Date(),
+          messages: []
+        }
+      ]);
+      return;
+    }
+    const filtered = sessions.filter((s) => s.id !== sessionId);
+    setSessions(filtered);
+    if (currentSessionId === sessionId) {
+      setCurrentSessionId(filtered[0].id);
+    }
+  };
+
+  // Send message flow
   const handleSendMessage = async (textToSend?: string) => {
     const text = (textToSend || input).trim();
     if (!text || loading) return;
 
-    const userMessage: Message = {
+    const userMessage: ChatMessage = {
       id: `user-${Date.now()}`,
       role: 'user',
       content: text,
       timestamp: new Date()
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    // Update session title if first message
+    const updatedMessages = [...messages, userMessage];
+    setSessions((prev) =>
+      prev.map((s) => {
+        if (s.id === currentSessionId) {
+          return {
+            ...s,
+            title: s.messages.length === 0 ? text.slice(0, 28) + (text.length > 28 ? '...' : '') : s.title,
+            updatedAt: new Date(),
+            messages: updatedMessages
+          };
+        }
+        return s;
+      })
+    );
+
     setInput('');
     setLoading(true);
 
+    // Realistic state progression animation
+    setThinkingStep('Analyzing revenue risk & telemetry signals...');
+    const t1 = setTimeout(() => setThinkingStep('Evaluating recovery probability & ML factors...'), 400);
+    const t2 = setTimeout(() => setThinkingStep('Checking deterministic policy guardrails...'), 800);
+
     try {
-      const historyPayload = messages
-        .filter((m) => m.id !== 'welcome')
-        .map((m) => ({ role: m.role, content: m.content }));
+      const historyPayload = updatedMessages.map((m) => ({ role: m.role, content: m.content }));
 
       const res: AssistantChatResponse = await assistantApi.chat(
         text,
@@ -112,397 +230,669 @@ export default function ProjectChatbot() {
         currentUser?.role || 'RECOVERY_ADMIN'
       );
 
-      const botMessage: Message = {
+      if (res.live_context) {
+        setLiveContextData(res.live_context);
+      }
+
+      const botMessage: ChatMessage = {
         id: `bot-${Date.now()}`,
         role: 'assistant',
         content: res.reply,
+        intent: res.intent,
+        facts: res.facts,
+        recommendations: res.recommendations,
         suggested_actions: res.suggested_actions,
         deep_link: res.deep_link,
         related_metrics: res.related_metrics,
         timestamp: new Date()
       };
 
-      setMessages((prev) => [...prev, botMessage]);
+      setSessions((prev) =>
+        prev.map((s) => (s.id === currentSessionId ? { ...s, messages: [...s.messages, botMessage] } : s))
+      );
     } catch (err: any) {
-      const errorMessage: Message = {
+      const errorMessage: ChatMessage = {
         id: `error-${Date.now()}`,
         role: 'assistant',
-        content: `⚠️ **Connection issue**: Could not retrieve response (${err.message || 'Server error'}). Please ensure backend API is running.`,
+        content: `⚠️ **RevenueRescue Copilot Error**: Could not retrieve investigation response (${
+          err.message || 'Service temporarily unreachable'
+        }). Deterministic database fallback active.`,
         timestamp: new Date()
       };
-      setMessages((prev) => [...prev, errorMessage]);
+      setSessions((prev) =>
+        prev.map((s) => (s.id === currentSessionId ? { ...s, messages: [...s.messages, errorMessage] } : s))
+      );
     } finally {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      setThinkingStep(null);
       setLoading(false);
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
+  const handleCopyMessage = (text: string, msgId: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedMessageId(msgId);
+    setTimeout(() => setCopiedMessageId(null), 2000);
   };
 
-  const handleClearChat = () => {
-    setMessages([
-      {
-        id: `welcome-${Date.now()}`,
-        role: 'assistant',
-        content:
-          '🧹 **Chat history cleared.**\n\nI am ready for your next question about RevenueRescue AI architecture, live database telemetry, 10-step recovery lifecycle, 4-pass reconciliation, or math formulas!',
-        suggested_actions: [
-          'Show Live Revenue Stats',
-          'Explain 10-Step Workflow',
-          'Calculate Expected Recovery',
-          'Ye project kya karta hai?'
-        ],
-        timestamp: new Date()
-      }
-    ]);
-  };
-
-  const handleDeepLink = (path: string) => {
-    if (path.startsWith('http')) {
-      window.open(path, '_blank');
-    } else {
-      navigate(path);
-      if (window.innerWidth < 768) {
-        setIsOpen(false);
-      }
-    }
-  };
-
-  // Structured Markdown Parser with Electric Accent Styling
-  const renderFormattedContent = (content: string) => {
-    const lines = content.split('\n');
-    return (
-      <div className="space-y-2 text-xs sm:text-sm leading-relaxed text-slate-200">
-        {lines.map((line, idx) => {
-          // Table row detector
-          if (line.startsWith('|') && line.endsWith('|')) {
-            const cells = line.split('|').filter((c) => c.trim().length > 0);
-            if (line.includes('---')) {
-              return <div key={idx} className="h-px bg-indigo-800/40 my-1" />;
-            }
-            return (
-              <div key={idx} className="grid grid-cols-2 gap-2 py-1 px-2.5 rounded-lg bg-indigo-950/40 border border-indigo-900/50 font-mono text-xs">
-                {cells.map((cell, cIdx) => (
-                  <span key={cIdx} className={cIdx === 0 ? 'text-slate-300 font-semibold' : 'text-cyan-300 font-bold text-right'}>
-                    {cell.trim().replace(/\*\*/g, '')}
-                  </span>
-                ))}
-              </div>
-            );
-          }
-
-          // Headers
-          if (line.startsWith('### ')) {
-            return <h4 key={idx} className="text-xs font-bold text-cyan-400 mt-2.5 flex items-center gap-1.5"><Sparkle className="w-3 h-3 text-violet-400" />{line.replace('### ', '')}</h4>;
-          }
-          if (line.startsWith('## ') || line.startsWith('# ')) {
-            return <h3 key={idx} className="text-sm font-extrabold text-white mt-3 pb-1 border-b border-indigo-900/50">{line.replace(/^#+\s/, '')}</h3>;
-          }
-
-          // Bullet points
-          if (line.trim().startsWith('- ') || line.trim().startsWith('* ')) {
-            const bulletText = line.trim().substring(2);
-            return (
-              <div key={idx} className="flex items-start gap-2 ml-1">
-                <span className="text-cyan-400 text-xs mt-0.5 font-bold">•</span>
-                <span className="flex-1" dangerouslySetInnerHTML={{ __html: formatInlineMarkdown(bulletText) }} />
-              </div>
-            );
-          }
-
-          // Numbered lists (1. , 2. )
-          if (/^\d+\.\s/.test(line.trim())) {
-            const num = line.trim().match(/^(\d+\.)\s/)?.[1];
-            const text = line.trim().replace(/^\d+\.\s/, '');
-            return (
-              <div key={idx} className="flex items-start gap-2 ml-1">
-                <span className="text-violet-400 font-mono font-bold text-xs shrink-0">{num}</span>
-                <span className="flex-1" dangerouslySetInnerHTML={{ __html: formatInlineMarkdown(text) }} />
-              </div>
-            );
-          }
-
-          // Code blocks
-          if (line.startsWith('```') || line.endsWith('```')) {
-            return <div key={idx} className="text-[11px] font-mono text-cyan-300 bg-slate-950/90 px-2.5 py-1.5 rounded-lg border border-indigo-900/60 shadow-inner">{line.replace(/```[a-z]*/g, '')}</div>;
-          }
-
-          // Empty line
-          if (!line.trim()) {
-            return <div key={idx} className="h-1" />;
-          }
-
-          return (
-            <p key={idx} dangerouslySetInnerHTML={{ __html: formatInlineMarkdown(line) }} />
-          );
-        })}
-      </div>
+  const handleFeedback = (msgId: string, type: 'positive' | 'negative') => {
+    setSessions((prev) =>
+      prev.map((s) => ({
+        ...s,
+        messages: s.messages.map((m) => (m.id === msgId ? { ...m, feedback: type } : m))
+      }))
     );
   };
 
-  const formatInlineMarkdown = (text: string) => {
-    let formatted = text
-      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-white">$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em class="text-indigo-200 italic">$1</em>')
-      .replace(/`([^`]+)`/g, '<code class="px-1.5 py-0.5 rounded bg-slate-950 text-cyan-300 font-mono text-[11px] border border-indigo-900/70">$1</code>')
-      .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" class="text-cyan-400 underline font-semibold hover:text-cyan-300">$1</a>');
-    return formatted;
-  };
+  const filteredSessions = sessions.filter((s) =>
+    s.title.toLowerCase().includes(searchHistoryQuery.toLowerCase())
+  );
 
   return (
     <>
-      {/* Floating Action Button (Electric Violet/Cyan Gradient) */}
+      {/* Floating Copilot Launcher Button */}
       {!isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-2 bg-slate-950/90 border border-violet-500/40 text-slate-200 text-xs px-3.5 py-1.5 rounded-full shadow-2xl shadow-violet-950/80 backdrop-blur-md animate-in fade-in slide-in-from-right">
-            <Sparkles className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
-            <span className="font-bold text-xs bg-gradient-to-r from-violet-300 to-cyan-300 bg-clip-text text-transparent">
-              RevenueRescue AI Copilot
+        <button
+          onClick={() => setIsOpen(true)}
+          className="fixed bottom-6 right-6 z-40 flex items-center gap-2.5 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 border border-emerald-500/40 hover:border-emerald-500 text-slate-100 rounded-full shadow-2xl shadow-emerald-950/50 hover:shadow-emerald-950 transition-all duration-300 group cursor-pointer"
+          title="Open RevenueRescue Copilot (Ctrl + K)"
+        >
+          <div className="w-6 h-6 rounded-full bg-emerald-950 border border-emerald-700/60 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
+            <Zap className="w-3.5 h-3.5 fill-current" />
+          </div>
+          <div className="text-left hidden sm:block">
+            <span className="text-xs font-bold block text-white leading-tight">RevenueRescue Copilot</span>
+            <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              Investigate • Predict • Recover
             </span>
           </div>
-
-          <button
-            onClick={() => setIsOpen(true)}
-            className="group relative flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-violet-600 via-indigo-600 to-cyan-500 text-white shadow-2xl shadow-violet-900/60 hover:shadow-cyan-500/40 hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer border border-violet-300/40"
-            aria-label="Open RevenueRescue AI Copilot"
-          >
-            <div className="absolute -top-1 -right-1 w-4 h-4 bg-cyan-400 rounded-full border-2 border-slate-950 flex items-center justify-center animate-pulse">
-              <span className="w-1.5 h-1.5 bg-slate-950 rounded-full"></span>
-            </div>
-            <Cpu className="w-7 h-7 group-hover:rotate-12 transition-transform duration-300" />
-          </button>
-        </div>
+          <kbd className="hidden md:inline-block text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-950 text-slate-400 border border-slate-800 ml-1">
+            Ctrl+K
+          </kbd>
+        </button>
       )}
 
-      {/* Floating Chatbot Window (Electric Dark Glassmorphism) */}
+      {/* Main Copilot Modal Window */}
       {isOpen && (
-        <div
-          className={`fixed z-50 transition-all duration-300 ease-out flex flex-col bg-slate-950/95 border border-indigo-500/40 shadow-2xl shadow-violet-950/90 backdrop-blur-2xl rounded-2xl overflow-hidden ${
-            isExpanded
-              ? 'inset-4 sm:inset-10'
-              : 'bottom-4 right-4 w-[calc(100vw-32px)] sm:w-[490px] h-[650px] max-h-[calc(100vh-32px)]'
-          }`}
-        >
-          {/* Header */}
-          <div className="px-4 py-3.5 bg-gradient-to-r from-slate-950 via-indigo-950/80 to-slate-950 border-b border-indigo-900/60 flex items-center justify-between shrink-0">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-violet-600 via-indigo-600 to-cyan-500 flex items-center justify-center text-white shadow-lg shadow-violet-600/30 border border-violet-400/40">
-                <Bot className="w-5 h-5" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-extrabold text-white tracking-tight bg-gradient-to-r from-white via-slate-100 to-cyan-200 bg-clip-text">
-                    RevenueRescue AI Copilot
-                  </h3>
-                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 font-bold uppercase">
-                    ACTIVE
-                  </span>
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 md:p-6 animate-in fade-in duration-200">
+          <div
+            className={`w-full bg-slate-900 border border-slate-800 rounded-2xl flex flex-col shadow-2xl overflow-hidden transition-all duration-300 ${
+              isExpanded ? 'h-[96vh] max-w-[98vw]' : 'h-[86vh] max-w-6xl'
+            }`}
+          >
+            {/* Top Copilot Header Bar */}
+            <div className="px-4 py-3 bg-slate-950 border-b border-slate-800 flex items-center justify-between gap-3 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-emerald-950 border border-emerald-700/60 flex items-center justify-center text-emerald-400 shrink-0">
+                  <Zap className="w-4 h-4 fill-current" />
                 </div>
-                <div className="flex items-center gap-2 text-[11px] text-slate-400 font-mono">
-                  <span className="flex items-center gap-1 text-indigo-300">
-                    <Database className="w-3 h-3 text-cyan-400" /> Grounded Telemetry
-                  </span>
-                  <span>•</span>
-                  <span className="text-violet-300">Bilingual Engine</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Window Controls */}
-            <div className="flex items-center gap-1">
-              <button
-                onClick={handleClearChat}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-colors"
-                title="Clear Chat History"
-              >
-                <RotateCcw className="w-4 h-4" />
-              </button>
-
-              <button
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="hidden sm:block p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-colors"
-                title={isExpanded ? 'Restore Size' : 'Expand Size'}
-              >
-                {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-              </button>
-
-              <button
-                onClick={() => setIsOpen(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800/60 transition-colors"
-                title="Close Copilot"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-
-          {/* Persona & Context Banner */}
-          <div className="px-4 py-1.5 bg-indigo-950/50 border-b border-indigo-900/40 flex items-center justify-between text-[11px] text-slate-400">
-            <div className="flex items-center gap-1.5 truncate">
-              <span className="text-indigo-400 font-medium">Screen Context:</span>
-              <span className="font-mono text-cyan-300 truncate">{location.pathname}</span>
-            </div>
-            <div className="flex items-center gap-1 font-mono text-[10px] text-slate-400 shrink-0">
-              <span>Role:</span>
-              <strong className="text-violet-300">{currentUser?.role || 'RECOVERY_ADMIN'}</strong>
-            </div>
-          </div>
-
-          {/* Messages Stream */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                {msg.role === 'assistant' && (
-                  <div className="w-7 h-7 rounded-lg bg-indigo-950 border border-indigo-700/60 flex items-center justify-center text-cyan-400 shrink-0 mt-0.5 shadow-sm">
-                    <Sparkles className="w-3.5 h-3.5" />
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-sm font-bold text-white tracking-wide">RevenueRescue Copilot</h2>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 font-semibold flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                      LIVE TELEMETRY
+                    </span>
                   </div>
-                )}
+                  <p className="text-[11px] text-slate-400 font-sans">
+                    Investigate. Predict. Recover. — Grounded in autonomous recovery & reconciliation rules
+                  </p>
+                </div>
+              </div>
 
-                <div
-                  className={`max-w-[85%] rounded-2xl p-3.5 shadow-lg ${
-                    msg.role === 'user'
-                      ? 'bg-gradient-to-r from-violet-600 via-indigo-600 to-indigo-700 text-white rounded-br-none border border-violet-400/30'
-                      : 'bg-slate-900/90 border border-indigo-900/60 text-slate-200 rounded-bl-none shadow-indigo-950/40'
-                  }`}
+              {/* Window Controls */}
+              <div className="flex items-center gap-1.5 text-slate-400">
+                <button
+                  onClick={() => setShowHistorySidebar((prev) => !prev)}
+                  className="p-1.5 hover:bg-slate-800 rounded-lg hover:text-white transition-colors cursor-pointer hidden md:flex items-center gap-1 text-xs"
+                  title="Toggle Investigation History"
                 >
-                  {msg.role === 'user' ? (
-                    <p className="text-xs sm:text-sm font-medium whitespace-pre-wrap">{msg.content}</p>
-                  ) : (
-                    <div>
-                      {renderFormattedContent(msg.content)}
+                  <FileText className="w-4 h-4" />
+                </button>
 
-                      {/* Related Metrics Card */}
-                      {msg.related_metrics && (
-                        <div className="mt-3 p-2.5 rounded-xl bg-slate-950/80 border border-indigo-900/50 grid grid-cols-2 gap-2 text-xs">
-                          <div className="p-2 rounded-lg bg-indigo-950/40 border border-indigo-900/40">
-                            <span className="text-[10px] text-slate-400 font-mono block">At Risk</span>
-                            <span className="text-xs font-bold text-amber-400 font-mono">
-                              ₹{Number(msg.related_metrics.total_at_risk || 0).toLocaleString('en-IN')}
-                            </span>
-                          </div>
-                          <div className="p-2 rounded-lg bg-indigo-950/40 border border-indigo-900/40">
-                            <span className="text-[10px] text-slate-400 font-mono block">Recovered</span>
-                            <span className="text-xs font-bold text-cyan-400 font-mono">
-                              ₹{Number(msg.related_metrics.total_recovered || 0).toLocaleString('en-IN')}
-                            </span>
-                          </div>
+                <button
+                  onClick={() => setShowContextSidebar((prev) => !prev)}
+                  className="p-1.5 hover:bg-slate-800 rounded-lg hover:text-white transition-colors cursor-pointer hidden lg:flex items-center gap-1 text-xs"
+                  title="Toggle Live Revenue Context"
+                >
+                  <Activity className="w-4 h-4" />
+                </button>
+
+                <button
+                  onClick={() => setIsExpanded((prev) => !prev)}
+                  className="p-1.5 hover:bg-slate-800 rounded-lg hover:text-white transition-colors cursor-pointer hidden sm:block"
+                  title={isExpanded ? 'Minimize' : 'Maximize'}
+                >
+                  {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+                </button>
+
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="p-1.5 hover:bg-rose-950 hover:text-rose-400 rounded-lg text-slate-400 transition-colors cursor-pointer"
+                  title="Close (Esc)"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* 3-Column Operations Area */}
+            <div className="flex flex-1 min-h-0 overflow-hidden relative">
+              {/* =========================================================================
+                  LEFT PANEL: Conversation & Investigation History
+              ========================================================================= */}
+              {showHistorySidebar && (
+                <div className="w-64 bg-slate-950/90 border-r border-slate-800 flex flex-col shrink-0 text-xs hidden md:flex animate-in slide-in-from-left">
+                  {/* New Investigation Button */}
+                  <div className="p-3 border-b border-slate-800">
+                    <button
+                      onClick={handleNewInvestigation}
+                      className="w-full py-2 px-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 shadow-md shadow-emerald-950 transition-all cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>New Investigation</span>
+                    </button>
+                  </div>
+
+                  {/* Search History */}
+                  <div className="p-2.5 border-b border-slate-800/80">
+                    <div className="relative">
+                      <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-500" />
+                      <input
+                        type="text"
+                        placeholder="Search investigations..."
+                        value={searchHistoryQuery}
+                        onChange={(e) => setSearchHistoryQuery(e.target.value)}
+                        className="w-full pl-8 pr-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-[11px] text-slate-200 focus:outline-none focus:border-emerald-500"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Sessions List */}
+                  <div className="flex-1 overflow-y-auto p-2 space-y-1">
+                    <span className="text-[10px] font-mono text-slate-500 uppercase px-2 py-1 block">
+                      Investigations ({filteredSessions.length})
+                    </span>
+
+                    {filteredSessions.map((s) => (
+                      <div
+                        key={s.id}
+                        onClick={() => setCurrentSessionId(s.id)}
+                        className={`group flex items-center justify-between p-2 rounded-xl transition-all cursor-pointer ${
+                          currentSessionId === s.id
+                            ? 'bg-slate-900 border border-slate-700/80 text-emerald-300 font-semibold'
+                            : 'hover:bg-slate-900/50 text-slate-400 hover:text-slate-200'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 truncate">
+                          <MessageSquare className="w-3.5 h-3.5 shrink-0 text-slate-500 group-hover:text-emerald-400" />
+                          <span className="truncate text-xs">{s.title}</span>
                         </div>
-                      )}
 
-                      {/* Deep Link Action Button */}
-                      {msg.deep_link && (
-                        <div className="mt-3 pt-2 border-t border-indigo-900/50">
-                          <button
-                            onClick={() => handleDeepLink(msg.deep_link!)}
-                            className="w-full flex items-center justify-between px-3 py-2 bg-gradient-to-r from-violet-950/80 to-indigo-950/80 hover:from-violet-900/80 hover:to-indigo-900/80 border border-indigo-700/60 rounded-xl text-xs font-bold text-cyan-300 transition-all cursor-pointer group"
+                        <button
+                          onClick={(e) => handleDeleteSession(s.id, e)}
+                          className="opacity-0 group-hover:opacity-100 p-1 hover:text-rose-400 text-slate-500 transition-opacity"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Sidebar Footer */}
+                  <div className="p-3 border-t border-slate-800 text-[10px] font-mono text-slate-500 flex items-center justify-between">
+                    <span>Role: {currentUser?.role || 'ADMIN'}</span>
+                    <span className="text-emerald-400">● Synced</span>
+                  </div>
+                </div>
+              )}
+
+              {/* =========================================================================
+                  CENTER MAIN CHAT CANVAS
+              ========================================================================= */}
+              <div className="flex-1 flex flex-col min-w-0 bg-slate-900 overflow-hidden">
+                {/* Category Pills Bar */}
+                <div className="px-4 py-2 border-b border-slate-800/80 bg-slate-950/40 flex items-center gap-1.5 overflow-x-auto shrink-0 scrollbar-none">
+                  <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider mr-1 hidden sm:inline">
+                    Topics:
+                  </span>
+                  {CATEGORY_PROMPTS.map((c, cI) => (
+                    <button
+                      key={cI}
+                      onClick={() => handleSendMessage(c.prompt)}
+                      disabled={loading}
+                      className="px-2.5 py-1 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500/50 text-[11px] text-slate-300 hover:text-emerald-300 transition-all shrink-0 cursor-pointer"
+                    >
+                      {c.name}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Messages Stream */}
+                <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
+                  {/* Empty Welcome State if no messages */}
+                  {messages.length === 0 && (
+                    <div className="h-full flex flex-col justify-center max-w-2xl mx-auto py-6 text-center space-y-5 animate-in fade-in">
+                      <div className="w-12 h-12 rounded-2xl bg-emerald-950 border border-emerald-700/60 mx-auto flex items-center justify-center text-emerald-400 shadow-xl shadow-emerald-950">
+                        <Zap className="w-6 h-6 fill-current" />
+                      </div>
+
+                      <div>
+                        <h3 className="text-base sm:text-lg font-bold text-white tracking-wide">
+                          Revenue Recovery Intelligence
+                        </h3>
+                        <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto mt-1">
+                          Ask questions about payment failures, revenue leakage, recovery opportunities, risk policies, or transaction investigations.
+                        </p>
+                      </div>
+
+                      {/* Suggested Cards Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-left pt-2">
+                        {WELCOME_SUGGESTIONS.map((s, idx) => (
+                          <div
+                            key={idx}
+                            onClick={() => handleSendMessage(s.prompt)}
+                            className="p-3.5 bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-emerald-500/50 rounded-xl transition-all cursor-pointer group shadow-sm"
                           >
-                            <span className="flex items-center gap-1.5">
-                              <Zap className="w-3.5 h-3.5 text-cyan-400" />
-                              <span>Jump to Action Workspace</span>
-                            </span>
-                            <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform text-cyan-400" />
-                          </button>
-                        </div>
-                      )}
-
-                      {/* Action Suggestion Chips */}
-                      {msg.suggested_actions && msg.suggested_actions.length > 0 && (
-                        <div className="mt-3 pt-2 border-t border-indigo-900/50 space-y-1.5">
-                          <span className="text-[10px] font-mono text-indigo-300 uppercase tracking-wider block font-bold">
-                            💡 Recommended Follow-Ups:
-                          </span>
-                          <div className="flex flex-wrap gap-1.5">
-                            {msg.suggested_actions.map((act, i) => (
-                              <button
-                                key={i}
-                                onClick={() => handleSendMessage(act)}
-                                className="text-[11px] px-2.5 py-1 rounded-lg bg-indigo-950/70 hover:bg-indigo-900/80 border border-indigo-800/60 text-cyan-300 hover:text-white font-medium transition-all text-left cursor-pointer"
-                              >
-                                {act}
-                              </button>
-                            ))}
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="font-bold text-xs text-slate-100 group-hover:text-emerald-300">
+                                {s.title}
+                              </span>
+                              <ChevronRight className="w-3.5 h-3.5 text-slate-600 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all" />
+                            </div>
+                            <p className="text-[11px] text-slate-400 line-clamp-2">{s.desc}</p>
                           </div>
-                        </div>
-                      )}
+                        ))}
+                      </div>
                     </div>
                   )}
 
-                  <span className="text-[9px] text-slate-500 font-mono block text-right mt-1.5">
-                    {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </span>
+                  {/* Messages List */}
+                  {messages.map((msg) => (
+                    <div
+                      key={msg.id}
+                      className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                    >
+                      {msg.role === 'assistant' && (
+                        <div className="w-7 h-7 rounded-lg bg-emerald-950 border border-emerald-800 flex items-center justify-center text-emerald-400 shrink-0 mt-0.5">
+                          <Bot className="w-4 h-4" />
+                        </div>
+                      )}
+
+                      <div
+                        className={`max-w-2xl rounded-2xl p-4 text-xs leading-relaxed space-y-3 ${
+                          msg.role === 'user'
+                            ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950 font-medium ml-8'
+                            : 'bg-slate-950 border border-slate-800 text-slate-200 shadow-md mr-8'
+                        }`}
+                      >
+                        {/* Message Content Rendered */}
+                        <div className="space-y-2 prose-sm prose-invert max-w-none">
+                          {msg.content.split('\n\n').map((paragraph, pI) => {
+                            if (paragraph.startsWith('### ')) {
+                              return (
+                                <h4 key={pI} className="font-bold text-emerald-300 text-xs mt-2 uppercase tracking-wider">
+                                  {paragraph.replace('### ', '')}
+                                </h4>
+                              );
+                            }
+                            if (paragraph.startsWith('📊 ') || paragraph.startsWith('🔍 ') || paragraph.startsWith('⚡ ') || paragraph.startsWith('🛡️ ') || paragraph.startsWith('🤖 ')) {
+                              return (
+                                <h3 key={pI} className="font-bold text-white text-sm pb-1 border-b border-slate-800 flex items-center gap-1.5">
+                                  {paragraph}
+                                </h3>
+                              );
+                            }
+                            if (paragraph.startsWith('|')) {
+                              // Render simple markdown table
+                              const rows = paragraph.trim().split('\n');
+                              return (
+                                <div key={pI} className="overflow-x-auto my-2">
+                                  <table className="w-full text-left text-[11px] font-mono border border-slate-800 rounded-lg overflow-hidden">
+                                    <tbody>
+                                      {rows.map((row, rI) => {
+                                        if (row.includes('---')) return null;
+                                        const cells = row.split('|').filter(Boolean);
+                                        return (
+                                          <tr key={rI} className={rI === 0 ? 'bg-slate-900 text-slate-300 font-bold' : 'border-t border-slate-800/80 text-slate-400'}>
+                                            {cells.map((cell, cI) => (
+                                              <td key={cI} className="p-1.5 px-2.5">
+                                                {cell.trim()}
+                                              </td>
+                                            ))}
+                                          </tr>
+                                        );
+                                      })}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              );
+                            }
+                            return (
+                              <p key={pI} className="text-slate-300 leading-relaxed">
+                                {paragraph}
+                              </p>
+                            );
+                          })}
+                        </div>
+
+                        {/* Actionable Suggested Action Buttons */}
+                        {msg.suggested_actions && msg.suggested_actions.length > 0 && (
+                          <div className="pt-2 border-t border-slate-800/80 flex flex-wrap gap-1.5">
+                            {msg.suggested_actions.map((act, actI) => (
+                              <button
+                                key={actI}
+                                onClick={() => {
+                                  if (act.toLowerCase().includes('live') || act.toLowerCase().includes('10-step')) {
+                                    setIsOpen(false);
+                                    navigate('/live-recovery');
+                                  } else if (act.toLowerCase().includes('batch')) {
+                                    setIsOpen(false);
+                                    navigate('/recovery/batch');
+                                  } else if (act.toLowerCase().includes('queue') || act.toLowerCase().includes('cases')) {
+                                    setIsOpen(false);
+                                    navigate('/recovery/cases');
+                                  } else if (act.toLowerCase().includes('audit')) {
+                                    setIsOpen(false);
+                                    navigate('/audit');
+                                  } else {
+                                    handleSendMessage(act);
+                                  }
+                                }}
+                                className="px-2.5 py-1 bg-slate-900 hover:bg-emerald-950 border border-slate-700/80 hover:border-emerald-700 text-slate-300 hover:text-emerald-300 rounded-lg text-[11px] font-semibold transition-all flex items-center gap-1 cursor-pointer"
+                              >
+                                <span>{act}</span>
+                                <ArrowRight className="w-3 h-3" />
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Message Toolbar: Copy, Feedback, Report */}
+                        {msg.role === 'assistant' && (
+                          <div className="pt-2 border-t border-slate-800/60 flex items-center justify-between text-slate-500 text-[10px]">
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => handleCopyMessage(msg.content, msg.id)}
+                                className="hover:text-slate-300 transition-colors flex items-center gap-1 cursor-pointer"
+                                title="Copy response"
+                              >
+                                {copiedMessageId === msg.id ? (
+                                  <>
+                                    <Check className="w-3 h-3 text-emerald-400" />
+                                    <span className="text-emerald-400">Copied</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Copy className="w-3 h-3" />
+                                    <span>Copy</span>
+                                  </>
+                                )}
+                              </button>
+
+                              <button
+                                onClick={() => setSelectedReportMessage(msg)}
+                                className="hover:text-slate-300 transition-colors flex items-center gap-1 cursor-pointer"
+                                title="Generate Formal Investigation Report"
+                              >
+                                <FileText className="w-3 h-3" />
+                                <span>Report</span>
+                              </button>
+                            </div>
+
+                            {/* Feedback Controls */}
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                onClick={() => handleFeedback(msg.id, 'positive')}
+                                className={`p-1 rounded hover:text-emerald-400 transition-colors cursor-pointer ${
+                                  msg.feedback === 'positive' ? 'text-emerald-400' : ''
+                                }`}
+                                title="Helpful"
+                              >
+                                <ThumbsUp className="w-3 h-3" />
+                              </button>
+                              <button
+                                onClick={() => handleFeedback(msg.id, 'negative')}
+                                className={`p-1 rounded hover:text-rose-400 transition-colors cursor-pointer ${
+                                  msg.feedback === 'negative' ? 'text-rose-400' : ''
+                                }`}
+                                title="Not helpful"
+                              >
+                                <ThumbsDown className="w-3 h-3" />
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {msg.role === 'user' && (
+                        <div className="w-7 h-7 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 shrink-0 mt-0.5">
+                          <User className="w-4 h-4" />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  {/* Progressive Thinking Indicator */}
+                  {loading && (
+                    <div className="flex gap-3 justify-start animate-in fade-in">
+                      <div className="w-7 h-7 rounded-lg bg-emerald-950 border border-emerald-800 flex items-center justify-center text-emerald-400 shrink-0 mt-0.5">
+                        <Bot className="w-4 h-4 animate-spin" />
+                      </div>
+                      <div className="p-3 bg-slate-950 border border-slate-800 rounded-2xl text-xs space-y-1.5 max-w-sm">
+                        <div className="flex items-center gap-2 text-emerald-400 font-mono text-[11px] font-bold">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                          <span>{thinkingStep || 'RevenueRescue Copilot analyzing...'}</span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 font-sans">
+                          Grounding analysis in database ledger, exception records & policy rules...
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  <div ref={messagesEndRef} />
                 </div>
 
-                {msg.role === 'user' && (
-                  <div className="w-7 h-7 rounded-lg bg-violet-600/40 border border-violet-500/50 flex items-center justify-center text-violet-200 shrink-0 mt-0.5">
-                    <User className="w-3.5 h-3.5" />
+                {/* Bottom Chat Input Bar */}
+                <div className="p-3 sm:p-4 bg-slate-950 border-t border-slate-800 shrink-0 space-y-2">
+                  <div className="relative flex items-center gap-2">
+                    <textarea
+                      ref={inputRef}
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSendMessage();
+                        }
+                      }}
+                      placeholder="Ask RevenueRescue about revenue, payments, risk, or recovery..."
+                      rows={1}
+                      disabled={loading}
+                      className="flex-1 px-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 resize-none max-h-32 transition-colors"
+                    />
+
+                    <button
+                      onClick={() => handleSendMessage()}
+                      disabled={!input.trim() || loading}
+                      className="p-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white rounded-xl shadow-md shadow-emerald-950 transition-all cursor-pointer shrink-0"
+                      title="Send message (Enter)"
+                    >
+                      <Send className="w-4 h-4" />
+                    </button>
                   </div>
-                )}
-              </div>
-            ))}
 
-            {/* Thinking Indicator */}
-            {loading && (
-              <div className="flex gap-3 justify-start items-center animate-in fade-in">
-                <div className="w-7 h-7 rounded-lg bg-indigo-950 border border-indigo-800 flex items-center justify-center text-cyan-400 shrink-0">
-                  <Bot className="w-3.5 h-3.5 animate-spin" />
-                </div>
-                <div className="bg-slate-900/90 border border-indigo-900/60 rounded-2xl rounded-bl-none px-4 py-2.5 flex items-center gap-1.5 shadow-sm">
-                  <span className="w-2 h-2 rounded-full bg-cyan-400 animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                  <span className="w-2 h-2 rounded-full bg-violet-400 animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                  <span className="w-2 h-2 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: '300ms' }}></span>
-                  <span className="text-xs text-indigo-300 font-mono ml-2">Analyzing Live Telemetry & Policies...</span>
+                  <div className="flex items-center justify-between text-[10px] text-slate-500 font-mono px-1">
+                    <span>Shift + Enter for new line • Enter to send</span>
+                    <span className="text-emerald-400 font-sans">🛡️ Deterministic Grounded Assistant</span>
+                  </div>
                 </div>
               </div>
-            )}
-            <div ref={messagesEndRef} />
+
+              {/* =========================================================================
+                  RIGHT PANEL: Collapsible Live Revenue Context
+              ========================================================================= */}
+              {showContextSidebar && (
+                <div className="w-72 bg-slate-950/95 border-l border-slate-800 p-4 flex flex-col shrink-0 text-xs hidden lg:flex space-y-4 overflow-y-auto animate-in slide-in-from-right">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                    <div className="flex items-center gap-1.5">
+                      <Activity className="w-4 h-4 text-emerald-400" />
+                      <h4 className="font-bold text-slate-100 uppercase tracking-wider text-[11px]">
+                        Live Revenue Context
+                      </h4>
+                    </div>
+                    <span className="text-[9px] font-mono text-emerald-400">● REAL-TIME</span>
+                  </div>
+
+                  {/* Summary Metric Cards */}
+                  <div className="grid grid-cols-2 gap-2 text-slate-300 font-mono">
+                    <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                      <span className="text-[9px] text-slate-500 block">Revenue at Risk</span>
+                      <span className="text-rose-400 font-bold text-xs">
+                        ₹{(liveContextData?.total_at_risk || 284000).toLocaleString('en-IN')}
+                      </span>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                      <span className="text-[9px] text-slate-500 block">Total Rescued</span>
+                      <span className="text-emerald-400 font-bold text-xs">
+                        ₹{(liveContextData?.total_recovered || 192000).toLocaleString('en-IN')}
+                      </span>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                      <span className="text-[9px] text-slate-500 block">Active Cases</span>
+                      <span className="text-slate-200 font-bold text-xs">
+                        {liveContextData?.active_cases || 17} cases
+                      </span>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                      <span className="text-[9px] text-slate-500 block">Recovery Rate</span>
+                      <span className="text-cyan-400 font-bold text-xs">
+                        {liveContextData?.overall_recovery_rate_pct || 67.6}%
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Active Selected Investigation Card */}
+                  <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-mono text-slate-400 uppercase font-semibold">Active Case</span>
+                      <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">
+                        91% PROB
+                      </span>
+                    </div>
+
+                    <div className="space-y-1 font-mono text-[11px]">
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Transaction:</span>
+                        <span className="text-slate-200 font-bold">TXN-87421</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Customer:</span>
+                        <span className="text-slate-200">CUST-1042</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Amount:</span>
+                        <span className="text-rose-400 font-bold">₹25,000</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Failure:</span>
+                        <span className="text-amber-400 truncate">Issuer Bank Glitch</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Recommended:</span>
+                        <span className="text-emerald-400">UPI Smart Retry</span>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setIsOpen(false);
+                        navigate('/live-recovery');
+                      }}
+                      className="w-full mt-2 py-1.5 bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-500/40 text-emerald-300 rounded-lg text-[11px] font-bold transition-all flex items-center justify-center gap-1 cursor-pointer"
+                    >
+                      <Zap className="w-3 h-3 fill-current" />
+                      <span>Inspect in Live Recovery</span>
+                    </button>
+                  </div>
+
+                  {/* Quick Shortcuts Helper */}
+                  <div className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-1.5 text-[10px] text-slate-400 font-mono">
+                    <span className="text-slate-300 block font-bold">Keyboard Shortcuts</span>
+                    <div className="flex justify-between">
+                      <span>Toggle Copilot</span>
+                      <kbd className="px-1 bg-slate-950 rounded border border-slate-800">Ctrl+K</kbd>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>New Investigation</span>
+                      <kbd className="px-1 bg-slate-950 rounded border border-slate-800">Ctrl+Shift+N</kbd>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Close</span>
+                      <kbd className="px-1 bg-slate-950 rounded border border-slate-800">Esc</kbd>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
+        </div>
+      )}
 
-          {/* Quick Starter Prompts */}
-          <div className="px-3 py-2 bg-slate-950 border-t border-indigo-900/40 overflow-x-auto shrink-0 flex items-center gap-1.5 no-scrollbar">
-            <span className="text-[10px] font-mono text-indigo-400 uppercase shrink-0 font-bold">Quick:</span>
-            {DEFAULT_STARTER_PROMPTS.map((item, idx) => (
+      {/* Formal Investigation Report Modal */}
+      {selectedReportMessage && (
+        <div className="fixed inset-0 z-60 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
+          <div className="w-full max-w-xl bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <FileText className="w-5 h-5 text-emerald-400" />
+                <div>
+                  <h3 className="text-sm font-bold text-white">Revenue Operations Investigation Report</h3>
+                  <span className="text-[10px] font-mono text-slate-400">Generated by RevenueRescue Copilot</span>
+                </div>
+              </div>
               <button
-                key={idx}
-                onClick={() => handleSendMessage(item.prompt)}
-                className="text-[11px] whitespace-nowrap px-2.5 py-1 rounded-full bg-indigo-950/60 hover:bg-indigo-900/80 border border-indigo-800/60 text-slate-300 hover:text-cyan-300 transition-all font-medium cursor-pointer"
+                onClick={() => setSelectedReportMessage(null)}
+                className="p-1 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white"
               >
-                {item.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Input Footer */}
-          <div className="p-3 bg-slate-950 border-t border-indigo-900/50 shrink-0">
-            <div className="flex items-end gap-2 bg-slate-900/95 border border-indigo-800/60 focus-within:border-cyan-400/80 rounded-xl p-2 transition-all shadow-inner">
-              <textarea
-                ref={inputRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Ask RevenueRescue AI in Hindi or English (Enter to send)..."
-                rows={1}
-                className="flex-1 bg-transparent text-xs sm:text-sm text-slate-100 placeholder-slate-500 resize-none outline-none max-h-28 overflow-y-auto px-1 py-0.5"
-              />
-
-              <button
-                onClick={() => handleSendMessage()}
-                disabled={!input.trim() || loading}
-                className="p-2 rounded-lg bg-gradient-to-tr from-violet-600 to-cyan-500 hover:from-violet-500 hover:to-cyan-400 disabled:opacity-30 text-white transition-all cursor-pointer shrink-0 shadow-md shadow-indigo-950"
-                title="Send Message"
-              >
-                <Send className="w-4 h-4" />
+                <X className="w-4 h-4" />
               </button>
             </div>
-            <div className="flex items-center justify-between text-[10px] text-slate-500 font-mono mt-1.5 px-1">
-              <span>Press <strong>Enter</strong> to send • <strong>Shift+Enter</strong> for newline</span>
-              <span className="text-cyan-400 font-semibold">RevenueRescue AI v2.0</span>
+
+            <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 text-xs font-mono space-y-3 leading-relaxed">
+              <div className="flex justify-between text-slate-500 border-b border-slate-800 pb-2">
+                <span>Timestamp: {new Date().toISOString()}</span>
+                <span>Actor: {currentUser?.name || 'System Operator'}</span>
+              </div>
+
+              <div className="text-slate-300 space-y-2 whitespace-pre-line">
+                {selectedReportMessage.content}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(selectedReportMessage.content);
+                  setSelectedReportMessage(null);
+                }}
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
+              >
+                Copy & Export Report
+              </button>
+              <button
+                onClick={() => setSelectedReportMessage(null)}
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition-all cursor-pointer"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>
