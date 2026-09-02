@@ -22,6 +22,7 @@ import RecoveryCaseDetail from './pages/RecoveryCaseDetail';
 import OperatorQueue from './pages/OperatorQueue';
 import RevenueLeakage from './pages/RevenueLeakage';
 import RecoveryIntelligence from './pages/RecoveryIntelligence';
+import LiveRecovery from './pages/LiveRecovery';
 import ProjectChatbot from './components/common/ProjectChatbot';
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ export default function App() {
               <Route path="/signup" element={<Signup />} />
               <Route path="/operator-queue" element={<OperatorQueue />} />
               <Route path="/recovery" element={<RecoveryCommandCenter />} />
+              <Route path="/live-recovery" element={<LiveRecovery />} />
               <Route path="/recovery/batch" element={<BatchRecovery />} />
               <Route path="/recovery/cases" element={<RecoveryCases />} />
               <Route path="/recovery/cases/:id" element={<RecoveryCaseDetail />} />

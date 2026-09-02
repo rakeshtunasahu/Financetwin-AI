@@ -18,7 +18,8 @@ import {
   FolderKanban,
   CheckCircle2,
   ChevronDown,
-  RefreshCw
+  RefreshCw,
+  PlayCircle
 } from 'lucide-react';
 import { useAuth, DEMO_PERSONAS } from '../../context/AuthContext';
 import { UserRole } from '../../types';
@@ -50,6 +51,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
     {
       group: 'RECOVERY',
       items: [
+        { name: 'Live 10-Step Recovery', path: '/live-recovery', icon: PlayCircle },
         { name: 'Recovery Cases', path: '/recovery/cases', icon: FolderKanban },
         { name: 'Autonomous Recovery', path: '/recovery/batch', icon: RotateCw }
       ]
