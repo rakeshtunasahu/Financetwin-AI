@@ -120,12 +120,12 @@ def generate_copilot_response(
             (RecoveryCase.case_id == search_id)
         ).first()
 
-        amount_val = float(case.amount_at_risk) if case else 25000.0
-        cust_val = case.customer_id if case else (extracted_cust_id or "CUST-1042")
-        status_val = case.current_status if case else "FAILED"
-        root_cause_val = case.root_cause if case else "Temporary Bank / Issuer Failure"
-        prob_val = float(case.recovery_probability or 0.91) if case else 0.91
-        action_val = case.recommended_action or "SMART_RETRY"
+        amount_val = float(case.amount_at_risk) if (case and case.amount_at_risk) else 25000.0
+        cust_val = case.customer_id if (case and case.customer_id) else (extracted_cust_id or "CUST-1042")
+        status_val = case.current_status if (case and case.current_status) else "FAILED"
+        root_cause_val = case.root_cause if (case and case.root_cause) else "Temporary Bank / Issuer Failure"
+        prob_val = float(case.recovery_probability or 0.91) if (case and case.recovery_probability) else 0.91
+        action_val = (case.recommended_action if case and case.recommended_action else "SMART_RETRY")
 
         reply = (
             f"🔍 **Investigation Report for Transaction `{search_id}`**\n\n"
