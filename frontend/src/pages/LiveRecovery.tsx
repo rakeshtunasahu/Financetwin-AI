@@ -193,7 +193,7 @@ export default function LiveRecovery() {
   const [activityEvents, setActivityEvents] = useState<LiveActivityEvent[]>([]);
   const [autoPlay, setAutoPlay] = useState<boolean>(true);
 
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<any>(null);
   const activityEndRef = useRef<HTMLDivElement>(null);
 
   const formatter = new Intl.NumberFormat('en-IN', {
@@ -372,7 +372,6 @@ export default function LiveRecovery() {
   return (
     <PageContainer
       title="LIVE REVENUE RECOVERY"
-      subtitle="Detect → Understand → Decide → Recover → Verify → Learn"
       onRefresh={handleReset}
     >
       {/* Top Banner Notice */}
