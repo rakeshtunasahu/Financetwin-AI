@@ -8,6 +8,7 @@ import { apiFetch } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { ReconciliationMatch } from '../types';
 import { ShieldCheck, GitCompare, Lock, Activity } from 'lucide-react';
+import { Term } from '../components/common/TermTooltip';
 
 export default function Reconciliation() {
   const { currentUser, isRole } = useAuth();
@@ -43,16 +44,18 @@ export default function Reconciliation() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-sm font-bold text-slate-100">Reconciliation Workspace: {currentUser.role}</h3>
+              <h3 className="text-sm font-bold text-slate-100">
+                <Term name="4-pass reconciliation">Reconciliation Workspace</Term>: {currentUser.role}
+              </h3>
               <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-900/60 text-blue-300 border border-blue-700">
                 {currentUser.title}
               </span>
             </div>
             <p className="text-xs text-slate-400 mt-0.5">
               {isRole('RECOVERY_ADMIN')
-                ? 'Full system-wide reconciliation workspace with multi-pass matching telemetry and audit trails.'
+                ? 'Full system-wide reconciliation workspace with 4-pass matching telemetry and audit trails.'
                 : isRole('RECOVERY_MANAGER')
-                ? 'Management filter active: Prioritizing high-value batches (₹50k+) and exceptions/abstains.'
+                ? 'Management filter active: Prioritizing high-value settlement batches (₹50k+) and exceptions.'
                 : 'Operational reconciliation scope with explainability JSON breakdown.'}
             </p>
 

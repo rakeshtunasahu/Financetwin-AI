@@ -82,16 +82,10 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
       case 'RECOVERY_ADMIN':
         return { bg: 'bg-emerald-950/80', border: 'border-emerald-800', text: 'text-emerald-400', badge: 'ADMIN' };
       case 'RECOVERY_MANAGER':
-      case 'FINANCE_MANAGER':
         return { bg: 'bg-amber-950/80', border: 'border-amber-800', text: 'text-amber-400', badge: 'MANAGER' };
-      case 'RISK_OFFICER':
-        return { bg: 'bg-rose-950/80', border: 'border-rose-800', text: 'text-rose-400', badge: 'RISK' };
-      case 'AUDITOR':
-        return { bg: 'bg-purple-950/80', border: 'border-purple-800', text: 'text-purple-400', badge: 'AUDITOR' };
       case 'RECOVERY_OPERATOR':
-      case 'FINANCE_ANALYST':
       default:
-        return { bg: 'bg-blue-950/80', border: 'border-blue-800', text: 'text-blue-400', badge: 'ANALYST' };
+        return { bg: 'bg-blue-950/80', border: 'border-blue-800', text: 'text-blue-400', badge: 'OPERATOR' };
     }
   };
 

@@ -11,10 +11,6 @@ class Role(str, Enum):
     RECOVERY_OPERATOR = "RECOVERY_OPERATOR"
     RECOVERY_MANAGER = "RECOVERY_MANAGER"
     RECOVERY_ADMIN = "RECOVERY_ADMIN"
-    FINANCE_ANALYST = "FINANCE_ANALYST"
-    FINANCE_MANAGER = "FINANCE_MANAGER"
-    RISK_OFFICER = "RISK_OFFICER"
-    AUDITOR = "AUDITOR"
 
 
 class DemoUser:
@@ -123,35 +119,7 @@ PERMISSIONS: Dict[Role, List[str]] = {
         "can_view_audit_logs",
         "can_view_calculator"
     ],
-    Role.FINANCE_ANALYST: [
-        "can_view_dashboard",
-        "can_view_recovery_cases",
-        "can_run_recovery_detection",
-        "can_diagnose_recovery_case",
-        "can_execute_recovery_action",
-        "can_escalate_case",
-        "can_investigate_exception",
-        "can_trigger_ai_investigation",
-        "can_view_audit_logs",
-        "can_view_calculator"
-    ],
     Role.RECOVERY_MANAGER: [
-        "can_view_dashboard",
-        "can_view_recovery_cases",
-        "can_view_all_cases",
-        "can_diagnose_recovery_case",
-        "can_investigate_exception",
-        "can_trigger_ai_investigation",
-        "can_approve_high_value_action",
-        "can_approve_recovery",
-        "can_view_recovery_analytics",
-        "can_simulate_policy",
-        "can_view_policy_violations",
-        "can_view_audit_logs",
-        "can_view_risk_cases",
-        "can_view_calculator"
-    ],
-    Role.FINANCE_MANAGER: [
         "can_view_dashboard",
         "can_view_recovery_cases",
         "can_view_all_cases",
@@ -193,25 +161,6 @@ PERMISSIONS: Dict[Role, List[str]] = {
         "can_view_calculator",
         "can_run_reconciliation",
         "can_view_full_reconciliation"
-    ],
-    Role.RISK_OFFICER: [
-        "can_view_dashboard",
-        "can_view_recovery_cases",
-        "can_view_all_cases",
-        "can_view_risk_cases",
-        "can_view_anomalies",
-        "can_view_policy_violations",
-        "can_simulate_policy",
-        "can_view_audit_logs",
-        "can_view_calculator"
-    ],
-    Role.AUDITOR: [
-        "can_view_dashboard",
-        "can_view_recovery_cases",
-        "can_view_all_cases",
-        "can_view_audit_logs",
-        "can_view_system_audit",
-        "can_view_calculator"
     ]
 }
 

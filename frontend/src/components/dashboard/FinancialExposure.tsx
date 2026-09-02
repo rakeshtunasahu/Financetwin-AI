@@ -1,5 +1,6 @@
 import React from 'react';
 import { AlertCircle, TrendingUp, Shield, Wallet, CheckCircle2 } from 'lucide-react';
+import { Term } from '../common/TermTooltip';
 
 interface FinancialExposureProps {
   amountAtRisk: number;
@@ -25,7 +26,9 @@ export default function FinancialExposure({
         <div>
           <div className="flex items-center gap-2">
             <Wallet className="w-4 h-4 text-blue-400 shrink-0" />
-            <h3 className="text-sm font-bold text-slate-100 tracking-tight">Revenue Exposure & Recovery Safety</h3>
+            <h3 className="text-sm font-bold text-slate-100 tracking-tight">
+              <Term name="financial exposure">Revenue Exposure</Term> & Safety
+            </h3>
           </div>
           <p className="text-[11px] text-slate-400 mt-0.5">Real-time gateway revenue leakage & recoverable pipeline</p>
         </div>
@@ -45,7 +48,9 @@ export default function FinancialExposure({
               <TrendingUp className="w-4 h-4" />
             </div>
             <div className="min-w-0">
-              <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold block truncate">Total Recoverable Pipeline</span>
+              <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold block truncate">
+                <Term name="net expected">Total Recoverable Pipeline</Term>
+              </span>
               <h4 className="text-sm sm:text-base font-bold text-slate-100 font-mono truncate">{formatter.format(totalSettlementsAmount)}</h4>
             </div>
           </div>
@@ -61,7 +66,9 @@ export default function FinancialExposure({
               <AlertCircle className="w-4 h-4 animate-pulse" />
             </div>
             <div className="min-w-0">
-              <span className="text-[10px] text-rose-400 uppercase tracking-wider font-semibold block truncate">Revenue at Risk (Leakage)</span>
+              <span className="text-[10px] text-rose-400 uppercase tracking-wider font-semibold block truncate">
+                <Term name="revenue at risk">Revenue at Risk (Leakage)</Term>
+              </span>
               <h4 className="text-sm sm:text-base font-bold text-rose-300 font-mono truncate">{formatter.format(amountAtRisk)}</h4>
             </div>
           </div>
@@ -77,7 +84,9 @@ export default function FinancialExposure({
               <Shield className="w-4 h-4" />
             </div>
             <div className="min-w-0">
-              <span className="text-[10px] text-amber-400 uppercase tracking-wider font-semibold block truncate">Unrecovered Revenue Variance</span>
+              <span className="text-[10px] text-amber-400 uppercase tracking-wider font-semibold block truncate">
+                <Term name="variance">Unrecovered Revenue Variance</Term>
+              </span>
               <h4 className="text-sm sm:text-base font-bold text-amber-300 font-mono truncate">{formatter.format(unresolvedVariance)}</h4>
             </div>
           </div>

@@ -185,30 +185,30 @@ export default function Login({ initialModeProp }: LoginProps = {}) {
                 <p className="text-xs text-slate-400 mt-0.5">Explore RevenueRescue AI under authenticated role permissions</p>
               </div>
               <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-950 text-emerald-400 border border-emerald-800 font-bold">
-                5 ENTERPRISE ROLES
+                3 ENTERPRISE ROLES
               </span>
             </div>
 
-            {/* 5 Enterprise Recovery Personas */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 mb-5">
+            {/* 3 Enterprise Recovery Personas */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
               {/* Role 1: Finance Analyst / Operator */}
               <button
                 type="button"
-                onClick={() => handleDemoSelect('operator.aarav@revenuerescue.ai', '/recovery')}
+                onClick={() => handleDemoSelect('operator.aarav@revenuerescue.ai', '/operator-queue')}
                 disabled={isLoading}
-                className="p-2.5 bg-slate-950 hover:bg-blue-950/40 border border-slate-800 hover:border-blue-700/60 rounded-xl text-left transition-all cursor-pointer group shadow-sm"
+                className="p-3 bg-slate-950 hover:bg-blue-950/40 border border-slate-800 hover:border-blue-700/60 rounded-xl text-left transition-all cursor-pointer group shadow-sm"
               >
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="w-5 h-5 rounded-md bg-blue-950 border border-blue-800 flex items-center justify-center text-blue-400 font-bold text-[9px]">
-                    AN
+                <div className="flex items-center justify-between mb-2">
+                  <span className="w-6 h-6 rounded-md bg-blue-950 border border-blue-800 flex items-center justify-center text-blue-400 font-bold text-[10px]">
+                    OP
                   </span>
-                  <span className="text-[8px] font-mono text-blue-400 font-semibold uppercase">Finance Analyst</span>
+                  <span className="text-[9px] font-mono text-blue-400 font-semibold uppercase">Recovery Operator</span>
                 </div>
                 <div className="font-bold text-xs text-slate-200 group-hover:text-blue-300 truncate">
                   Aarav Mehta
                 </div>
-                <div className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">
-                  Recovery triage & AI investigation
+                <div className="text-[10px] text-slate-400 mt-1 line-clamp-2 leading-relaxed">
+                  Operational triage, investigation & bounded execution
                 </div>
               </button>
 
@@ -217,19 +217,19 @@ export default function Login({ initialModeProp }: LoginProps = {}) {
                 type="button"
                 onClick={() => handleDemoSelect('manager.priya@revenuerescue.ai', '/recovery')}
                 disabled={isLoading}
-                className="p-2.5 bg-slate-950 hover:bg-amber-950/40 border border-slate-800 hover:border-amber-700/60 rounded-xl text-left transition-all cursor-pointer group shadow-sm"
+                className="p-3 bg-slate-950 hover:bg-amber-950/40 border border-slate-800 hover:border-amber-700/60 rounded-xl text-left transition-all cursor-pointer group shadow-sm"
               >
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="w-5 h-5 rounded-md bg-amber-950 border border-amber-800 flex items-center justify-center text-amber-400 font-bold text-[9px]">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="w-6 h-6 rounded-md bg-amber-950 border border-amber-800 flex items-center justify-center text-amber-400 font-bold text-[10px]">
                     MG
                   </span>
-                  <span className="text-[8px] font-mono text-amber-400 font-semibold uppercase">Finance Manager</span>
+                  <span className="text-[9px] font-mono text-amber-400 font-semibold uppercase">Recovery Manager</span>
                 </div>
                 <div className="font-bold text-xs text-slate-200 group-hover:text-amber-300 truncate">
                   Priya Sharma
                 </div>
-                <div className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">
-                  High-value approvals & exposure
+                <div className="text-[10px] text-slate-400 mt-1 line-clamp-2 leading-relaxed">
+                  Revenue exposure, approvals & policy simulations
                 </div>
               </button>
 
@@ -238,61 +238,19 @@ export default function Login({ initialModeProp }: LoginProps = {}) {
                 type="button"
                 onClick={() => handleDemoSelect('admin.arjun@revenuerescue.ai', '/recovery')}
                 disabled={isLoading}
-                className="p-2.5 bg-slate-950 hover:bg-emerald-950/40 border border-slate-800 hover:border-emerald-700/60 rounded-xl text-left transition-all cursor-pointer group shadow-sm"
+                className="p-3 bg-slate-950 hover:bg-emerald-950/40 border border-slate-800 hover:border-emerald-700/60 rounded-xl text-left transition-all cursor-pointer group shadow-sm"
               >
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="w-5 h-5 rounded-md bg-emerald-950 border border-emerald-800 flex items-center justify-center text-emerald-400 font-bold text-[9px]">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="w-6 h-6 rounded-md bg-emerald-950 border border-emerald-800 flex items-center justify-center text-emerald-400 font-bold text-[10px]">
                     AD
                   </span>
-                  <span className="text-[8px] font-mono text-emerald-400 font-semibold uppercase">System Admin</span>
+                  <span className="text-[9px] font-mono text-emerald-400 font-semibold uppercase">System Admin</span>
                 </div>
                 <div className="font-bold text-xs text-slate-200 group-hover:text-emerald-300 truncate">
                   Arjun Rao
                 </div>
-                <div className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">
-                  Autonomous runner & guardrails
-                </div>
-              </button>
-
-              {/* Role 4: Risk Officer */}
-              <button
-                type="button"
-                onClick={() => handleDemoSelect('risk.ananya@revenuerescue.ai', '/anomalies')}
-                disabled={isLoading}
-                className="p-2.5 bg-slate-950 hover:bg-rose-950/40 border border-slate-800 hover:border-rose-700/60 rounded-xl text-left transition-all cursor-pointer group shadow-sm"
-              >
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="w-5 h-5 rounded-md bg-rose-950 border border-rose-800 flex items-center justify-center text-rose-400 font-bold text-[9px]">
-                    RK
-                  </span>
-                  <span className="text-[8px] font-mono text-rose-400 font-semibold uppercase">Risk Officer</span>
-                </div>
-                <div className="font-bold text-xs text-slate-200 group-hover:text-rose-300 truncate">
-                  Ananya Desai
-                </div>
-                <div className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">
-                  Anomaly clusters & safety limits
-                </div>
-              </button>
-
-              {/* Role 5: Auditor */}
-              <button
-                type="button"
-                onClick={() => handleDemoSelect('auditor.vikram@revenuerescue.ai', '/audit')}
-                disabled={isLoading}
-                className="p-2.5 bg-slate-950 hover:bg-purple-950/40 border border-slate-800 hover:border-purple-700/60 rounded-xl text-left transition-all cursor-pointer group shadow-sm sm:col-span-2 lg:col-span-1"
-              >
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="w-5 h-5 rounded-md bg-purple-950 border border-purple-800 flex items-center justify-center text-purple-400 font-bold text-[9px]">
-                    AU
-                  </span>
-                  <span className="text-[8px] font-mono text-purple-400 font-semibold uppercase">Forensic Auditor</span>
-                </div>
-                <div className="font-bold text-xs text-slate-200 group-hover:text-purple-300 truncate">
-                  Vikram Malhotra
-                </div>
-                <div className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">
-                  Read-only audit & masked logs
+                <div className="text-[10px] text-slate-400 mt-1 line-clamp-2 leading-relaxed">
+                  Autonomous runner, guardrails & global config
                 </div>
               </button>
             </div>
