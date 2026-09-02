@@ -48,13 +48,13 @@ class DemoUser:
         }
 
 
-# 5 distinct recovery-focused enterprise personas (RevenueRescue AI)
+# 3 distinct enterprise personas (RevenueRescue AI / FinanceTwin AI)
 DEMO_USERS: List[DemoUser] = [
     DemoUser(
         email="operator.aarav@revenuerescue.ai",
         name="Aarav Mehta",
         role=Role.RECOVERY_OPERATOR,
-        title="Senior Recovery Specialist",
+        title="Senior Recovery Specialist & Analyst",
         department="Daily Recovery Operations",
         aliases=[
             "aarav.mehta@revenuerescue.ai",
@@ -78,7 +78,9 @@ DEMO_USERS: List[DemoUser] = [
             "manager.priya@revenuerescue.ai",
             "manager.rahul@revenuerescue.ai",
             "rahul.verma@revenuerescue.ai",
-            "manager@financetwin.ai"
+            "manager@financetwin.ai",
+            "risk.ananya@revenuerescue.ai",
+            "risk@revenuerescue.ai"
         ]
     ),
     DemoUser(
@@ -93,32 +95,9 @@ DEMO_USERS: List[DemoUser] = [
             "admin.arjun@revenuerescue.ai",
             "admin.root@revenuerescue.ai",
             "admin@financetwin.ai",
-            "admin.root@financetwin.ai"
-        ]
-    ),
-    DemoUser(
-        email="risk.ananya@revenuerescue.ai",
-        name="Ananya Desai",
-        role=Role.RISK_OFFICER,
-        title="Head of Risk & Policy Compliance",
-        department="Risk, Policy & Fraud Prevention",
-        aliases=[
-            "ananya.desai@revenuerescue.ai",
-            "risk@revenuerescue.ai",
-            "risk.ananya@revenuerescue.ai"
-        ]
-    ),
-    DemoUser(
-        email="auditor.vikram@revenuerescue.ai",
-        name="Vikram Malhotra",
-        role=Role.AUDITOR,
-        title="Lead Financial Forensic Auditor",
-        department="Independent Audit & Compliance",
-        aliases=[
-            "vikram.malhotra@revenuerescue.ai",
-            "auditor@revenuerescue.ai",
+            "admin.root@financetwin.ai",
             "auditor.vikram@revenuerescue.ai",
-            "auditor@financetwin.ai"
+            "auditor@revenuerescue.ai"
         ]
     )
 ]

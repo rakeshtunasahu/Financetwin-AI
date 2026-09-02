@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.app.core.config import settings
 from backend.app.core.logging import setup_logging
 from backend.app.db.init_db import init_db
-from backend.app.api import health, reconciliation, exceptions, governance, dashboard, auth, audit, recovery
+from backend.app.api import health, reconciliation, exceptions, governance, dashboard, auth, audit, recovery, assistant
 
 # 1. Setup logging
 setup_logging()
@@ -36,6 +36,7 @@ app.include_router(exceptions.router)
 app.include_router(governance.router)
 app.include_router(dashboard.router)
 app.include_router(audit.router)
+app.include_router(assistant.router)
 
 @app.get("/")
 def read_root():

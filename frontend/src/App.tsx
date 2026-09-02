@@ -21,6 +21,7 @@ import RecoveryCaseDetail from './pages/RecoveryCaseDetail';
 import OperatorQueue from './pages/OperatorQueue';
 import RevenueLeakage from './pages/RevenueLeakage';
 import RecoveryIntelligence from './pages/RecoveryIntelligence';
+import ProjectChatbot from './components/common/ProjectChatbot';
 
 const queryClient = new QueryClient();
 
@@ -53,6 +54,8 @@ export default function App() {
             <Route path="/calculator" element={<Calculator />} />
             <Route path="/about" element={<About />} />
           </Routes>
+          {/* Global Omniscient AI Project Chatbot */}
+          <ProjectChatbot />
         </BrowserRouter>
       </AuthProvider>
     </QueryClientProvider>

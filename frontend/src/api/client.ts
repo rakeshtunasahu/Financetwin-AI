@@ -174,4 +174,34 @@ export const recoveryApi = {
   }
 };
 
+// ==========================================
+// Assistant / AI Copilot API
+// ==========================================
+
+export interface AssistantChatResponse {
+  reply: string;
+  suggested_actions?: string[];
+  deep_link?: string;
+  related_metrics?: Record<string, any>;
+}
+
+export const assistantApi = {
+  chat: (message: string, history: Array<{ role: string; content: string }> = [], currentPage?: string, role?: string) => {
+    return apiFetch<AssistantChatResponse>('/api/assistant/chat', {
+      method: 'POST',
+      body: JSON.stringify({
+        message,
+        history,
+        current_page: currentPage || window.location.pathname,
+        role: role || 'ADMIN'
+      })
+    });
+  },
+
+  getSuggestions: () => {
+    return apiFetch<{ suggestions: string[] }>('/api/assistant/suggestions');
+  }
+};
+
+
 
