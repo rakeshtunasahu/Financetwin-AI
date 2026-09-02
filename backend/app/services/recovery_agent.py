@@ -32,6 +32,7 @@ from backend.app.models.recovery import (
 )
 from backend.app.services.audit_service import log_action
 from backend.app.policies.default_policy import get_active_policy
+from backend.app.services.priority_scoring import PriorityScoringService
 
 SEED = 42
 random.seed(SEED)

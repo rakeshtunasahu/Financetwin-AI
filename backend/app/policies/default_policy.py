@@ -35,6 +35,15 @@ DEFAULT_POLICY = {
     "max_promise_to_pay_misses": 2,
     # Minimum hours between consecutive retry attempts (cooldown period)
     "retry_cooldown_hours": 24,
+
+    # ── AI Recovery Priority Engine Thresholds & Weights ─────────────────────
+    "p0_threshold": 85.0,
+    "p1_threshold": 70.0,
+    "p2_threshold": 40.0,
+    "weight_financial_impact": 0.35,
+    "weight_recovery_probability": 0.35,
+    "weight_urgency": 0.15,
+    "weight_severity": 0.15,
 }
 
 def get_active_policy() -> dict:

@@ -158,9 +158,17 @@ class RecoveryCase(Base):
     diagnosis_confidence: Mapped[Optional[Decimal]] = mapped_column(Numeric(5, 4), nullable=True)
     diagnosis_evidence: Mapped[Optional[Dict[str, Any]]] = mapped_column(JSON, nullable=True)
 
-    # Prioritization
-    priority_score: Mapped[Optional[Decimal]] = mapped_column(Numeric(8, 4), nullable=True)
+    # Prioritization & Ranking Engine
+    priority_score: Mapped[Optional[Decimal]] = mapped_column(Numeric(8, 4), nullable=True, index=True)
+    priority_level: Mapped[str] = mapped_column(String(10), default="P2", index=True)  # P0, P1, P2, P3
+    financial_impact_score: Mapped[Optional[Decimal]] = mapped_column(Numeric(5, 4), nullable=True)
     recovery_probability: Mapped[Optional[Decimal]] = mapped_column(Numeric(5, 4), nullable=True)
+    urgency_score: Mapped[Optional[Decimal]] = mapped_column(Numeric(5, 4), nullable=True)
+    severity_score: Mapped[Optional[Decimal]] = mapped_column(Numeric(5, 4), nullable=True)
+    historical_multiplier: Mapped[Optional[Decimal]] = mapped_column(Numeric(5, 4), default=Decimal("1.00"))
+    priority_reason: Mapped[Optional[str]] = mapped_column(String(1000), nullable=True)
+    priority_breakdown: Mapped[Optional[Dict[str, Any]]] = mapped_column(JSON, nullable=True)
+    priority_calculated_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
 
     # Decision
     recommended_action: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
