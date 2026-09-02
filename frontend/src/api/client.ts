@@ -189,28 +189,46 @@ export const recoveryApi = {
 
 export interface AssistantChatResponse {
   reply: string;
+  intent?: string;
+  facts?: Array<{ label: string; value: string }>;
+  recommendations?: string[];
   suggested_actions?: string[];
   deep_link?: string;
   related_metrics?: Record<string, any>;
+  live_context?: Record<string, any>;
+  structured_cards?: Array<Record<string, any>>;
+  confidence?: number;
 }
 
 export const assistantApi = {
-  chat: (message: string, history: Array<{ role: string; content: string }> = [], currentPage?: string, role?: string) => {
+  chat: (
+    message: string,
+    history: Array<{ role: string; content: string }> = [],
+    currentPage?: string,
+    role?: string,
+    transactionId?: string
+  ) => {
     return apiFetch<AssistantChatResponse>('/api/assistant/chat', {
       method: 'POST',
       body: JSON.stringify({
         message,
         history,
         current_page: currentPage || window.location.pathname,
-        role: role || 'ADMIN'
+        role: role || 'ADMIN',
+        transaction_id: transactionId
       })
     });
   },
 
+  getContext: () => {
+    return apiFetch<Record<string, any>>('/api/assistant/context');
+  },
+
   getSuggestions: () => {
-    return apiFetch<{ suggestions: string[] }>('/api/assistant/suggestions');
+    return apiFetch<{ categories: Array<{ name: string; prompt: string }> }>('/api/assistant/suggestions');
   }
 };
+
 
 
 
