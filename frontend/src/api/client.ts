@@ -171,6 +171,13 @@ export const recoveryApi = {
       method: 'POST',
       body: JSON.stringify(policyUpdates)
     });
+  },
+
+  runLivePipeline: (req: LivePipelineRequest) => {
+    return apiFetch<LivePipelineResponse>(`/api/recovery/live-pipeline/run`, {
+      method: 'POST',
+      body: JSON.stringify(req)
+    });
   }
 };
 

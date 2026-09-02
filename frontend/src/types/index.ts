@@ -500,4 +500,39 @@ export interface RecoveryLearningResponse {
   least_effective_intervention: string;
 }
 
+export interface LivePipelineStep {
+  step_number: number;
+  name: string;
+  status: 'LOCKED' | 'RUNNING' | 'COMPLETED' | 'FAILED' | 'SKIPPED';
+  timestamp: string;
+  summary: string;
+  data: Record<string, any>;
+}
+
+export interface LivePipelineRequest {
+  customer_id: string;
+  transaction_id: string;
+  amount: number;
+  currency?: string;
+  payment_status: string;
+  failure_reason: string;
+  execution_mode?: string;
+}
+
+export interface LivePipelineResponse {
+  run_id: string;
+  customer_id: string;
+  transaction_id: string;
+  amount: number;
+  final_status: string;
+  is_recovered: boolean;
+  recovered_amount: number;
+  remaining_risk: number;
+  strategy: string;
+  channel: string;
+  audit_id: string;
+  steps: LivePipelineStep[];
+}
+
+
 
