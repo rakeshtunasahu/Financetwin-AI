@@ -1,95 +1,63 @@
 import React, { useState } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import {
   ShieldCheck,
-  CheckCircle2,
   ArrowRight,
   Lock,
   Mail,
-  User,
-  Building,
   Eye,
   EyeOff,
-  Sparkles,
-  UserCheck,
-  Cpu,
-  Zap,
-  TrendingUp,
-  Sliders,
-  RotateCw,
-  ShieldAlert
+  CheckCircle2
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-interface LoginProps {
-  initialModeProp?: 'login' | 'register';
-}
-
-export default function Login({ initialModeProp }: LoginProps = {}) {
+export default function Login() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const determinedMode = initialModeProp || (searchParams.get('mode') === 'register' ? 'register' : 'login');
-  
-  const { login: authLogin, switchUser } = useAuth();
+  const location = useLocation();
+  const from = (location.state as any)?.from?.pathname || '/recovery';
 
-  const [mode, setMode] = useState<'login' | 'register'>(determinedMode);
+  const { login, switchUser } = useAuth();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [company, setCompany] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setSuccess(null);
 
     const cleanEmail = email.trim();
     if (!cleanEmail || !cleanEmail.includes('@')) {
-      setError('Please enter a valid work email address.');
+      setError('Please enter a valid email address.');
       return;
     }
-
-    if (mode === 'register' && !name.trim()) {
-      setError('Please enter your full name.');
+    if (!password) {
+      setError('Please enter your password.');
       return;
     }
 
     setIsLoading(true);
-    try {
-      const ok = await authLogin(cleanEmail);
-      if (ok) {
-        if (cleanEmail.includes('aarav') || cleanEmail.includes('operator')) {
-          navigate('/operator-queue');
-        } else {
-          navigate('/recovery');
-        }
-      } else {
-        setIsLoading(false);
-        setError('Authentication failed. Please verify your credentials.');
-      }
-    } catch (err: any) {
-      setIsLoading(false);
-      setError(err?.message || 'Authentication error.');
+    const result = await login(cleanEmail, password);
+    setIsLoading(false);
+
+    if (result.ok) {
+      navigate(from, { replace: true });
+    } else {
+      setError(result.error || 'Authentication failed.');
     }
   };
 
   const handleDemoSelect = async (userEmail: string, rolePath: string) => {
     setIsLoading(true);
     setError(null);
-    try {
-      await authLogin(userEmail);
-      setTimeout(() => {
-        setIsLoading(false);
-        navigate(rolePath);
-      }, 300);
-    } catch (err: any) {
+    switchUser(userEmail);
+    // Give switchUser a moment to fetch the token and set state
+    setTimeout(() => {
       setIsLoading(false);
-      setError('Demo authentication failed.');
-    }
+      navigate(rolePath);
+    }, 500);
   };
 
   return (
@@ -99,10 +67,10 @@ export default function Login({ initialModeProp }: LoginProps = {}) {
       <div className="absolute -bottom-40 -right-40 w-[600px] h-[600px] bg-teal-600/10 rounded-full blur-[140px] pointer-events-none" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-cyan-500/5 rounded-full blur-[160px] pointer-events-none" />
 
-      {/* Split-Screen Asymmetric Layout */}
+      {/* Split-Screen Layout */}
       <div className="w-full max-w-5xl bg-slate-900/90 border border-slate-800 rounded-3xl shadow-2xl shadow-slate-950/90 backdrop-blur-xl relative z-10 overflow-hidden grid grid-cols-1 lg:grid-cols-12">
-        
-        {/* Left Side: Product Intro & Value Proposition */}
+
+        {/* Left Side: Product Intro */}
         <div className="lg:col-span-5 p-6 sm:p-8 lg:p-10 bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950/40 border-b lg:border-b-0 lg:border-r border-slate-800 flex flex-col justify-between space-y-6">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
@@ -128,41 +96,19 @@ export default function Login({ initialModeProp }: LoginProps = {}) {
               </h2>
 
               <div className="space-y-2.5 pt-2 text-xs text-slate-300">
-                <div className="flex items-start gap-2.5">
-                  <div className="w-5 h-5 rounded-full bg-emerald-950 border border-emerald-800 flex items-center justify-center shrink-0 mt-0.5 text-emerald-400 font-bold text-[10px]">
-                    1
+                {[
+                  { num: '1', color: 'emerald', text: <><strong className="text-slate-100">Detect revenue at risk:</strong> Continuous scanning of failed payments, cart drop-offs, and unpaid invoices.</> },
+                  { num: '2', color: 'teal', text: <><strong className="text-slate-100">Understand why it happened:</strong> AI diagnosis pinpointing root causes with verified confidence.</> },
+                  { num: '3', color: 'cyan', text: <><strong className="text-slate-100">Choose the right intervention:</strong> Smart Retries, Recovery Links, and Reminders within policy bounds.</> },
+                  { num: '4', color: 'blue', text: <><strong className="text-slate-100">Recover what would be lost:</strong> Transform write-offs into settled revenue with SHA-256 audit trails.</> },
+                ].map(({ num, color, text }) => (
+                  <div key={num} className="flex items-start gap-2.5">
+                    <div className={`w-5 h-5 rounded-full bg-${color}-950 border border-${color}-800 flex items-center justify-center shrink-0 mt-0.5 text-${color}-400 font-bold text-[10px]`}>
+                      {num}
+                    </div>
+                    <div>{text}</div>
                   </div>
-                  <div>
-                    <strong className="text-slate-100">Detect revenue at risk:</strong> Continuous scanning of failed payments, cart drop-offs, and unpaid invoices.
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-2.5">
-                  <div className="w-5 h-5 rounded-full bg-teal-950 border border-teal-800 flex items-center justify-center shrink-0 mt-0.5 text-teal-400 font-bold text-[10px]">
-                    2
-                  </div>
-                  <div>
-                    <strong className="text-slate-100">Understand why it happened:</strong> AI diagnosis pinpointing root causes with verified confidence.
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-2.5">
-                  <div className="w-5 h-5 rounded-full bg-cyan-950 border border-cyan-800 flex items-center justify-center shrink-0 mt-0.5 text-cyan-400 font-bold text-[10px]">
-                    3
-                  </div>
-                  <div>
-                    <strong className="text-slate-100">Choose the right intervention:</strong> Smart Retries, Recovery Links, and Reminders within policy bounds.
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-2.5">
-                  <div className="w-5 h-5 rounded-full bg-blue-950 border border-blue-800 flex items-center justify-center shrink-0 mt-0.5 text-blue-400 font-bold text-[10px]">
-                    4
-                  </div>
-                  <div>
-                    <strong className="text-slate-100">Recover what would be lost:</strong> Transform write-offs into settled revenue with SHA-256 audit trails.
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
           </div>
@@ -176,109 +122,77 @@ export default function Login({ initialModeProp }: LoginProps = {}) {
           </div>
         </div>
 
-        {/* Right Side: Demo Persona Selector & Login Form */}
+        {/* Right Side: Login Form */}
         <div className="lg:col-span-7 p-6 sm:p-8 lg:p-10 space-y-6 flex flex-col justify-between">
           <div>
+            {/* Demo persona quick-access */}
             <div className="flex items-center justify-between mb-3">
               <div>
-                <h3 className="text-base font-bold text-slate-100">Select Enterprise Role to Enter</h3>
-                <p className="text-xs text-slate-400 mt-0.5">Explore RevenueRescue AI under authenticated role permissions</p>
+                <h3 className="text-base font-bold text-slate-100">Quick Demo Access</h3>
+                <p className="text-xs text-slate-400 mt-0.5">Jump in as a pre-configured enterprise role</p>
               </div>
               <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-950 text-emerald-400 border border-emerald-800 font-bold">
-                3 ENTERPRISE ROLES
+                3 ROLES
               </span>
             </div>
 
-            {/* 3 Enterprise Recovery Personas */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
-              {/* Role 1: Finance Analyst / Operator */}
-              <button
-                type="button"
-                onClick={() => handleDemoSelect('operator.aarav@revenuerescue.ai', '/operator-queue')}
-                disabled={isLoading}
-                className="p-3 bg-slate-950 hover:bg-blue-950/40 border border-slate-800 hover:border-blue-700/60 rounded-xl text-left transition-all cursor-pointer group shadow-sm"
-              >
+              <button type="button" onClick={() => handleDemoSelect('operator.aarav@revenuerescue.ai', '/operator-queue')} disabled={isLoading}
+                className="p-3 bg-slate-950 hover:bg-blue-950/40 border border-slate-800 hover:border-blue-700/60 rounded-xl text-left transition-all cursor-pointer group shadow-sm">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="w-6 h-6 rounded-md bg-blue-950 border border-blue-800 flex items-center justify-center text-blue-400 font-bold text-[10px]">
-                    OP
-                  </span>
-                  <span className="text-[9px] font-mono text-blue-400 font-semibold uppercase">Recovery Operator</span>
+                  <span className="w-6 h-6 rounded-md bg-blue-950 border border-blue-800 flex items-center justify-center text-blue-400 font-bold text-[10px]">OP</span>
+                  <span className="text-[9px] font-mono text-blue-400 font-semibold uppercase">Operator</span>
                 </div>
-                <div className="font-bold text-xs text-slate-200 group-hover:text-blue-300 truncate">
-                  Aarav Mehta
-                </div>
-                <div className="text-[10px] text-slate-400 mt-1 line-clamp-2 leading-relaxed">
-                  Operational triage, investigation & bounded execution
-                </div>
+                <div className="font-bold text-xs text-slate-200 group-hover:text-blue-300 truncate">Aarav Mehta</div>
+                <div className="text-[10px] text-slate-400 mt-1 line-clamp-2 leading-relaxed">Triage, investigation & execution</div>
               </button>
 
-              {/* Role 2: Finance Manager */}
-              <button
-                type="button"
-                onClick={() => handleDemoSelect('manager.priya@revenuerescue.ai', '/recovery')}
-                disabled={isLoading}
-                className="p-3 bg-slate-950 hover:bg-amber-950/40 border border-slate-800 hover:border-amber-700/60 rounded-xl text-left transition-all cursor-pointer group shadow-sm"
-              >
+              <button type="button" onClick={() => handleDemoSelect('manager.priya@revenuerescue.ai', '/recovery')} disabled={isLoading}
+                className="p-3 bg-slate-950 hover:bg-amber-950/40 border border-slate-800 hover:border-amber-700/60 rounded-xl text-left transition-all cursor-pointer group shadow-sm">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="w-6 h-6 rounded-md bg-amber-950 border border-amber-800 flex items-center justify-center text-amber-400 font-bold text-[10px]">
-                    MG
-                  </span>
-                  <span className="text-[9px] font-mono text-amber-400 font-semibold uppercase">Recovery Manager</span>
+                  <span className="w-6 h-6 rounded-md bg-amber-950 border border-amber-800 flex items-center justify-center text-amber-400 font-bold text-[10px]">MG</span>
+                  <span className="text-[9px] font-mono text-amber-400 font-semibold uppercase">Manager</span>
                 </div>
-                <div className="font-bold text-xs text-slate-200 group-hover:text-amber-300 truncate">
-                  Priya Sharma
-                </div>
-                <div className="text-[10px] text-slate-400 mt-1 line-clamp-2 leading-relaxed">
-                  Revenue exposure, approvals & policy simulations
-                </div>
+                <div className="font-bold text-xs text-slate-200 group-hover:text-amber-300 truncate">Priya Sharma</div>
+                <div className="text-[10px] text-slate-400 mt-1 line-clamp-2 leading-relaxed">Approvals & policy simulations</div>
               </button>
 
-              {/* Role 3: Administrator */}
-              <button
-                type="button"
-                onClick={() => handleDemoSelect('admin.arjun@revenuerescue.ai', '/recovery')}
-                disabled={isLoading}
-                className="p-3 bg-slate-950 hover:bg-emerald-950/40 border border-slate-800 hover:border-emerald-700/60 rounded-xl text-left transition-all cursor-pointer group shadow-sm"
-              >
+              <button type="button" onClick={() => handleDemoSelect('admin.arjun@revenuerescue.ai', '/recovery')} disabled={isLoading}
+                className="p-3 bg-slate-950 hover:bg-emerald-950/40 border border-slate-800 hover:border-emerald-700/60 rounded-xl text-left transition-all cursor-pointer group shadow-sm">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="w-6 h-6 rounded-md bg-emerald-950 border border-emerald-800 flex items-center justify-center text-emerald-400 font-bold text-[10px]">
-                    AD
-                  </span>
-                  <span className="text-[9px] font-mono text-emerald-400 font-semibold uppercase">System Admin</span>
+                  <span className="w-6 h-6 rounded-md bg-emerald-950 border border-emerald-800 flex items-center justify-center text-emerald-400 font-bold text-[10px]">AD</span>
+                  <span className="text-[9px] font-mono text-emerald-400 font-semibold uppercase">Admin</span>
                 </div>
-                <div className="font-bold text-xs text-slate-200 group-hover:text-emerald-300 truncate">
-                  Arjun Rao
-                </div>
-                <div className="text-[10px] text-slate-400 mt-1 line-clamp-2 leading-relaxed">
-                  Autonomous runner, guardrails & global config
-                </div>
+                <div className="font-bold text-xs text-slate-200 group-hover:text-emerald-300 truncate">Arjun Rao</div>
+                <div className="text-[10px] text-slate-400 mt-1 line-clamp-2 leading-relaxed">Guardrails & global config</div>
               </button>
             </div>
 
             {/* Divider */}
             <div className="relative flex items-center justify-center mb-5">
               <div className="border-t border-slate-800 w-full" />
-              <span className="bg-slate-900 px-3 text-[11px] text-slate-500 font-mono">or enter work email</span>
+              <span className="bg-slate-900 px-3 text-[11px] text-slate-500 font-mono">or sign in to your account</span>
             </div>
 
-            {/* Error Feedback */}
+            {/* Error */}
             {error && (
               <div className="p-3 mb-4 bg-rose-950/80 border border-rose-800 rounded-xl text-xs font-mono text-rose-300">
                 {error}
               </div>
             )}
 
-            {/* Standard Login Form */}
+            {/* Login Form */}
             <form onSubmit={handleSubmit} className="space-y-3.5">
               <div className="space-y-1">
-                <label className="text-xs font-medium text-slate-300 block">Work Email</label>
+                <label className="text-xs font-medium text-slate-300 block">Email Address</label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                   <input
+                    id="login-email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="operator.aarav@revenuerescue.ai"
+                    placeholder="you@company.com"
                     required
                     className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 transition-colors font-mono"
                   />
@@ -288,11 +202,11 @@ export default function Login({ initialModeProp }: LoginProps = {}) {
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-medium text-slate-300">Password</label>
-                  <span className="text-[11px] text-slate-500 font-mono">Demo: any password</span>
                 </div>
                 <div className="relative">
                   <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                   <input
+                    id="login-password"
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -300,17 +214,15 @@ export default function Login({ initialModeProp }: LoginProps = {}) {
                     required
                     className="w-full pl-10 pr-10 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 transition-colors"
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-3 text-slate-500 hover:text-slate-300 cursor-pointer"
-                  >
+                  <button type="button" onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 top-3 text-slate-500 hover:text-slate-300 cursor-pointer">
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
 
               <button
+                id="login-submit"
                 type="submit"
                 disabled={isLoading}
                 className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-600/30 active:scale-95 disabled:opacity-50 mt-2 cursor-pointer"
@@ -328,6 +240,14 @@ export default function Login({ initialModeProp }: LoginProps = {}) {
                 )}
               </button>
             </form>
+
+            <div className="text-center text-xs text-slate-400 pt-4">
+              <span>Don't have an account? </span>
+              <Link to="/signup" className="text-emerald-400 hover:text-emerald-300 font-bold inline-flex items-center gap-1">
+                <span>Create Account</span>
+                <ArrowRight className="w-3 h-3" />
+              </Link>
+            </div>
           </div>
 
           <div className="text-center text-[10px] text-slate-500 font-mono pt-4 border-t border-slate-800/80">
