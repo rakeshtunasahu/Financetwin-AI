@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './context/AuthContext';
 import { GlossaryProvider } from './components/common/TermTooltip';
+import ProtectedRoute from './components/common/ProtectedRoute';
 import Dashboard from './pages/Dashboard';
 import Reconciliation from './pages/Reconciliation';
 import Exceptions from './pages/Exceptions';
@@ -34,29 +35,32 @@ export default function App() {
         <GlossaryProvider>
           <BrowserRouter>
             <Routes>
+              {/* Public routes — no auth required */}
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
-              <Route path="/operator-queue" element={<OperatorQueue />} />
-              <Route path="/recovery" element={<RecoveryCommandCenter />} />
-              <Route path="/live-recovery" element={<LiveRecovery />} />
-              <Route path="/recovery/batch" element={<BatchRecovery />} />
-              <Route path="/recovery/cases" element={<RecoveryCases />} />
-              <Route path="/recovery/cases/:id" element={<RecoveryCaseDetail />} />
 
-              <Route path="/leakage" element={<RevenueLeakage />} />
-              <Route path="/intelligence" element={<RecoveryIntelligence />} />
-              <Route path="/simulator" element={<Calculator />} />
+              {/* Protected routes — require authentication */}
+              <Route path="/operator-queue" element={<ProtectedRoute><OperatorQueue /></ProtectedRoute>} />
+              <Route path="/recovery" element={<ProtectedRoute><RecoveryCommandCenter /></ProtectedRoute>} />
+              <Route path="/live-recovery" element={<ProtectedRoute><LiveRecovery /></ProtectedRoute>} />
+              <Route path="/recovery/batch" element={<ProtectedRoute><BatchRecovery /></ProtectedRoute>} />
+              <Route path="/recovery/cases" element={<ProtectedRoute><RecoveryCases /></ProtectedRoute>} />
+              <Route path="/recovery/cases/:id" element={<ProtectedRoute><RecoveryCaseDetail /></ProtectedRoute>} />
 
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/reconciliation" element={<Reconciliation />} />
-              <Route path="/exceptions" element={<Exceptions />} />
-              <Route path="/exceptions/:id" element={<ExceptionDetails />} />
-              <Route path="/anomalies" element={<Anomalies />} />
-              <Route path="/governance" element={<Governance />} />
-              <Route path="/audit" element={<AuditLogs />} />
-              <Route path="/calculator" element={<Calculator />} />
-              <Route path="/about" element={<About />} />
+              <Route path="/leakage" element={<ProtectedRoute><RevenueLeakage /></ProtectedRoute>} />
+              <Route path="/intelligence" element={<ProtectedRoute><RecoveryIntelligence /></ProtectedRoute>} />
+              <Route path="/simulator" element={<ProtectedRoute><Calculator /></ProtectedRoute>} />
+
+              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/reconciliation" element={<ProtectedRoute><Reconciliation /></ProtectedRoute>} />
+              <Route path="/exceptions" element={<ProtectedRoute><Exceptions /></ProtectedRoute>} />
+              <Route path="/exceptions/:id" element={<ProtectedRoute><ExceptionDetails /></ProtectedRoute>} />
+              <Route path="/anomalies" element={<ProtectedRoute><Anomalies /></ProtectedRoute>} />
+              <Route path="/governance" element={<ProtectedRoute><Governance /></ProtectedRoute>} />
+              <Route path="/audit" element={<ProtectedRoute><AuditLogs /></ProtectedRoute>} />
+              <Route path="/calculator" element={<ProtectedRoute><Calculator /></ProtectedRoute>} />
+              <Route path="/about" element={<ProtectedRoute><About /></ProtectedRoute>} />
             </Routes>
             {/* Global Omniscient AI Project Chatbot */}
             <ProjectChatbot />
@@ -66,4 +70,3 @@ export default function App() {
     </QueryClientProvider>
   );
 }
-
