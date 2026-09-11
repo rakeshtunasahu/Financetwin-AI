@@ -13,6 +13,10 @@ export async function apiFetch<T>(endpoint: string, options?: RequestInit): Prom
   // Automatically attach active authenticated user context headers for backend RBAC
   try {
     const savedUser = localStorage.getItem('revenuerescue_active_user') || localStorage.getItem('financetwin_active_user');
+    const token = localStorage.getItem('revenuerescue_auth_token');
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`);
+    }
     if (savedUser) {
       const user = JSON.parse(savedUser);
       if (user.email) {

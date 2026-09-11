@@ -1,16 +1,13 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import {
   ShieldCheck,
-  Zap,
-  Activity,
-  UserCheck,
+  ArrowRight,
   Lock,
-  Cpu,
-  Shield,
-  Layers,
-  Sparkles,
-  Bot
+  Mail,
+  Eye,
+  EyeOff,
+  CheckCircle2
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -23,11 +20,14 @@ import {
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login: authLogin, availableUsers } = useAuth();
+  const location = useLocation();
+  const from = (location.state as any)?.from?.pathname || '/recovery';
 
-  const [email, setEmail] = useState('operator.aarav@revenuerescue.ai');
-  const [password, setPassword] = useState('••••••••••••');
-  const [selectedRole, setSelectedRole] = useState<'operator' | 'manager' | 'admin'>('operator');
+  const { login, switchUser } = useAuth();
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -125,80 +125,88 @@ export default function Login() {
 
     const cleanEmail = email.trim();
     if (!cleanEmail || !cleanEmail.includes('@')) {
-      setError('Please enter a valid work email.');
+      setError('Please enter a valid email address.');
+      return;
+    }
+    if (!password) {
+      setError('Please enter your password.');
       return;
     }
 
     setIsLoading(true);
-    try {
-      const ok = await authLogin(cleanEmail);
-      if (ok) {
-        setTimeout(() => {
-          setIsLoading(false);
-          if (cleanEmail.includes('aarav') || cleanEmail.includes('operator')) {
-            navigate('/operator-queue');
-          } else {
-            navigate('/recovery');
-          }
-        }, 400);
-      } else {
-        setIsLoading(false);
-        setError('Authentication failed. Verify credentials.');
-      }
-    } catch (err: any) {
-      setIsLoading(false);
-      setError(err?.message || 'Authentication error.');
+    const result = await login(cleanEmail, password);
+    setIsLoading(false);
+
+    if (result.ok) {
+      navigate(from, { replace: true });
+    } else {
+      setError(result.error || 'Authentication failed.');
     }
   };
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     setError(null);
-    try {
-      await authLogin('admin.arjun@revenuerescue.ai');
-      setTimeout(() => {
-        setIsLoading(false);
-        navigate('/recovery');
-      }, 400);
-    } catch {
+    switchUser(userEmail);
+    // Give switchUser a moment to fetch the token and set state
+    setTimeout(() => {
       setIsLoading(false);
-      setError('Google Sign-In failed.');
-    }
+      navigate(rolePath);
+    }, 500);
   };
-
-  // Active persona
-  const activeUser = availableUsers.find((u) => u.email.toLowerCase() === email.toLowerCase()) || {
-    name: email.split('@')[0],
-    role: selectedRole === 'operator' ? 'RECOVERY_OPERATOR' : selectedRole === 'manager' ? 'RECOVERY_MANAGER' : 'RECOVERY_ADMIN',
-    title: selectedRole === 'operator' ? 'Senior Recovery Operator' : selectedRole === 'manager' ? 'Recovery Manager' : 'System Administrator',
-  };
-
-  const formFields = [
-    {
-      label: 'Corporate Work Email',
-      required: true,
-      type: 'email' as const,
-      value: email,
-      placeholder: 'operator.aarav@revenuerescue.ai',
-      onChange: (e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value),
-    },
-    {
-      label: 'Password',
-      required: true,
-      type: 'password' as const,
-      value: password,
-      placeholder: 'Enter your password (or demo password)',
-      onChange: (e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value),
-    },
-  ];
 
   return (
-    <div className="min-h-screen w-full bg-[#070c18] text-white flex flex-col lg:flex-row relative overflow-hidden font-sans">
-      
-      {/* Dark Blue & White Ambient Lighting */}
-      <div className="absolute -top-32 -left-32 w-[500px] h-[500px] bg-blue-600/15 rounded-full blur-[160px] pointer-events-none" />
-      <div className="absolute -bottom-32 -right-32 w-[500px] h-[500px] bg-indigo-600/15 rounded-full blur-[160px] pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-[180px] pointer-events-none" />
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-4 sm:p-6 lg:p-12 font-sans relative overflow-hidden selection:bg-emerald-600 selection:text-white">
+      {/* Background Ambient Glows */}
+      <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-emerald-600/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute -bottom-40 -right-40 w-[600px] h-[600px] bg-teal-600/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-cyan-500/5 rounded-full blur-[160px] pointer-events-none" />
+
+      {/* Split-Screen Layout */}
+      <div className="w-full max-w-5xl bg-slate-900/90 border border-slate-800 rounded-3xl shadow-2xl shadow-slate-950/90 backdrop-blur-xl relative z-10 overflow-hidden grid grid-cols-1 lg:grid-cols-12">
+
+        {/* Left Side: Product Intro */}
+        <div className="lg:col-span-5 p-6 sm:p-8 lg:p-10 bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950/40 border-b lg:border-b-0 lg:border-r border-slate-800 flex flex-col justify-between space-y-6">
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center font-black text-white text-base shadow-lg shadow-emerald-600/30">
+                RR
+              </div>
+              <div>
+                <span className="font-extrabold text-lg text-slate-100 tracking-tight block leading-none">
+                  RevenueRescue <span className="text-emerald-400">AI</span>
+                </span>
+                <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-wider block mt-0.5 font-bold">
+                  Autonomous Recovery Agent
+                </span>
+              </div>
+            </div>
+
+            <div className="pt-4 space-y-3">
+              <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-tight">
+                Detect. Decide. <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">
+                  Recover Lost Revenue.
+                </span>
+              </h2>
+
+              <div className="space-y-2.5 pt-2 text-xs text-slate-300">
+                {[
+                  { num: '1', color: 'emerald', text: <><strong className="text-slate-100">Detect revenue at risk:</strong> Continuous scanning of failed payments, cart drop-offs, and unpaid invoices.</> },
+                  { num: '2', color: 'teal', text: <><strong className="text-slate-100">Understand why it happened:</strong> AI diagnosis pinpointing root causes with verified confidence.</> },
+                  { num: '3', color: 'cyan', text: <><strong className="text-slate-100">Choose the right intervention:</strong> Smart Retries, Recovery Links, and Reminders within policy bounds.</> },
+                  { num: '4', color: 'blue', text: <><strong className="text-slate-100">Recover what would be lost:</strong> Transform write-offs into settled revenue with SHA-256 audit trails.</> },
+                ].map(({ num, color, text }) => (
+                  <div key={num} className="flex items-start gap-2.5">
+                    <div className={`w-5 h-5 rounded-full bg-${color}-950 border border-${color}-800 flex items-center justify-center shrink-0 mt-0.5 text-${color}-400 font-bold text-[10px]`}>
+                      {num}
+                    </div>
+                    <div>{text}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
 
       {/* Top Header Minimalist */}
       <header className="absolute top-0 left-0 right-0 z-20 px-6 py-4 flex items-center justify-between border-b border-blue-900/40 backdrop-blur-md bg-[#070c18]/70">
@@ -223,161 +231,139 @@ export default function Login() {
         </div>
       </header>
 
-      {/* Left Side: Modern Animated Orbit & Ripple Display */}
-      <section className="hidden lg:flex w-1/2 min-h-screen relative flex-col items-center justify-center border-r border-blue-900/40 bg-gradient-to-br from-[#070c18] via-[#0a1535] to-[#0d1e4a] p-12 overflow-hidden">
-        {/* Decorative subtle grid overlay */}
-        <div className="absolute inset-0 pointer-events-none" style={{
-          backgroundImage: 'linear-gradient(rgba(99,179,237,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(99,179,237,0.04) 1px, transparent 1px)',
-          backgroundSize: '48px 48px',
-        }} />
-        {/* Strong corner glows for white+blue depth */}
-        <div className="absolute top-0 left-0 w-72 h-72 bg-blue-500/20 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute bottom-0 right-0 w-72 h-72 bg-indigo-600/20 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-400/8 rounded-full blur-[120px] pointer-events-none" />
-        <Ripple mainCircleSize={120} numCircles={9} />
-        <TechOrbitDisplay
-          iconsArray={orbitIcons}
-          text="RevenueRescue AI"
-          subText="Autonomous Recovery & RBAC Mission Control"
-        />
-
-        {/* Real-time Telemetry Status Card */}
-        <div className="absolute bottom-10 z-10 flex items-center gap-3 px-5 py-2.5 rounded-full bg-white/10 border border-white/20 shadow-2xl backdrop-blur-md text-xs font-mono text-white">
-          <span className="flex h-2 w-2 relative">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-300"></span>
-          </span>
-          <span className="text-blue-100/90">Deterministic Recovery Engine:</span>
-          <span className="text-white font-bold">100% Policy Bounds Enforced</span>
-        </div>
-      </section>
-
-      {/* Right Side: Animated Form with Live RBAC Switcher in Dark Blue & White */}
-      <section className="w-full lg:w-1/2 min-h-screen flex flex-col justify-center items-center px-6 sm:px-12 py-24 relative z-10 bg-[#070c18]/80 backdrop-blur-md">
-        
-        <AnimatedForm
-          header="Enterprise Sign In"
-          subHeader="Choose your authenticated RBAC role or log in with corporate credentials"
-          fields={formFields}
-          submitButton="Sign In to Recovery Portal"
-          textVariantButton="Need demo access? Autofill Operator (Aarav)"
-          goTo={() => handleRoleSelect('operator', 'operator.aarav@revenuerescue.ai')}
-          errorField={error || undefined}
-          onSubmit={handleSubmit}
-          googleLogin="Sign in with Google Enterprise"
-          onGoogleLogin={handleGoogleLogin}
-          isLoading={isLoading}
-          childrenBeforeFields={
-            <div className="space-y-3.5 pb-1">
-              <BoxReveal boxColor="var(--skeleton)" duration={0.3} width="100%">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-blue-100">Select Enterprise Persona (RBAC):</span>
-                  <span className="text-[10px] font-mono font-bold text-white bg-blue-600/80 px-2.5 py-0.5 rounded-full border border-blue-400/40">
-                    1-CLICK SWITCH
-                  </span>
-                </div>
-              </BoxReveal>
-
-              {/* 3 Quick RBAC Persona Selectors */}
-              <BoxReveal boxColor="var(--skeleton)" duration={0.3} width="100%">
-                <div className="grid grid-cols-3 gap-2.5">
-                  {/* Operator */}
-                  <button
-                    type="button"
-                    onClick={() => handleRoleSelect('operator', 'operator.aarav@revenuerescue.ai')}
-                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                      selectedRole === 'operator'
-                        ? 'border-blue-400 bg-blue-900/50 ring-2 ring-blue-500 shadow-lg shadow-blue-500/20'
-                        : 'border-blue-900/60 bg-[#0b142c] hover:border-blue-700/80'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-[9px] font-mono font-bold text-blue-300 uppercase">Operator</span>
-                      {selectedRole === 'operator' && <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />}
-                    </div>
-                    <div className="text-xs font-bold text-white mt-1 truncate">Aarav M.</div>
-                    <div className="text-[10px] text-blue-200/70 truncate mt-0.5">Triage Queue</div>
-                  </button>
-
-                  {/* Manager */}
-                  <button
-                    type="button"
-                    onClick={() => handleRoleSelect('manager', 'manager.priya@revenuerescue.ai')}
-                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                      selectedRole === 'manager'
-                        ? 'border-blue-400 bg-blue-900/50 ring-2 ring-blue-500 shadow-lg shadow-blue-500/20'
-                        : 'border-blue-900/60 bg-[#0b142c] hover:border-blue-700/80'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-[9px] font-mono font-bold text-blue-300 uppercase">Manager</span>
-                      {selectedRole === 'manager' && <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />}
-                    </div>
-                    <div className="text-xs font-bold text-white mt-1 truncate">Priya S.</div>
-                    <div className="text-[10px] text-blue-200/70 truncate mt-0.5">Approvals</div>
-                  </button>
-
-                  {/* Admin */}
-                  <button
-                    type="button"
-                    onClick={() => handleRoleSelect('admin', 'admin.arjun@revenuerescue.ai')}
-                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                      selectedRole === 'admin'
-                        ? 'border-blue-400 bg-blue-900/50 ring-2 ring-blue-500 shadow-lg shadow-blue-500/20'
-                        : 'border-blue-900/60 bg-[#0b142c] hover:border-blue-700/80'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-[9px] font-mono font-bold text-blue-300 uppercase">Admin</span>
-                      {selectedRole === 'admin' && <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />}
-                    </div>
-                    <div className="text-xs font-bold text-white mt-1 truncate">Arjun R.</div>
-                    <div className="text-[10px] text-blue-200/70 truncate mt-0.5">Full System</div>
-                  </button>
-                </div>
-              </BoxReveal>
-
-              {/* Active User Card Details */}
-              <BoxReveal boxColor="var(--skeleton)" duration={0.3} width="100%">
-                <div className="p-3.5 rounded-xl bg-[#0c1630] border border-blue-900/80 flex items-center justify-between shadow-inner">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-blue-600 border border-blue-400 flex items-center justify-center font-bold text-xs text-white shadow-md shadow-blue-600/30">
-                      {activeUser.name.slice(0, 2).toUpperCase()}
-                    </div>
-                    <div>
-                      <div className="text-xs font-bold text-white flex items-center gap-2">
-                        <span>{activeUser.name}</span>
-                        <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-blue-950 border border-blue-800 text-blue-200 font-semibold">
-                          {activeUser.role}
-                        </span>
-                      </div>
-                      <div className="text-[11px] text-blue-300/70 font-mono mt-0.5">{email}</div>
-                    </div>
-                  </div>
-                  <div className="text-[10px] font-mono text-blue-300 bg-blue-950/90 px-2 py-1 rounded-md border border-blue-800/80 font-bold">
-                    ✓ ACTIVE
-                  </div>
-                </div>
-              </BoxReveal>
-            </div>
-          }
-          childrenAfterSubmit={
-            <BoxReveal boxColor="var(--skeleton)" duration={0.3} width="100%">
-              <div className="text-center space-y-2 pt-3 border-t border-blue-900/60">
-                <p className="text-xs text-blue-200/80">
-                  Need a new enterprise tenant?{' '}
-                  <Link to="/signup" className="text-white hover:text-blue-300 font-bold underline transition-colors">
-                    Register Workspace &rarr;
-                  </Link>
-                </p>
-                <p className="text-[10px] text-blue-300/50 font-mono">
-                  SOC-2 Type II Certified • SHA-256 State Hashing Active
-                </p>
+        {/* Right Side: Login Form */}
+        <div className="lg:col-span-7 p-6 sm:p-8 lg:p-10 space-y-6 flex flex-col justify-between">
+          <div>
+            {/* Demo persona quick-access */}
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h3 className="text-base font-bold text-slate-100">Quick Demo Access</h3>
+                <p className="text-xs text-slate-400 mt-0.5">Jump in as a pre-configured enterprise role</p>
               </div>
-            </BoxReveal>
-          }
-        />
-      </section>
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-950 text-emerald-400 border border-emerald-800 font-bold">
+                3 ROLES
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+              <button type="button" onClick={() => handleDemoSelect('operator.aarav@revenuerescue.ai', '/operator-queue')} disabled={isLoading}
+                className="p-3 bg-slate-950 hover:bg-blue-950/40 border border-slate-800 hover:border-blue-700/60 rounded-xl text-left transition-all cursor-pointer group shadow-sm">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="w-6 h-6 rounded-md bg-blue-950 border border-blue-800 flex items-center justify-center text-blue-400 font-bold text-[10px]">OP</span>
+                  <span className="text-[9px] font-mono text-blue-400 font-semibold uppercase">Operator</span>
+                </div>
+                <div className="font-bold text-xs text-slate-200 group-hover:text-blue-300 truncate">Aarav Mehta</div>
+                <div className="text-[10px] text-slate-400 mt-1 line-clamp-2 leading-relaxed">Triage, investigation & execution</div>
+              </button>
+
+              <button type="button" onClick={() => handleDemoSelect('manager.priya@revenuerescue.ai', '/recovery')} disabled={isLoading}
+                className="p-3 bg-slate-950 hover:bg-amber-950/40 border border-slate-800 hover:border-amber-700/60 rounded-xl text-left transition-all cursor-pointer group shadow-sm">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="w-6 h-6 rounded-md bg-amber-950 border border-amber-800 flex items-center justify-center text-amber-400 font-bold text-[10px]">MG</span>
+                  <span className="text-[9px] font-mono text-amber-400 font-semibold uppercase">Manager</span>
+                </div>
+                <div className="font-bold text-xs text-slate-200 group-hover:text-amber-300 truncate">Priya Sharma</div>
+                <div className="text-[10px] text-slate-400 mt-1 line-clamp-2 leading-relaxed">Approvals & policy simulations</div>
+              </button>
+
+              <button type="button" onClick={() => handleDemoSelect('admin.arjun@revenuerescue.ai', '/recovery')} disabled={isLoading}
+                className="p-3 bg-slate-950 hover:bg-emerald-950/40 border border-slate-800 hover:border-emerald-700/60 rounded-xl text-left transition-all cursor-pointer group shadow-sm">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="w-6 h-6 rounded-md bg-emerald-950 border border-emerald-800 flex items-center justify-center text-emerald-400 font-bold text-[10px]">AD</span>
+                  <span className="text-[9px] font-mono text-emerald-400 font-semibold uppercase">Admin</span>
+                </div>
+                <div className="font-bold text-xs text-slate-200 group-hover:text-emerald-300 truncate">Arjun Rao</div>
+                <div className="text-[10px] text-slate-400 mt-1 line-clamp-2 leading-relaxed">Guardrails & global config</div>
+              </button>
+            </div>
+
+            {/* Divider */}
+            <div className="relative flex items-center justify-center mb-5">
+              <div className="border-t border-slate-800 w-full" />
+              <span className="bg-slate-900 px-3 text-[11px] text-slate-500 font-mono">or sign in to your account</span>
+            </div>
+
+            {/* Error */}
+            {error && (
+              <div className="p-3 mb-4 bg-rose-950/80 border border-rose-800 rounded-xl text-xs font-mono text-rose-300">
+                {error}
+              </div>
+            )}
+
+            {/* Login Form */}
+            <form onSubmit={handleSubmit} className="space-y-3.5">
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-slate-300 block">Email Address</label>
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                  <input
+                    id="login-email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@company.com"
+                    required
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 transition-colors font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-medium text-slate-300">Password</label>
+                </div>
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                  <input
+                    id="login-password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••••••"
+                    required
+                    className="w-full pl-10 pr-10 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 top-3 text-slate-500 hover:text-slate-300 cursor-pointer">
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </BoxReveal>
+
+              <button
+                id="login-submit"
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-600/30 active:scale-95 disabled:opacity-50 mt-2 cursor-pointer"
+              >
+                {isLoading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>Authenticating...</span>
+                  </div>
+                ) : (
+                  <>
+                    <span>Sign In to Recovery Portal</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
+            </form>
+
+            <div className="text-center text-xs text-slate-400 pt-4">
+              <span>Don't have an account? </span>
+              <Link to="/signup" className="text-emerald-400 hover:text-emerald-300 font-bold inline-flex items-center gap-1">
+                <span>Create Account</span>
+                <ArrowRight className="w-3 h-3" />
+              </Link>
+            </div>
+          </div>
+
+          <div className="text-center text-[10px] text-slate-500 font-mono pt-4 border-t border-slate-800/80">
+            Protected by SOC-2 Type II standards & deterministic policy guardrails.
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

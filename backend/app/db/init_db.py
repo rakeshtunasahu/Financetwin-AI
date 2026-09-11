@@ -14,6 +14,7 @@ from backend.app.models.recovery import (
     RecoveryCase,
     RecoveryAction
 )
+from backend.app.models.user import User  # noqa: F401 — ensures users table is created
 
 logger = logging.getLogger("financetwin")
 
